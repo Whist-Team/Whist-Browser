@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run whist_browser" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --package whist_browser --bin whist_browser --features dev" />
+    <option name="command" value="run --package whist_browser --bin whist_browser" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
@@ -10,7 +10,7 @@
     <option name="buildTarget" value="REMOTE" />
     <option name="backtrace" value="SHORT" />
     <envs>
-      <env name="WINIT_UNIX_BACKEND" value="wayland" />
+      <env name="WINIT_UNIX_BACKEND" value="x11" />
     </envs>
     <option name="isRedirectInput" value="false" />
     <option name="redirectInputPath" value="" />

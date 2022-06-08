@@ -26,6 +26,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
           override: true
       - name: Install alsa and udev
@@ -50,6 +51,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
           override: true
       - name: Install alsa and udev
@@ -74,6 +76,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
           components: rustfmt, clippy
           override: true

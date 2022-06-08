@@ -14,15 +14,9 @@ opt-level = 3
 opt-level = 1
 
 [profile.release]
-opt-level = "s"
+opt-level = "z"
 lto = true
 codegen-units = 1
 
-[features]
-dev = [
-    "bevy/dynamic"
-]
-
 [dependencies]
-console_error_panic_hook = "0.1"
 bevy = { version = "0.7.0", features = ["wayland"] }
