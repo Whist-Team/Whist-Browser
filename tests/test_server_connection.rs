@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test_server_connection {
+    use whist_browser::response::whist_info::{WhistInfo, WhistInfoFactory};
     use whist_browser::server_connection::get_json;
-    use whist_browser::whist_info::{WhistInfo, WhistInfoFactory};
 
     #[tokio::test]
     async fn test_get_json() {
