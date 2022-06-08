@@ -1,20 +1,17 @@
+// disable console on windows for release builds
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use bevy::prelude::*;
 
+use whist_browser::GamePlugin;
+
 fn main() {
+    // When building for WASM, print panics to the browser console
+    #[cfg(target_arch = "wasm32")]
+    console_error_panic_hook::set_once();
+
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_startup_system(setup)
+        .add_plugin(GamePlugin)
         .run();
-}
-
-fn setup(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-    commands.spawn_bundle(SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(0.25, 0.25, 0.75),
-            custom_size: Some(Vec2::new(50.0, 50.0)),
-            ..default()
-        },
-        ..default()
-    });
 }
