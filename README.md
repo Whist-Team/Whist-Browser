@@ -1,3 +1,4 @@
+[![CI](https://github.com/Whist-Team/Whist-Browser/actions/workflows/main.yml/badge.svg)](https://github.com/Whist-Team/Whist-Browser/actions/workflows/main.yml)
 # Whist-Browser
 Front end client
 
