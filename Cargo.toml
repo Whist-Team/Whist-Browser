@@ -1,5 +1,5 @@
 [package]
-name = "Whist-Browser"
+name = "whist_browser"
 version = "0.0.1"
 authors = ["Whist-Team"]
 edition = "2021"
