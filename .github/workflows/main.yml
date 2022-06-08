@@ -32,7 +32,9 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
         if: runner.os == 'linux'
       - name: Build & run tests
-        run: cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
   all-doc-tests:
     runs-on: ubuntu-latest
     steps:
@@ -53,7 +55,10 @@ jobs:
       - name: Install alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - name: Run doc tests with all features (this also compiles README examples)
-        run: cargo test --doc --all-features
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --doc --all-features
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -75,6 +80,11 @@ jobs:
       - name: Install alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - name: Run clippy
-        run: cargo clippy --workspace --all-targets --all-features
+        uses: actions-rs/clippy-check@v1
+        with:
+          args: --workspace --all-targets --all-features
       - name: Check format
-        run: cargo fmt --all -- --check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
