@@ -1,0 +1,11 @@
+[package]
+name = "Whist-Browser"
+version = "0.0.1"
+authors = ["Whist-Team"]
+edition = "2021"
+license = "MIT"
+publish = false
+repository = "https://github.com/Whist-Team/Whist-Browser"
+
+[dependencies]
+bevy = "0.5.0"
