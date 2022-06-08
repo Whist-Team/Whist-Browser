@@ -14,5 +14,5 @@ Front end client
 #### Linux
 The following packages are required to build locally.
 ```shell
-sudo apt install libasound2-dev libudev-dev
+sudo apt install g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
 ```
