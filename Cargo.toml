@@ -8,4 +8,4 @@ publish = false
 repository = "https://github.com/Whist-Team/Whist-Browser"
 
 [dependencies]
-bevy = "0.5.0"
+bevy = "0.7.0"
