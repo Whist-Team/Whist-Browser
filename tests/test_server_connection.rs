@@ -15,8 +15,8 @@ mod test_server_connection {
             .respond_with(ResponseTemplate::new(200).set_body_json(expected_info.clone()))
             .mount(&mock_server)
             .await;
-        let conn = ServerConnection::new(mock_server.uri());
-        let response_json = conn.get_json::<WhistInfo>().await.unwrap();
+        let conn = ServerConnection::new(mock_server.uri() + "/route");
+        let response_json = conn.get_json::<WhistInfo>("/route").await.unwrap();
         assert_eq!(response_json, expected_info);
     }
 
@@ -29,8 +29,8 @@ mod test_server_connection {
             .respond_with(ResponseTemplate::new(200))
             .mount(&mock_server)
             .await;
-        let conn = ServerConnection::new(mock_server.uri());
-        let response_json = conn.post_json::<WhistInfo>(expected_info).await.unwrap();
+        let conn = ServerConnection::new(mock_server.uri() + "/route");
+        let response_json = conn.post_json::<WhistInfo>("/route", expected_info).await.unwrap();
         assert_eq!(response_json.status(), 200);
     }
 }
