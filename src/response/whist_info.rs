@@ -14,7 +14,6 @@ struct GameInfo {
 pub struct WhistInfo {
     /// inner layer containing all server details
     info: GameInfo,
-
 }
 
 /// Factory for the Whist Info structure
@@ -31,7 +30,7 @@ impl WhistInfoFactory {
             info: GameInfo {
                 game: game.to_owned(),
                 version: version.to_owned(),
-            }
+            },
         };
     }
 }
