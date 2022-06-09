@@ -25,12 +25,12 @@ pub struct WhistInfoFactory;
 /// * 'game' - The name of the game support
 /// * 'version' - The core version of the above game.
 impl WhistInfoFactory {
-    pub fn new_info(game: &str, version: &str) -> WhistInfo {
-        return WhistInfo {
+    pub fn new_info(game: String, version: String) -> WhistInfo {
+        WhistInfo {
             info: GameInfo {
-                game: game.to_owned(),
-                version: version.to_owned(),
+                game,
+                version,
             },
-        };
+        }
     }
 }

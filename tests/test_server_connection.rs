@@ -8,7 +8,7 @@ mod test_server_connection {
 
     #[tokio::test]
     async fn test_get_json() {
-        let expected_info = WhistInfoFactory::new_info("whist", "0.1.0");
+        let expected_info = WhistInfoFactory::new_info(String::from("whist"), String::from("0.1.0"));
 
         let mock_server = MockServer::start().await;
         Mock::given(method("GET"))
@@ -22,7 +22,7 @@ mod test_server_connection {
 
     #[tokio::test]
     async fn test_post_json_without_response_body() {
-        let expected_info = WhistInfoFactory::new_info("whist", "0.1.0");
+        let expected_info = WhistInfoFactory::new_info(String::from("whist"), String::from("0.1.0"));
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
