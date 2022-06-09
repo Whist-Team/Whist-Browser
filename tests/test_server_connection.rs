@@ -1,14 +1,16 @@
 #[cfg(test)]
 mod test_server_connection {
     use reqwest::Response;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+    use wiremock::matchers::method;
+
     use whist_browser::response::whist_info::{WhistInfo, WhistInfoFactory};
     use whist_browser::server_connection::ServerConnection;
-    use wiremock::matchers::method;
-    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[tokio::test]
     async fn test_get_json() {
-        let expected_info = WhistInfoFactory::new_info(String::from("whist"), String::from("0.1.0"));
+        let expected_info =
+            WhistInfoFactory::new_info(String::from("whist"), String::from("0.1.0"));
 
         let mock_server = MockServer::start().await;
         Mock::given(method("GET"))
@@ -22,7 +24,8 @@ mod test_server_connection {
 
     #[tokio::test]
     async fn test_post_json_without_response_body() {
-        let expected_info = WhistInfoFactory::new_info(String::from("whist"), String::from("0.1.0"));
+        let expected_info =
+            WhistInfoFactory::new_info(String::from("whist"), String::from("0.1.0"));
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
@@ -30,7 +33,10 @@ mod test_server_connection {
             .mount(&mock_server)
             .await;
         let conn = ServerConnection::new(mock_server.uri() + "/route");
-        let response_json = conn.post_json::<WhistInfo>("/route", expected_info).await.unwrap();
+        let response_json = conn
+            .post_json::<WhistInfo>("/route", expected_info)
+            .await
+            .unwrap();
         assert_eq!(response_json.status(), 200);
     }
 }

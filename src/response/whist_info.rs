@@ -27,10 +27,7 @@ pub struct WhistInfoFactory;
 impl WhistInfoFactory {
     pub fn new_info(game: String, version: String) -> WhistInfo {
         WhistInfo {
-            info: GameInfo {
-                game,
-                version,
-            },
+            info: GameInfo { game, version },
         }
     }
 }
