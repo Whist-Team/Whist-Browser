@@ -47,6 +47,7 @@ jobs:
         with:
           fail_ci_if_error: true
           verbose: true
+          file: /tmp/grcov_report_*
         if: matrix.os == 'ubuntu-latest'
   all-doc-tests:
     runs-on: ubuntu-latest
