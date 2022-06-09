@@ -4,6 +4,7 @@ use serde::Serialize;
 
 /// Provides basic REST communication with the server.
 pub struct ServerConnection {
+    /// The main url without any routes.
     base_url: String,
 }
 
