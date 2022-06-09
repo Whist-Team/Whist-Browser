@@ -2,7 +2,7 @@
 mod test_server_connection {
     use reqwest::Response;
     use whist_browser::response::whist_info::{WhistInfo, WhistInfoFactory};
-    use whist_browser::server_connection::{get_json, post_json};
+    use whist_browser::server_connection::ServerConnection;
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -15,7 +15,8 @@ mod test_server_connection {
             .respond_with(ResponseTemplate::new(200).set_body_json(expected_info.clone()))
             .mount(&mock_server)
             .await;
-        let response_json = get_json::<WhistInfo>(&mock_server.uri()).await.unwrap();
+        let conn = ServerConnection::new(mock_server.uri());
+        let response_json = conn.get_json::<WhistInfo>().await.unwrap();
         assert_eq!(response_json, expected_info);
     }
 
@@ -28,7 +29,8 @@ mod test_server_connection {
             .respond_with(ResponseTemplate::new(200))
             .mount(&mock_server)
             .await;
-        let response_json = post_json::<WhistInfo>(&mock_server.uri(), expected_info).await.unwrap();
+        let conn = ServerConnection::new(mock_server.uri());
+        let response_json = conn.post_json::<WhistInfo>(expected_info).await.unwrap();
         assert_eq!(response_json.status(), 200);
     }
 }
