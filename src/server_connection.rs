@@ -39,6 +39,7 @@ impl ServerConnection {
         Ok(response)
     }
 }
+
 #[cfg(test)]
 mod tests {
     use wiremock::{Mock, MockServer, ResponseTemplate};
