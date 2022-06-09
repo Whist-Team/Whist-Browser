@@ -42,8 +42,8 @@ impl ServerConnection {
 
 #[cfg(test)]
 mod tests {
-    use wiremock::{Mock, MockServer, ResponseTemplate};
     use wiremock::matchers::method;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     use crate::response::whist_info::{WhistInfo, WhistInfoFactory};
     use crate::server_connection::ServerConnection;
