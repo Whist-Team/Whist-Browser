@@ -1,4 +1,4 @@
-[![CI](https://github.com/Whist-Team/Whist-Browser/actions/workflows/main.yml/badge.svg)](https://github.com/Whist-Team/Whist-Browser/actions/workflows/main.yml)
+[![CI](https://github.com/Whist-Team/Whist-Browser/actions/workflows/main.yml/badge.svg)](https://github.com/Whist-Team/Whist-Browser/actions/workflows/main.yml)[![codecov](https://codecov.io/gh/Whist-Team/Whist-Browser/branch/master/graph/badge.svg?token=vn7Nxc9qjb)](https://codecov.io/gh/Whist-Team/Whist-Browser)
 # Whist-Browser
 Front end client
 
