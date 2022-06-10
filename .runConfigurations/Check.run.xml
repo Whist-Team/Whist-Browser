@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Rustfmt Check" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="fmt --all -- --check" />
+  <configuration default="false" name="Check" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="command" value="check --all-targets --all-features" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />

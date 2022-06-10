@@ -7,15 +7,18 @@ license = "MIT"
 publish = false
 repository = "https://github.com/Whist-Team/Whist-Browser"
 
+[profile.dev]
+opt-level = 1
+debug = 0
+
 [profile.dev.package."*"]
 opt-level = 3
 
-[profile.dev]
-opt-level = 1
-
 [profile.release]
 opt-level = "z"
+debug = 0
 lto = true
+strip = "debuginfo"
 codegen-units = 1
 
 [dependencies]
