@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="test --all-targets --all-features -- --nocapture" />
+  <configuration default="false" name="Run" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="command" value="run" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
