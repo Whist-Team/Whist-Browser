@@ -69,8 +69,8 @@ mod tests {
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
-    use crate::transfer::whist_info::WhistInfo;
     use crate::server_connection::ServerConnection;
+    use crate::transfer::whist_info::WhistInfo;
 
     #[test]
     fn test_join_url() {
