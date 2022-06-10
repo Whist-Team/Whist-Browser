@@ -9,10 +9,14 @@ repository = "https://github.com/Whist-Team/Whist-Browser"
 
 [profile.dev]
 opt-level = 1
-#debug = 0
+debug = 0
 
 [profile.dev.package."*"]
 opt-level = 3
+
+[profile.coverage]
+inherits = "test"
+debug = 2
 
 [profile.release]
 opt-level = "z"
