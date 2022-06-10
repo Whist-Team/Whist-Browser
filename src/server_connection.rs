@@ -69,7 +69,7 @@ mod tests {
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
-    use crate::response::whist_info::{WhistInfo, WhistInfoFactory};
+    use crate::response::whist_info::WhistInfo;
     use crate::server_connection::ServerConnection;
 
     #[test]
@@ -92,7 +92,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_json() {
-        let expected_info = WhistInfoFactory::new_info("whist".to_string(), "0.1.0".to_string());
+        let expected_info = WhistInfo::new("whist".to_string(), "0.1.0".to_string());
 
         let mock_server = MockServer::start().await;
         Mock::given(method("GET"))
@@ -106,7 +106,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_post_json_without_response_body() {
-        let expected_info = WhistInfoFactory::new_info("whist".to_string(), "0.1.0".to_string());
+        let expected_info = WhistInfo::new("whist".to_string(), "0.1.0".to_string());
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))

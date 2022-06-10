@@ -16,16 +16,13 @@ pub struct WhistInfo {
     info: GameInfo,
 }
 
-/// Factory for the Whist Info structure
-pub struct WhistInfoFactory;
-
-/// Implementation of the factory
-/// # Arguments
-///
-/// * 'game' - The name of the game support
-/// * 'version' - The core version of the above game.
-impl WhistInfoFactory {
-    pub fn new_info(game: String, version: String) -> WhistInfo {
+/// Implementation of the WhistInfo
+impl WhistInfo {
+    /// # Arguments
+    ///
+    /// * 'game' - The name of the game support
+    /// * 'version' - The core version of the above game.
+    pub fn new(game: String, version: String) -> WhistInfo {
         WhistInfo {
             info: GameInfo { game, version },
         }
