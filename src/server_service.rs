@@ -27,9 +27,8 @@ impl ServerService {
 mod tests {
     use crate::server_service::ServerService;
     use crate::transfer::whist_info::WhistInfo;
-    use wiremock::{Mock, MockServer, ResponseTemplate};
     use wiremock::matchers::method;
-
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[tokio::test]
     async fn test_get_json() {
