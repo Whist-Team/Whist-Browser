@@ -1,4 +1,5 @@
 use reqwest::{Error, IntoUrl};
+use crate::response::whist_info::WhistInfo;
 use crate::server_connection::ServerConnection;
 
 pub struct ServerService {
@@ -11,9 +12,8 @@ impl ServerService {
             server_connection: ServerConnection::new(base_url),
         }
     }
-    pub async fn get_info<WhistInfo>(&self) -> Result<WhistInfo, Error> {
-        let info: WhistInfo = self.server_connection.get_json("").await.unwrap();
-        Ok(info)
+    pub async fn get_info(&self) -> Result<WhistInfo, Error> {
+        self.server_connection.get_json("").await
     }
 }
 
