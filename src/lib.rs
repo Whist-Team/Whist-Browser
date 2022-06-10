@@ -1,4 +1,6 @@
 pub mod server_connection;
+mod server_service;
+
 pub mod response {
     pub mod whist_info;
 }
