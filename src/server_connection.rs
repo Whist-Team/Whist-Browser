@@ -69,7 +69,7 @@ mod tests {
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
-    use crate::response::whist_info::WhistInfo;
+    use crate::transfer::whist_info::WhistInfo;
     use crate::server_connection::ServerConnection;
 
     #[test]
