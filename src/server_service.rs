@@ -27,7 +27,7 @@ impl ServerService {
 mod tests {
     use wiremock::{Mock, MockServer, ResponseTemplate};
     use wiremock::matchers::method;
-    use crate::response::whist_info::WhistInfo;
+    use crate::transfer::whist_info::WhistInfo;
     use crate::server_service::ServerService;
 
     #[tokio::test]
