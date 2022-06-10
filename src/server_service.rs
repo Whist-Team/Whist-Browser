@@ -2,16 +2,22 @@ use reqwest::{Error, IntoUrl};
 use crate::response::whist_info::WhistInfo;
 use crate::server_connection::ServerConnection;
 
+/// Service to provide call to whist server routes.
 pub struct ServerService {
     server_connection: ServerConnection,
 }
 
 impl ServerService {
+    /// Constructor
+    /// # Arguments
+    /// * 'base_url' the url of the server
     pub fn new<U: IntoUrl>(base_url: U) -> Self {
         Self {
             server_connection: ServerConnection::new(base_url),
         }
     }
+
+    /// Retrieves the whist info object from the server.
     pub async fn get_info(&self) -> Result<WhistInfo, Error> {
         self.server_connection.get_json("").await
     }
