@@ -106,7 +106,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --all-targets --all-features
+          args: --target ${{ matrix.target }} --all-features
   lint:
     runs-on: ubuntu-latest
     steps:
