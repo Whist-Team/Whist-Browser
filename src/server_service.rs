@@ -1,5 +1,5 @@
 use reqwest::{Error, IntoUrl};
-use crate::response::whist_info::WhistInfo;
+use crate::transfer::whist_info::WhistInfo;
 use crate::server_connection::ServerConnection;
 
 /// Service to provide call to whist server routes.

@@ -1,1 +1,1 @@
-mod whist_info;
+pub(crate) mod whist_info;
