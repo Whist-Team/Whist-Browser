@@ -1,3 +1,8 @@
+pub mod server_connection;
+pub mod response {
+    pub mod whist_info;
+}
+
 use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
