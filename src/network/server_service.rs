@@ -38,7 +38,7 @@ mod tests {
             .mount(&mock_server)
             .await;
         let service = ServerService::new(mock_server.uri());
-        let response_json: WhistInfo = service.get_info().await.unwrap();
+        let response_json = service.get_info().await.unwrap();
         assert_eq!(response_json, expected_info);
     }
 }
