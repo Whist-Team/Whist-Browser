@@ -47,7 +47,12 @@ impl ServerConnection {
             req = req.json(body);
         }
 
-        req.send().await
+        let res = req.send().await;
+        if let Ok(res) = res {
+            res.error_for_status()
+        } else {
+            res
+        }
     }
 
     /// Does a HTTP request and transforms the response body to a JSON object.
@@ -65,10 +70,7 @@ impl ServerConnection {
         body: Option<&S>,
     ) -> Result<T, Error> {
         match self.request(method, route, body).await {
-            Ok(res) => match res.error_for_status() {
-                Ok(res) => res.json::<T>().await,
-                Err(e) => Err(e),
-            },
+            Ok(res) => res.json::<T>().await,
             Err(e) => Err(e),
         }
     }
