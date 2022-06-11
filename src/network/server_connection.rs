@@ -14,7 +14,7 @@ impl ServerConnection {
     /// Constructor for creating a new Server Connection.
     /// # Arguments
     /// * 'base_url' the url of the server
-    pub fn new<U: IntoUrl>(base_url: U) -> Self {
+    pub fn new(base_url: impl IntoUrl) -> Self {
         let url = base_url.into_url().unwrap();
         assert!(url.path().ends_with('/'), "base_url path must end with '/'");
         Self {
@@ -30,7 +30,7 @@ impl ServerConnection {
     /// Requests a GET route and transforms it to a JSON object.
     /// # Arguments
     /// * 'route' - The route after the base url from above include optional path variables.
-    pub async fn get_json<S: AsRef<str>, T: DeserializeOwned>(&self, route: S) -> Result<T, Error> {
+    pub async fn get_json<T: DeserializeOwned>(&self, route: impl AsRef<str>) -> Result<T, Error> {
         self.http_client
             .get(self.join_url(route))
             .send()
@@ -44,19 +44,19 @@ impl ServerConnection {
     /// # Arguments
     /// * 'route' - The route after the base url from above include optional path variables.
     /// * 'data' - A serializable object to be send to the server.
-    pub async fn post_json<S: AsRef<str>, D: Serialize>(
+    pub async fn post_json<D: Serialize>(
         &self,
-        route: S,
-        data: D,
+        route: impl AsRef<str>,
+        data: &D,
     ) -> Result<Response, Error> {
         self.http_client
             .post(self.join_url(route))
-            .json(&data)
+            .json(data)
             .send()
             .await
     }
 
-    fn join_url<S: AsRef<str>>(&self, route: S) -> Url {
+    fn join_url(&self, route: impl AsRef<str>) -> Url {
         let route_ref = route.as_ref();
         assert!(!route_ref.starts_with('/'), "route must be relative");
         self.base_url.join(route_ref).unwrap()
@@ -65,12 +65,10 @@ impl ServerConnection {
 
 #[cfg(test)]
 mod tests {
+    use crate::network::*;
     use reqwest::Url;
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
-
-    use crate::response::whist_info::{WhistInfo, WhistInfoFactory};
-    use crate::server_connection::ServerConnection;
 
     #[test]
     fn test_join_url() {
@@ -92,7 +90,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_json() {
-        let expected_info = WhistInfoFactory::new_info("whist".to_string(), "0.1.0".to_string());
+        let expected_info = WhistInfo::new("whist", "0.1.0");
 
         let mock_server = MockServer::start().await;
         Mock::given(method("GET"))
@@ -106,7 +104,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_post_json_without_response_body() {
-        let expected_info = WhistInfoFactory::new_info("whist".to_string(), "0.1.0".to_string());
+        let expected_info = WhistInfo::new("whist", "0.1.0");
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
@@ -114,7 +112,7 @@ mod tests {
             .mount(&mock_server)
             .await;
         let conn = ServerConnection::new(mock_server.uri());
-        let response_json = conn.post_json("route", expected_info).await.unwrap();
+        let response_json = conn.post_json("route", &expected_info).await.unwrap();
         assert_eq!(response_json.status(), 200);
     }
 }
