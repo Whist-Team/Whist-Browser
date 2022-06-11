@@ -4,7 +4,7 @@ use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 
-mod network;
+pub mod network;
 
 pub struct GamePlugin;
 
