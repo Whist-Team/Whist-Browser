@@ -1,17 +1,17 @@
-pub mod server_connection;
-mod server_service;
-mod transfer;
-
+use crate::network::ServerService;
 use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 
+mod network;
+
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup);
+        app.insert_resource(ServerService::new("http://localhost:8080"))
+            .add_startup_system(setup);
 
         #[cfg(debug_assertions)]
         {
