@@ -1,5 +1,5 @@
 use crate::network::*;
-use reqwest::{Error, IntoUrl};
+use reqwest::{Error, IntoUrl, Method};
 
 /// Service to provide call to whist server routes.
 pub struct ServerService {
@@ -18,7 +18,9 @@ impl ServerService {
 
     /// Retrieves the whist info object from the server.
     pub async fn get_info(&self) -> Result<WhistInfo, Error> {
-        self.server_connection.get_json("").await
+        self.server_connection
+            .request_with_result(Method::GET, "", Option::<&()>::None)
+            .await
     }
 }
 
