@@ -1,4 +1,4 @@
-use reqwest::{Client, Error, IntoUrl, Response, Url};
+use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -27,33 +27,52 @@ impl ServerConnection {
         &self.base_url
     }
 
-    /// Requests a GET route and transforms it to a JSON object.
+    /// Does a HTTP request and returns the raw response.
+    ///
     /// # Arguments
-    /// * 'route' - The route after the base url from above include optional path variables.
-    pub async fn get_json<T: DeserializeOwned>(&self, route: impl AsRef<str>) -> Result<T, Error> {
-        self.http_client
-            .get(self.join_url(route))
-            .send()
-            .await?
-            .json::<T>()
-            .await
+    ///
+    /// * `method`: HTTP method to use.
+    /// * `route`: The route after the base url, include optional path variables.
+    /// * `body`: Optional data that needs to be JSON serialized into the request body.
+    ///
+    /// returns: Result<Response, Error>
+    pub async fn request<S: Serialize>(
+        &self,
+        method: Method,
+        route: impl AsRef<str>,
+        body: Option<&S>,
+    ) -> Result<Response, Error> {
+        let mut req = self.http_client.request(method, self.join_url(route));
+        if let Some(body) = body {
+            req = req.json(body);
+        }
+
+        let res = req.send().await;
+        if let Ok(res) = res {
+            res.error_for_status()
+        } else {
+            res
+        }
     }
 
-    /// Posts a JSON object to the whist server. It returns the full response which must be
-    /// processed somewhere else.
+    /// Does a HTTP request and transforms the response body to a JSON object.
+    ///
     /// # Arguments
-    /// * 'route' - The route after the base url from above include optional path variables.
-    /// * 'data' - A serializable object to be send to the server.
-    pub async fn post_json<D: Serialize>(
+    /// * 'method' - HTTP method to use.
+    /// * 'route' - The route after the base url, include optional path variables.
+    /// * 'body' - Optional data that needs to be JSON serialized into the request body.
+    ///
+    /// returns: Result<Response, Error>
+    pub async fn request_with_result<T: DeserializeOwned, S: Serialize>(
         &self,
+        method: Method,
         route: impl AsRef<str>,
-        data: &D,
-    ) -> Result<Response, Error> {
-        self.http_client
-            .post(self.join_url(route))
-            .json(data)
-            .send()
-            .await
+        body: Option<&S>,
+    ) -> Result<T, Error> {
+        match self.request(method, route, body).await {
+            Ok(res) => res.json::<T>().await,
+            Err(e) => Err(e),
+        }
     }
 
     fn join_url(&self, route: impl AsRef<str>) -> Url {
@@ -65,10 +84,11 @@ impl ServerConnection {
 
 #[cfg(test)]
 mod tests {
-    use crate::network::*;
-    use reqwest::Url;
+    use reqwest::{Method, Url};
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    use crate::network::*;
 
     #[test]
     fn test_join_url() {
@@ -94,11 +114,14 @@ mod tests {
 
         let mock_server = MockServer::start().await;
         Mock::given(method("GET"))
-            .respond_with(ResponseTemplate::new(200).set_body_json(expected_info.clone()))
+            .respond_with(ResponseTemplate::new(200).set_body_json(expected_info.to_owned()))
             .mount(&mock_server)
             .await;
         let conn = ServerConnection::new(mock_server.uri());
-        let response_json: WhistInfo = conn.get_json("route").await.unwrap();
+        let response_json: WhistInfo = conn
+            .request_with_result(Method::GET, "route", Option::<&()>::None)
+            .await
+            .unwrap();
         assert_eq!(response_json, expected_info);
     }
 
@@ -112,7 +135,10 @@ mod tests {
             .mount(&mock_server)
             .await;
         let conn = ServerConnection::new(mock_server.uri());
-        let response_json = conn.post_json("route", &expected_info).await.unwrap();
+        let response_json = conn
+            .request(Method::POST, "route", Some(&expected_info))
+            .await
+            .unwrap();
         assert_eq!(response_json.status(), 200);
     }
 }
