@@ -1,5 +1,6 @@
-use crate::network::*;
 use reqwest::{Error, IntoUrl, Method};
+
+use crate::network::*;
 
 /// Service to provide call to whist server routes.
 pub struct ServerService {
@@ -26,9 +27,10 @@ impl ServerService {
 
 #[cfg(test)]
 mod tests {
-    use crate::network::*;
-    use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
+    use wiremock::matchers::method;
+
+    use crate::network::*;
 
     #[tokio::test]
     async fn test_get_json() {
