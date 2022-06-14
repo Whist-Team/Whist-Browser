@@ -1,0 +1,5 @@
+[watch]
+watch = ["src", "assets", "Cargo.toml", "Cargo.lock"]
+
+[serve]
+port = 8081
