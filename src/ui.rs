@@ -6,10 +6,10 @@ use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
 
 use crate::{GameState, MySystemLabel};
 
-pub struct BaseUiPlugin;
-
 pub const PROPORTIONAL_FONT: &[u8] = include_bytes!("../assets/font/fira_go/FiraGO-Regular.ttf");
 pub const MONOSPACE_FONT: &[u8] = include_bytes!("../assets/font/fira_mono/FiraMono-Regular.ttf");
+
+pub struct BaseUiPlugin;
 
 impl Plugin for BaseUiPlugin {
     fn build(&self, app: &mut App) {
