@@ -27,8 +27,8 @@ impl ServerService {
 
 #[cfg(test)]
 mod tests {
-    use wiremock::{Mock, MockServer, ResponseTemplate};
     use wiremock::matchers::method;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     use crate::network::*;
 
