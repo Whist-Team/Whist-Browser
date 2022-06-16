@@ -4002,7 +4002,6 @@ dependencies = [
  "bevy",
  "bevy_egui",
  "getrandom 0.2.7",
- "rand 0.8.5",
  "reqwest",
  "serde",
  "serde_json",
