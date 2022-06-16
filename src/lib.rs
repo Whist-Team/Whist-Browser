@@ -5,6 +5,7 @@ use crate::connect::ConnectMenuPlugin;
 use crate::ui::BaseUiPlugin;
 
 mod assets;
+mod card;
 mod connect;
 mod network;
 mod ui;
