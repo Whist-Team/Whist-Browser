@@ -6,7 +6,6 @@ use std::str::FromStr;
 use std::vec::Vec;
 
 use bevy::prelude::*;
-use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -337,19 +336,6 @@ impl CardContainer for UnorderedCards {
     fn len(&self) -> u8 {
         self.cards.len() as u8
     }
-
-    fn pop_random<R: Rng>(&mut self, rng: &mut R) -> Option<Card> {
-        if self.len() > 0 {
-            let selected = *self.cards.iter().choose(rng).unwrap();
-            if self.remove(&selected) {
-                Some(selected)
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    }
 }
 
 impl FromIterator<Card> for UnorderedCards {
@@ -421,15 +407,6 @@ impl CardContainer for OrderedCards {
     fn len(&self) -> u8 {
         self.cards.len() as u8
     }
-
-    fn pop_random<R: Rng>(&mut self, rng: &mut R) -> Option<Card> {
-        if self.len() > 0 {
-            let n = rng.gen_range(0..self.len());
-            Some(self.cards.remove(n as usize))
-        } else {
-            None
-        }
-    }
 }
 
 impl FromIterator<Card> for OrderedCards {
@@ -489,8 +466,6 @@ pub trait CardContainer: FromIterator<Card> + IntoIterator<Item = Card> + Extend
     fn contains(&self, card: &Card) -> bool;
 
     fn len(&self) -> u8;
-
-    fn pop_random<R: Rng>(&mut self, rng: &mut R) -> Option<Card>;
 }
 
 #[cfg(test)]
