@@ -2,12 +2,25 @@ use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+pub enum Query<'a, S: Serialize = ()> {
+    None,
+    Some(&'a S),
+}
+
+pub enum Body<'a, S: Serialize = ()> {
+    Empty,
+    Json(&'a S),
+    Form(&'a S),
+}
+
 /// Provides basic REST communication with the server.
 pub struct ServerConnection {
     /// The main url without any routes.
     base_url: Url,
     /// HTTP client, uses an internal connection pool and can thus be shared
     http_client: Client,
+    /// Authorization token
+    token: Option<String>,
 }
 
 impl ServerConnection {
@@ -20,11 +33,20 @@ impl ServerConnection {
         Self {
             base_url: url,
             http_client: Client::new(),
+            token: None,
         }
     }
 
     pub fn base_url(&self) -> &Url {
         &self.base_url
+    }
+
+    pub fn token(&mut self, token: impl Into<String>) {
+        self.token = Some(token.into());
+    }
+
+    pub fn remove_token(&mut self) {
+        self.token = None;
     }
 
     /// Does a HTTP request and returns the raw response.
@@ -33,25 +55,40 @@ impl ServerConnection {
     ///
     /// * `method`: HTTP method to use.
     /// * `route`: The route after the base url, include optional path variables.
-    /// * `body`: Optional data that needs to be JSON serialized into the request body.
+    /// * `query`: Optional query parameters to append to the url.
+    /// * `body`: Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request<S: Serialize>(
+    pub async fn request<Q: Serialize, B: Serialize>(
         &self,
         method: Method,
         route: impl AsRef<str>,
-        body: Option<&S>,
+        query: Query<'_, Q>,
+        body: Body<'_, B>,
     ) -> Result<Response, Error> {
         let mut req = self.http_client.request(method, self.join_url(route));
-        if let Some(body) = body {
-            req = req.json(body);
+
+        if let Query::Some(query) = query {
+            req = req.query(query);
         }
 
-        let res = req.send().await;
-        if let Ok(res) = res {
-            res.error_for_status()
-        } else {
-            res
+        match body {
+            Body::Empty => {}
+            Body::Json(json_body) => {
+                req = req.json(json_body);
+            }
+            Body::Form(form_body) => {
+                req = req.form(form_body);
+            }
+        }
+
+        if let Some(token) = &self.token {
+            req = req.bearer_auth(token);
+        }
+
+        match req.send().await {
+            Ok(res) => res.error_for_status(),
+            e => e,
         }
     }
 
@@ -60,17 +97,19 @@ impl ServerConnection {
     /// # Arguments
     /// * 'method' - HTTP method to use.
     /// * 'route' - The route after the base url, include optional path variables.
-    /// * 'body' - Optional data that needs to be JSON serialized into the request body.
+    /// * `query`: Optional query parameters to append to the url.
+    /// * 'body' - Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request_with_result<T: DeserializeOwned, S: Serialize>(
+    pub async fn request_with_json_result<Q: Serialize, B: Serialize, R: DeserializeOwned>(
         &self,
         method: Method,
         route: impl AsRef<str>,
-        body: Option<&S>,
-    ) -> Result<T, Error> {
-        match self.request(method, route, body).await {
-            Ok(res) => res.json::<T>().await,
+        query: Query<'_, Q>,
+        body: Body<'_, B>,
+    ) -> Result<R, Error> {
+        match self.request(method, route, query, body).await {
+            Ok(res) => res.json::<R>().await,
             Err(e) => Err(e),
         }
     }
@@ -119,7 +158,7 @@ mod tests {
             .await;
         let conn = ServerConnection::new(mock_server.uri());
         let response_json: WhistInfo = conn
-            .request_with_result(Method::GET, "route", Option::<&()>::None)
+            .request_with_json_result(Method::GET, "route", Query::<()>::None, Body::<()>::Empty)
             .await
             .unwrap();
         assert_eq!(response_json, expected_info);
@@ -136,7 +175,12 @@ mod tests {
             .await;
         let conn = ServerConnection::new(mock_server.uri());
         let response_json = conn
-            .request(Method::POST, "route", Some(&expected_info))
+            .request(
+                Method::POST,
+                "route",
+                Query::<()>::None,
+                Body::Json(&expected_info),
+            )
             .await
             .unwrap();
         assert_eq!(response_json.status(), 200);

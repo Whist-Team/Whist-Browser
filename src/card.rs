@@ -26,6 +26,18 @@ pub enum CardError {
     Rank(RankError),
 }
 
+impl From<SuitError> for CardError {
+    fn from(error: SuitError) -> Self {
+        Self::Suit(error)
+    }
+}
+
+impl From<RankError> for CardError {
+    fn from(error: RankError) -> Self {
+        Self::Rank(error)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Component)]
 pub struct CardComponent(Card);
 
@@ -58,13 +70,9 @@ impl TryFrom<u8> for Card {
     type Error = CardError;
 
     fn try_from(idx: u8) -> Result<Self, Self::Error> {
-        match Suit::try_from(idx / Rank::COUNT) {
-            Ok(suit) => match Rank::try_from(idx % Rank::COUNT) {
-                Ok(rank) => Ok(Self { suit, rank }),
-                Err(e) => Err(CardError::Rank(e)),
-            },
-            Err(e) => Err(CardError::Suit(e)),
-        }
+        let suit = Suit::try_from(idx / Rank::COUNT)?;
+        let rank = Rank::try_from(idx % Rank::COUNT)?;
+        Ok(Self { suit, rank })
     }
 }
 
@@ -84,7 +92,7 @@ impl Display for Card {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum Suit {
     Clubs,
     Diamonds,
@@ -170,7 +178,7 @@ impl FromStr for Suit {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum Rank {
     #[serde(rename = "2")]
     Num2,
