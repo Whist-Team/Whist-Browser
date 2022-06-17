@@ -2,6 +2,8 @@ use reqwest::{Error, IntoUrl, Method};
 
 use crate::network::*;
 
+const BEARER_TOKEN_TYPE: &str = "Bearer";
+
 /// Service to provide call to whist server routes.
 pub struct ServerService {
     server_connection: ServerConnection,
@@ -20,7 +22,37 @@ impl ServerService {
     /// Retrieves the whist info object from the server.
     pub async fn get_info(&self) -> Result<WhistInfo, Error> {
         self.server_connection
-            .request_with_result(Method::GET, "", Option::<&()>::None)
+            .request_with_json_result(Method::GET, "", Query::<()>::None, Body::<()>::Empty)
+            .await
+    }
+
+    pub async fn login(&mut self, body: &LoginForm) -> Result<(), LoginError> {
+        let res: LoginResponse = self
+            .server_connection
+            .request_with_json_result(
+                Method::POST,
+                "user/auth",
+                Query::<()>::None,
+                Body::Form(body),
+            )
+            .await?;
+
+        if BEARER_TOKEN_TYPE == res.token_type {
+            self.server_connection.token(res.token);
+            Ok(())
+        } else {
+            Err(LoginError::UnknownTokenType(res.token_type))
+        }
+    }
+
+    pub async fn create_user(&self, body: &UserCreateRequest) -> Result<UserCreateResponse, Error> {
+        self.server_connection
+            .request_with_json_result(
+                Method::POST,
+                "user/auth/create",
+                Query::<()>::None,
+                Body::Json(body),
+            )
             .await
     }
 }

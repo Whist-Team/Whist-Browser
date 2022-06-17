@@ -1,19 +1,19 @@
 use serde::{Deserialize, Serialize};
 
-/// Inner layer containing a details.
+/// Inner layer containing the details.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameInfo {
     ///name of the current supported game
-    game: String,
+    pub game: String,
     ///version of the Whist-Core
-    version: String,
+    pub version: String,
 }
 
 /// Outer layer of the info object return from Whist-Server
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct WhistInfo {
     /// inner layer containing all server details
-    info: GameInfo,
+    pub info: GameInfo,
 }
 
 /// Implementation of the WhistInfo
