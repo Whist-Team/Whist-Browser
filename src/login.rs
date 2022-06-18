@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
-use crate::network::{LoginForm, ServerService};
 use crate::{GameState, MySystemLabel};
 
 pub struct LoginMenuPlugin;
@@ -68,16 +67,17 @@ fn login_menu(
 }
 
 fn on_login_button_pressed(
-    mut server_service: ResMut<ServerService>,
+    // mut server_service: ResMut<ServerService>,
     mut state: ResMut<State<GameState>>,
     mut event_reader: EventReader<LoginButtonPressed>,
 ) {
     if let Some(e) = event_reader.iter().next() {
         let LoginButtonPressed(username, password) = e;
-        info!("login as user '{}' with password '{}'", username, password); // TODO: remove this
-        if let Err(e) = server_service.login(&LoginForm::new(username, password)) {
+        // TODO: remove log of pw
+        info!("login as user '{}' with password '{}'", username, password);
+        /*if let Err(e) = server_service.login(&LoginForm::new(username, password)) {
             panic!("{:#?}", e);
-        }
+        }*/
 
         state.set(GameState::RoomMenu).unwrap();
     }

@@ -16,7 +16,7 @@ impl Plugin for ConnectMenuPlugin {
                 SystemSet::on_update(GameState::ConnectMenu)
                     .after(MySystemLabel::EguiTop)
                     .with_system(connect_menu)
-                    .with_system(on_connect_button_pressed.after(connect_menu)),
+                    .with_system(on_connect_button_pressed /*.after(connect_menu)*/),
             )
             .add_system_set(
                 SystemSet::on_exit(GameState::ConnectMenu).with_system(remove_ui_state),
@@ -71,9 +71,9 @@ fn on_connect_button_pressed(
         let url = e.0.as_str();
         info!("connecting to {}", url);
         let server_service = ServerService::new(url);
-        if let Err(e) = server_service.check_connection() {
+        /*if let Err(e) = server_service.check_connection().await {
             panic!("{:#?}", e);
-        }
+        }*/
 
         commands.insert_resource(server_service);
         state.set(GameState::LoginMenu).unwrap();

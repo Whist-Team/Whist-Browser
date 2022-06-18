@@ -20,17 +20,14 @@ impl ServerService {
     }
 
     /// Retrieves the whist info object from the server.
-    pub fn get_info(&self) -> Result<WhistInfo, Error> {
-        self.server_connection.request_with_json_result(
-            Method::GET,
-            "",
-            Query::<()>::None,
-            Body::<()>::Empty,
-        )
+    pub async fn get_info(&self) -> Result<WhistInfo, Error> {
+        self.server_connection
+            .request_with_json_result(Method::GET, "", Query::<()>::None, Body::<()>::Empty)
+            .await
     }
 
-    pub fn check_connection(&self) -> Result<(), ConnectError> {
-        let info = self.get_info()?.info;
+    pub async fn check_connection(&self) -> Result<(), ConnectError> {
+        let info = self.get_info().await?.info;
         if info.game != crate::EXPECTED_GAME {
             Err(ConnectError::GameInvalid(info.game))
         } else if info.version != crate::EXPECTED_VERSION {
@@ -40,13 +37,16 @@ impl ServerService {
         }
     }
 
-    pub fn login(&mut self, body: &LoginForm) -> Result<(), LoginError> {
-        let res: LoginResponse = self.server_connection.request_with_json_result(
-            Method::POST,
-            "user/auth",
-            Query::<()>::None,
-            Body::Form(body),
-        )?;
+    pub async fn login(&mut self, body: &LoginForm) -> Result<(), LoginError> {
+        let res: LoginResponse = self
+            .server_connection
+            .request_with_json_result(
+                Method::POST,
+                "user/auth",
+                Query::<()>::None,
+                Body::Form(body),
+            )
+            .await?;
         if BEARER_TOKEN_TYPE == res.token_type {
             self.server_connection.token(res.token);
             Ok(())
@@ -55,13 +55,15 @@ impl ServerService {
         }
     }
 
-    pub fn create_user(&self, body: &UserCreateRequest) -> Result<UserCreateResponse, Error> {
-        self.server_connection.request_with_json_result(
-            Method::POST,
-            "user/auth/create",
-            Query::<()>::None,
-            Body::Json(body),
-        )
+    pub async fn create_user(&self, body: &UserCreateRequest) -> Result<UserCreateResponse, Error> {
+        self.server_connection
+            .request_with_json_result(
+                Method::POST,
+                "user/auth/create",
+                Query::<()>::None,
+                Body::Json(body),
+            )
+            .await
     }
 }
 
@@ -82,7 +84,7 @@ mod tests {
             .mount(&mock_server)
             .await;
         let service = ServerService::new(mock_server.uri());
-        let response_json = service.get_info().unwrap();
+        let response_json = service.get_info().await.unwrap();
         assert_eq!(response_json, expected_info);
     }
 }
