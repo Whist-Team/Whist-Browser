@@ -1,6 +1,7 @@
 use reqwest::Error;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug)]
 pub enum LoginError {
     Request(Error),
     UnknownTokenType(String),

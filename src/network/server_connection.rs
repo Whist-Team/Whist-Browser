@@ -1,4 +1,5 @@
-use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
+use reqwest::blocking::{Client, Response};
+use reqwest::{Error, IntoUrl, Method, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -59,7 +60,7 @@ impl ServerConnection {
     /// * `body`: Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request<Q: Serialize, B: Serialize>(
+    pub fn request<Q: Serialize, B: Serialize>(
         &self,
         method: Method,
         route: impl AsRef<str>,
@@ -86,7 +87,7 @@ impl ServerConnection {
             req = req.bearer_auth(token);
         }
 
-        match req.send().await {
+        match req.send() {
             Ok(res) => res.error_for_status(),
             e => e,
         }
@@ -101,15 +102,15 @@ impl ServerConnection {
     /// * 'body' - Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request_with_json_result<Q: Serialize, B: Serialize, R: DeserializeOwned>(
+    pub fn request_with_json_result<Q: Serialize, B: Serialize, R: DeserializeOwned>(
         &self,
         method: Method,
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
     ) -> Result<R, Error> {
-        match self.request(method, route, query, body).await {
-            Ok(res) => res.json::<R>().await,
+        match self.request(method, route, query, body) {
+            Ok(res) => res.json::<R>(),
             Err(e) => Err(e),
         }
     }
@@ -159,7 +160,6 @@ mod tests {
         let conn = ServerConnection::new(mock_server.uri());
         let response_json: WhistInfo = conn
             .request_with_json_result(Method::GET, "route", Query::<()>::None, Body::<()>::Empty)
-            .await
             .unwrap();
         assert_eq!(response_json, expected_info);
     }
@@ -181,7 +181,6 @@ mod tests {
                 Query::<()>::None,
                 Body::Json(&expected_info),
             )
-            .await
             .unwrap();
         assert_eq!(response_json.status(), 200);
     }

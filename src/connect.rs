@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
+use crate::network::ServerService;
 use crate::{GameState, MySystemLabel};
 
 const INITIAL_URL: &str = "http://localhost:8080";
@@ -9,13 +10,16 @@ pub struct ConnectMenuPlugin;
 
 impl Plugin for ConnectMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<UiState>()
-            .add_event::<ConnectButtonPressed>()
+        app.add_event::<ConnectButtonPressed>()
+            .add_system_set(SystemSet::on_enter(GameState::ConnectMenu).with_system(add_ui_state))
             .add_system_set(
                 SystemSet::on_update(GameState::ConnectMenu)
                     .after(MySystemLabel::EguiTop)
                     .with_system(connect_menu)
                     .with_system(on_connect_button_pressed.after(connect_menu)),
+            )
+            .add_system_set(
+                SystemSet::on_exit(GameState::ConnectMenu).with_system(remove_ui_state),
             );
     }
 }
@@ -30,6 +34,14 @@ impl Default for UiState {
             connect_url: INITIAL_URL.to_owned(),
         }
     }
+}
+
+fn add_ui_state(mut commands: Commands) {
+    commands.init_resource::<UiState>();
+}
+
+fn remove_ui_state(mut commands: Commands) {
+    commands.remove_resource::<UiState>();
 }
 
 struct ConnectButtonPressed(String);
@@ -50,8 +62,20 @@ fn connect_menu(
     });
 }
 
-fn on_connect_button_pressed(mut event_reader: EventReader<ConnectButtonPressed>) {
+fn on_connect_button_pressed(
+    mut commands: Commands,
+    mut state: ResMut<State<GameState>>,
+    mut event_reader: EventReader<ConnectButtonPressed>,
+) {
     if let Some(e) = event_reader.iter().next() {
-        info!("connecting to {}", e.0);
+        let url = e.0.as_str();
+        info!("connecting to {}", url);
+        let server_service = ServerService::new(url);
+        if let Err(e) = server_service.check_connection() {
+            panic!("{:#?}", e);
+        }
+
+        commands.insert_resource(server_service);
+        state.set(GameState::LoginMenu).unwrap();
     }
 }

@@ -1,4 +1,18 @@
+use reqwest::Error;
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug)]
+pub enum ConnectError {
+    Request(Error),
+    GameInvalid(String),
+    VersionInvalid(String),
+}
+
+impl From<Error> for ConnectError {
+    fn from(error: Error) -> Self {
+        ConnectError::Request(error)
+    }
+}
 
 /// Inner layer containing the details.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
