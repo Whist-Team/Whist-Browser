@@ -1,13 +1,17 @@
+use bevy::prelude::*;
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use std::fmt::Debug;
 
-pub enum Query<'a, S: Serialize = ()> {
+// #[derive(Debug)]
+pub enum Query<'a, S: Serialize + Debug = ()> {
     None,
     Some(&'a S),
 }
 
-pub enum Body<'a, S: Serialize = ()> {
+// #[derive(Debug)]
+pub enum Body<'a, S: Serialize + Debug = ()> {
     Empty,
     Json(&'a S),
     Form(&'a S),
@@ -59,13 +63,20 @@ impl ServerConnection {
     /// * `body`: Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request<Q: Serialize, B: Serialize>(
+    pub async fn request<Q: Serialize + Debug, B: Serialize + Debug>(
         &self,
         method: Method,
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
     ) -> Result<Response, Error> {
+        info!(
+            "request: {} '{}'",
+            method,
+            route.as_ref(),
+            // query,
+            // body
+        );
         let mut req = self.http_client.request(method, self.join_url(route));
 
         if let Query::Some(query) = query {
@@ -98,7 +109,11 @@ impl ServerConnection {
     /// * 'body' - Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request_with_json_result<Q: Serialize, B: Serialize, R: DeserializeOwned>(
+    pub async fn request_with_json_result<
+        Q: Serialize + Debug,
+        B: Serialize + Debug,
+        R: DeserializeOwned + Debug,
+    >(
         &self,
         method: Method,
         route: impl AsRef<str>,

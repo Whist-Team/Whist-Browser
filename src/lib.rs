@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::assets::LoadingPlugin;
 use crate::connect::ConnectMenuPlugin;
 use crate::login::LoginMenuPlugin;
+use crate::network::NetworkPlugin;
 use crate::ui::BaseUiPlugin;
 
 mod assets;
@@ -35,6 +36,7 @@ impl Plugin for GamePlugin {
         app.add_state(GameState::LoadingAssets)
             .add_plugin(BaseUiPlugin)
             .add_plugin(LoadingPlugin)
+            .add_plugin(NetworkPlugin)
             .add_plugin(ConnectMenuPlugin)
             .add_plugin(LoginMenuPlugin);
     }

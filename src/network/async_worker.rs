@@ -1,3 +1,4 @@
+use bevy::prelude::*;
 use std::fmt::Debug;
 use std::future::Future;
 
@@ -16,6 +17,8 @@ impl<I: Debug, O: Debug> Worker<I, O> {
         Func: FnOnce(Worker<O, I>) -> Fut,
         Fut: Future<Output = ()> + 'static,
     {
+        info!("spawning worker");
+
         let (input_tx, input_rx) = unbounded_channel::<I>();
         let (output_tx, output_rx) = unbounded_channel::<O>();
         thread_pool
