@@ -9,6 +9,7 @@ impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<NetworkCommand>()
             .add_event::<ConnectResult>()
+            .add_event::<LoginResult>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
             .add_system(receive_network_events);
@@ -21,15 +22,24 @@ pub enum ConnectResult {
     Failure(ConnectError),
 }
 
+#[derive(Debug)]
+pub enum LoginResult {
+    Success,
+    Failure(LoginError),
+}
+
 #[derive(Debug, Clone)]
 pub enum NetworkCommand {
     Connect(String),
+    Login(LoginForm),
 }
 
 #[derive(Debug)]
 enum NetworkResponse {
     ConnectSuccess,
     ConnectFailure(ConnectError),
+    LoginSuccess,
+    LoginFailure(LoginError),
 }
 
 type NetworkWorker = Worker<NetworkCommand, NetworkResponse>;
@@ -48,10 +58,17 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
         match command {
             NetworkCommand::Connect(base_url) => {
                 server_service = Some(ServerService::new(base_url));
-                let res = server_service.unwrap().check_connection().await;
+                let res = server_service.as_ref().unwrap().check_connection().await;
                 match res {
                     Ok(_) => worker.send(NetworkResponse::ConnectSuccess),
                     Err(e) => worker.send(NetworkResponse::ConnectFailure(e)),
+                };
+            }
+            NetworkCommand::Login(login_form) => {
+                let res = server_service.as_mut().unwrap().login(&login_form).await;
+                match res {
+                    Ok(_) => worker.send(NetworkResponse::LoginSuccess),
+                    Err(e) => worker.send(NetworkResponse::LoginFailure(e)),
                 };
             }
         }
@@ -73,6 +90,7 @@ fn send_network_events(
 fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
     mut connect_result: EventWriter<ConnectResult>,
+    mut login_result: EventWriter<LoginResult>,
 ) {
     if let Some(mut network_worker) = network_worker {
         while let Ok(network_response) = network_worker.try_recv() {
@@ -82,6 +100,8 @@ fn receive_network_events(
                 NetworkResponse::ConnectFailure(e) => {
                     connect_result.send(ConnectResult::Failure(e))
                 }
+                NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
+                NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
             }
         }
     }

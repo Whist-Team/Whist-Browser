@@ -27,7 +27,6 @@ impl Plugin for ConnectMenuPlugin {
 enum ConnectStatus {
     NotStarted,
     Connecting,
-    Connected,
     ConnectionError(String),
 }
 
@@ -36,6 +35,13 @@ impl ConnectStatus {
         matches!(
             self,
             ConnectStatus::NotStarted | ConnectStatus::ConnectionError(_)
+        )
+    }
+
+    fn enable_label(&self) -> bool {
+        matches!(
+            self,
+            ConnectStatus::Connecting | ConnectStatus::ConnectionError(_)
         )
     }
 }
@@ -62,12 +68,21 @@ fn remove_ui_state(mut commands: Commands) {
     commands.remove_resource::<UiState>();
 }
 
-fn update_ui_state(mut ui_state: ResMut<UiState>, mut connect_results: EventReader<ConnectResult>) {
+fn update_ui_state(
+    mut state: ResMut<State<GameState>>,
+    mut ui_state: ResMut<UiState>,
+    mut connect_results: EventReader<ConnectResult>,
+) {
     if let Some(connect_result) = connect_results.iter().next() {
-        ui_state.connect_status = match connect_result {
-            ConnectResult::Success => ConnectStatus::Connected,
-            ConnectResult::Failure(e) => ConnectStatus::ConnectionError(format!("{:?}", e)),
-        }
+        assert!(matches!(ui_state.connect_status, ConnectStatus::Connecting));
+        match connect_result {
+            ConnectResult::Success => {
+                state.set(GameState::LoginMenu).unwrap();
+            }
+            ConnectResult::Failure(e) => {
+                ui_state.connect_status = ConnectStatus::ConnectionError(format!("{:?}", e));
+            }
+        };
     }
 }
 
@@ -89,6 +104,9 @@ fn connect_menu(
             ui_state.connect_status = ConnectStatus::Connecting;
             event_writer.send(NetworkCommand::Connect(ui_state.connect_url.to_owned()));
         }
-        ui.label(format!("{:?}", ui_state.connect_status));
+        ui.add_enabled(
+            ui_state.connect_status.enable_label(),
+            egui::Label::new(format!("{:?}", ui_state.connect_status)),
+        );
     });
 }
