@@ -1,8 +1,8 @@
-use bevy::prelude::*;
 use std::fmt::Debug;
 use std::future::Future;
 
-use bevy::tasks::IoTaskPool;
+use bevy::prelude::*;
+use bevy::tasks::TaskPool;
 use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
@@ -11,8 +11,9 @@ pub struct Worker<I: Debug, O: Debug> {
     output: UnboundedReceiver<O>,
 }
 
+#[cfg(target_family = "wasm")]
 impl<I: Debug, O: Debug> Worker<I, O> {
-    pub fn spawn<Func, Fut>(thread_pool: &IoTaskPool, function: Func) -> Self
+    pub fn spawn<Func, Fut>(thread_pool: &TaskPool, function: Func) -> Self
     where
         Func: FnOnce(Worker<O, I>) -> Fut,
         Fut: Future<Output = ()> + 'static,
@@ -22,7 +23,7 @@ impl<I: Debug, O: Debug> Worker<I, O> {
         let (input_tx, input_rx) = unbounded_channel::<I>();
         let (output_tx, output_rx) = unbounded_channel::<O>();
         thread_pool
-            .spawn_local(function(Worker {
+            .spawn(function(Worker {
                 input: output_tx,
                 output: input_rx,
             }))
@@ -32,7 +33,33 @@ impl<I: Debug, O: Debug> Worker<I, O> {
             output: output_rx,
         }
     }
+}
 
+#[cfg(not(target_family = "wasm"))]
+impl<I: Debug, O: Debug> Worker<I, O> {
+    pub fn spawn<Func, Fut>(thread_pool: &TaskPool, function: Func) -> Self
+    where
+        Func: FnOnce(Worker<O, I>) -> Fut,
+        Fut: Future<Output = ()> + Send + 'static,
+    {
+        info!("spawning worker");
+
+        let (input_tx, input_rx) = unbounded_channel::<I>();
+        let (output_tx, output_rx) = unbounded_channel::<O>();
+        thread_pool
+            .spawn(async_compat::Compat::new(function(Worker {
+                input: output_tx,
+                output: input_rx,
+            })))
+            .detach();
+        Worker {
+            input: input_tx,
+            output: output_rx,
+        }
+    }
+}
+
+impl<I: Debug, O: Debug> Worker<I, O> {
     pub fn send(&self, message: I) {
         self.input.send(message).unwrap();
     }

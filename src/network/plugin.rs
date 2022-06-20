@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::tasks::IoTaskPool;
+use bevy::tasks::AsyncComputeTaskPool;
 
 use crate::network::*;
 
@@ -8,16 +8,18 @@ pub struct NetworkPlugin;
 impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<NetworkCommand>()
-            .add_event::<ConnectSuccess>()
-            .add_event::<ConnectFailure>()
+            .add_event::<ConnectResult>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
             .add_system(receive_network_events);
     }
 }
 
-pub struct ConnectSuccess;
-pub struct ConnectFailure(ConnectError);
+#[derive(Debug)]
+pub enum ConnectResult {
+    Success,
+    Failure(ConnectError),
+}
 
 #[derive(Debug, Clone)]
 pub enum NetworkCommand {
@@ -33,11 +35,12 @@ enum NetworkResponse {
 type NetworkWorker = Worker<NetworkCommand, NetworkResponse>;
 type NetworkWorkerFlipped = Worker<NetworkResponse, NetworkCommand>;
 
-fn setup_worker(mut commands: Commands, thread_pool: Res<IoTaskPool>) {
+fn setup_worker(mut commands: Commands, thread_pool: Res<AsyncComputeTaskPool>) {
     commands.insert_resource(NetworkWorker::spawn(&thread_pool, network_worker));
 }
 
 async fn network_worker(mut worker: NetworkWorkerFlipped) {
+    info!("network worker spawned");
     #[allow(unused_assignments)]
     let mut server_service: Option<ServerService> = None;
     while let Some(command) = worker.recv().await {
@@ -69,14 +72,16 @@ fn send_network_events(
 
 fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
-    mut connect_success: EventWriter<ConnectSuccess>,
-    mut connect_failure: EventWriter<ConnectFailure>,
+    mut connect_result: EventWriter<ConnectResult>,
 ) {
     if let Some(mut network_worker) = network_worker {
         while let Ok(network_response) = network_worker.try_recv() {
+            info!("response: {:?}", network_response);
             match network_response {
-                NetworkResponse::ConnectSuccess => connect_success.send(ConnectSuccess),
-                NetworkResponse::ConnectFailure(e) => connect_failure.send(ConnectFailure(e)),
+                NetworkResponse::ConnectSuccess => connect_result.send(ConnectResult::Success),
+                NetworkResponse::ConnectFailure(e) => {
+                    connect_result.send(ConnectResult::Failure(e))
+                }
             }
         }
     }

@@ -2,19 +2,36 @@ use bevy::prelude::*;
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::fmt::Debug;
+use std::fmt::{Debug, Formatter};
 
-// #[derive(Debug)]
 pub enum Query<'a, S: Serialize + Debug = ()> {
     None,
     Some(&'a S),
 }
 
-// #[derive(Debug)]
+impl<S: Serialize + Debug> Debug for Query<'_, S> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Query::None => write!(f, "None"),
+            Query::Some(data) => write!(f, "Some({:?})", data),
+        }
+    }
+}
+
 pub enum Body<'a, S: Serialize + Debug = ()> {
     Empty,
     Json(&'a S),
     Form(&'a S),
+}
+
+impl<S: Serialize + Debug> Debug for Body<'_, S> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Body::Empty => write!(f, "Empty"),
+            Body::Json(data) => write!(f, "Json({:?})", data),
+            Body::Form(data) => write!(f, "Form({:?})", data),
+        }
+    }
 }
 
 /// Provides basic REST communication with the server.
@@ -71,11 +88,12 @@ impl ServerConnection {
         body: Body<'_, B>,
     ) -> Result<Response, Error> {
         info!(
-            "request: {} '{}'",
+            "request: {} {}{} query={:?} body={:?}",
             method,
+            self.base_url,
             route.as_ref(),
-            // query,
-            // body
+            query,
+            body
         );
         let mut req = self.http_client.request(method, self.join_url(route));
 
