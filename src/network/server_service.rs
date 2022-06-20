@@ -26,6 +26,17 @@ impl ServerService {
             .await
     }
 
+    pub async fn check_connection(&self) -> Result<(), ConnectError> {
+        let info = self.get_info().await?.info;
+        if info.game != crate::EXPECTED_GAME {
+            Err(ConnectError::GameInvalid(info.game))
+        } else if info.version != crate::EXPECTED_VERSION {
+            Err(ConnectError::VersionInvalid(info.version))
+        } else {
+            Ok(())
+        }
+    }
+
     pub async fn login(&mut self, body: &LoginForm) -> Result<(), LoginError> {
         let res: LoginResponse = self
             .server_connection
@@ -36,7 +47,6 @@ impl ServerService {
                 Body::Form(body),
             )
             .await?;
-
         if BEARER_TOKEN_TYPE == res.token_type {
             self.server_connection.token(res.token);
             Ok(())

@@ -5,6 +5,7 @@ use bevy::prelude::*;
 
 use whist_browser::GamePlugin;
 
+#[bevy_main]
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {

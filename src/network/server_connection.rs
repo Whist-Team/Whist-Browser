@@ -1,16 +1,37 @@
+use bevy::prelude::*;
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use std::fmt::{Debug, Formatter};
 
-pub enum Query<'a, S: Serialize = ()> {
+pub enum Query<'a, S: Serialize + Debug = ()> {
     None,
     Some(&'a S),
 }
 
-pub enum Body<'a, S: Serialize = ()> {
+impl<S: Serialize + Debug> Debug for Query<'_, S> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Query::None => write!(f, "None"),
+            Query::Some(data) => write!(f, "Some({:?})", data),
+        }
+    }
+}
+
+pub enum Body<'a, S: Serialize + Debug = ()> {
     Empty,
     Json(&'a S),
     Form(&'a S),
+}
+
+impl<S: Serialize + Debug> Debug for Body<'_, S> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Body::Empty => write!(f, "Empty"),
+            Body::Json(data) => write!(f, "Json({:?})", data),
+            Body::Form(data) => write!(f, "Form({:?})", data),
+        }
+    }
 }
 
 /// Provides basic REST communication with the server.
@@ -59,13 +80,21 @@ impl ServerConnection {
     /// * `body`: Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request<Q: Serialize, B: Serialize>(
+    pub async fn request<Q: Serialize + Debug, B: Serialize + Debug>(
         &self,
         method: Method,
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
     ) -> Result<Response, Error> {
+        info!(
+            "request: {} {}{} query={:?} body={:?}",
+            method,
+            self.base_url,
+            route.as_ref(),
+            query,
+            body
+        );
         let mut req = self.http_client.request(method, self.join_url(route));
 
         if let Query::Some(query) = query {
@@ -86,10 +115,7 @@ impl ServerConnection {
             req = req.bearer_auth(token);
         }
 
-        match req.send().await {
-            Ok(res) => res.error_for_status(),
-            e => e,
-        }
+        req.send().await?.error_for_status()
     }
 
     /// Does a HTTP request and transforms the response body to a JSON object.
@@ -101,17 +127,21 @@ impl ServerConnection {
     /// * 'body' - Optional data that needs to be serialized into the request body.
     ///
     /// returns: Result<Response, Error>
-    pub async fn request_with_json_result<Q: Serialize, B: Serialize, R: DeserializeOwned>(
+    pub async fn request_with_json_result<
+        Q: Serialize + Debug,
+        B: Serialize + Debug,
+        R: DeserializeOwned + Debug,
+    >(
         &self,
         method: Method,
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
     ) -> Result<R, Error> {
-        match self.request(method, route, query, body).await {
-            Ok(res) => res.json::<R>().await,
-            Err(e) => Err(e),
-        }
+        self.request(method, route, query, body)
+            .await?
+            .json::<R>()
+            .await
     }
 
     fn join_url(&self, route: impl AsRef<str>) -> Url {
