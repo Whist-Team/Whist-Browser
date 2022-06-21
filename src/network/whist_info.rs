@@ -36,8 +36,8 @@ impl WhistInfo {
     ///
     /// * 'game' - The name of the game support
     /// * 'version' - The core version of the above game.
-    pub fn new(game: impl Into<String>, version: impl Into<String>) -> WhistInfo {
-        WhistInfo {
+    pub fn new(game: impl Into<String>, version: impl Into<String>) -> Self {
+        Self {
             info: GameInfo {
                 game: game.into(),
                 version: version.into(),

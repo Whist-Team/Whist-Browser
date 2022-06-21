@@ -104,7 +104,7 @@ fn connect_menu(
             ui_state.connect_status = ConnectStatus::Connecting;
             event_writer.send(NetworkCommand::Connect(ui_state.connect_url.to_owned()));
         }
-        ui.add_enabled(
+        ui.add_visible(
             ui_state.connect_status.enable_label(),
             egui::Label::new(format!("{:?}", ui_state.connect_status)),
         );

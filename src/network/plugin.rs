@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::tasks::AsyncComputeTaskPool;
+use reqwest::Error;
 
 use crate::network::*;
 
@@ -10,6 +11,7 @@ impl Plugin for NetworkPlugin {
         app.add_event::<NetworkCommand>()
             .add_event::<ConnectResult>()
             .add_event::<LoginResult>()
+            .add_event::<GameListResult>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
             .add_system(receive_network_events);
@@ -32,7 +34,10 @@ pub enum LoginResult {
 pub enum NetworkCommand {
     Connect(String),
     Login(LoginForm),
+    GetGameList,
 }
+
+pub type GameListResult = Result<GameListResponse, Error>;
 
 #[derive(Debug)]
 enum NetworkResponse {
@@ -40,6 +45,7 @@ enum NetworkResponse {
     ConnectFailure(ConnectError),
     LoginSuccess,
     LoginFailure(LoginError),
+    GameList(GameListResult),
 }
 
 type NetworkWorker = Worker<NetworkCommand, NetworkResponse>;
@@ -54,7 +60,7 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
     #[allow(unused_assignments)]
     let mut server_service: Option<ServerService> = None;
     while let Some(command) = worker.recv().await {
-        info!("receiving command");
+        info!("receiving command {:?}", command);
         match command {
             NetworkCommand::Connect(base_url) => {
                 server_service = Some(ServerService::new(base_url));
@@ -70,6 +76,11 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                     Ok(_) => worker.send(NetworkResponse::LoginSuccess),
                     Err(e) => worker.send(NetworkResponse::LoginFailure(e)),
                 };
+            }
+            NetworkCommand::GetGameList => {
+                worker.send(NetworkResponse::GameList(
+                    server_service.as_ref().unwrap().get_games().await,
+                ));
             }
         }
     }
@@ -91,6 +102,7 @@ fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
     mut connect_result: EventWriter<ConnectResult>,
     mut login_result: EventWriter<LoginResult>,
+    mut game_list_result: EventWriter<GameListResult>,
 ) {
     if let Some(mut network_worker) = network_worker {
         while let Ok(network_response) = network_worker.try_recv() {
@@ -102,6 +114,7 @@ fn receive_network_events(
                 }
                 NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
                 NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
+                NetworkResponse::GameList(result) => game_list_result.send(result),
             }
         }
     }

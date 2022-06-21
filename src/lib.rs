@@ -4,6 +4,7 @@ use crate::assets::LoadingPlugin;
 use crate::connect::ConnectMenuPlugin;
 use crate::login::LoginMenuPlugin;
 use crate::network::NetworkPlugin;
+use crate::rooms::RoomMenuPlugin;
 use crate::ui::BaseUiPlugin;
 
 mod assets;
@@ -11,6 +12,7 @@ mod card;
 mod connect;
 mod login;
 mod network;
+mod rooms;
 mod ui;
 
 pub const EXPECTED_GAME: &str = "whist";
@@ -38,7 +40,8 @@ impl Plugin for GamePlugin {
             .add_plugin(LoadingPlugin)
             .add_plugin(NetworkPlugin)
             .add_plugin(ConnectMenuPlugin)
-            .add_plugin(LoginMenuPlugin);
+            .add_plugin(LoginMenuPlugin)
+            .add_plugin(RoomMenuPlugin);
     }
 }
 

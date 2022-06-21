@@ -65,6 +65,43 @@ impl ServerService {
             )
             .await
     }
+
+    pub async fn get_games(&self) -> Result<GameListResponse, Error> {
+        self.server_connection
+            .request_with_json_result(
+                Method::GET,
+                "game/info/ids",
+                Query::<()>::None,
+                Body::<()>::Empty,
+            )
+            .await
+    }
+
+    pub async fn join_game(
+        &self,
+        game_id: impl AsRef<str>,
+        body: &GameJoinRequest,
+    ) -> Result<GameJoinResponse, Error> {
+        self.server_connection
+            .request_with_json_result(
+                Method::GET,
+                format!("game/join/{}", game_id.as_ref()),
+                Query::<()>::None,
+                Body::Json(body),
+            )
+            .await
+    }
+
+    pub async fn create_game(&self, body: &GameCreateRequest) -> Result<GameCreateResponse, Error> {
+        self.server_connection
+            .request_with_json_result(
+                Method::GET,
+                "game/create",
+                Query::<()>::None,
+                Body::Json(body),
+            )
+            .await
+    }
 }
 
 #[cfg(test)]

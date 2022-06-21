@@ -103,7 +103,7 @@ fn login_menu(
                 ui_state.password.as_str(),
             )));
         }
-        ui.add_enabled(
+        ui.add_visible(
             ui_state.login_status.enable_label(),
             egui::Label::new(format!("{:?}", ui_state.login_status)),
         );
