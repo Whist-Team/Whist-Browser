@@ -93,7 +93,7 @@ fn connect_menu(
 ) {
     egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
         ui.horizontal(|ui| {
-            ui.label("Connect to: ");
+            ui.label("Connect to:");
             ui.text_edit_singleline(&mut ui_state.connect_url);
         });
         let button = ui.add_enabled(

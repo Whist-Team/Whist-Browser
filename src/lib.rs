@@ -16,7 +16,8 @@ mod rooms;
 mod ui;
 
 pub const EXPECTED_GAME: &str = "whist";
-pub const EXPECTED_VERSION: &str = "0.1.1";
+pub const EXPECTED_CORE_VERSION: &str = "0.1.1";
+pub const EXPECTED_SERVER_VERSION: &str = "0.1.1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
@@ -24,6 +25,7 @@ pub enum GameState {
     ConnectMenu,
     LoginMenu,
     RoomMenu,
+    Ingame,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]

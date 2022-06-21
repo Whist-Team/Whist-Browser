@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy::tasks::AsyncComputeTaskPool;
-use reqwest::Error;
 
 use crate::network::*;
 
@@ -12,6 +11,8 @@ impl Plugin for NetworkPlugin {
             .add_event::<ConnectResult>()
             .add_event::<LoginResult>()
             .add_event::<GameListResult>()
+            .add_event::<GameJoinResult>()
+            .add_event::<GameCreateResult>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
             .add_system(receive_network_events);
@@ -35,9 +36,9 @@ pub enum NetworkCommand {
     Connect(String),
     Login(LoginForm),
     GetGameList,
+    GameJoin(String, GameJoinRequest),
+    GameCreate(GameCreateRequest),
 }
-
-pub type GameListResult = Result<GameListResponse, Error>;
 
 #[derive(Debug)]
 enum NetworkResponse {
@@ -46,6 +47,8 @@ enum NetworkResponse {
     LoginSuccess,
     LoginFailure(LoginError),
     GameList(GameListResult),
+    GameJoin(GameJoinResult),
+    GameCreate(GameCreateResult),
 }
 
 type NetworkWorker = Worker<NetworkCommand, NetworkResponse>;
@@ -82,6 +85,24 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                     server_service.as_ref().unwrap().get_games().await,
                 ));
             }
+            NetworkCommand::GameJoin(id, game_join_request) => {
+                worker.send(NetworkResponse::GameJoin(
+                    server_service
+                        .as_ref()
+                        .unwrap()
+                        .join_game(id, &game_join_request)
+                        .await,
+                ));
+            }
+            NetworkCommand::GameCreate(game_create_request) => {
+                worker.send(NetworkResponse::GameCreate(
+                    server_service
+                        .as_ref()
+                        .unwrap()
+                        .create_game(&game_create_request)
+                        .await,
+                ));
+            }
         }
     }
 }
@@ -103,10 +124,12 @@ fn receive_network_events(
     mut connect_result: EventWriter<ConnectResult>,
     mut login_result: EventWriter<LoginResult>,
     mut game_list_result: EventWriter<GameListResult>,
+    mut game_join_result: EventWriter<GameJoinResult>,
+    mut game_create_result: EventWriter<GameCreateResult>,
 ) {
     if let Some(mut network_worker) = network_worker {
         while let Ok(network_response) = network_worker.try_recv() {
-            info!("response: {:?}", network_response);
+            info!("worker response: {:?}", network_response);
             match network_response {
                 NetworkResponse::ConnectSuccess => connect_result.send(ConnectResult::Success),
                 NetworkResponse::ConnectFailure(e) => {
@@ -115,6 +138,8 @@ fn receive_network_events(
                 NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
                 NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
                 NetworkResponse::GameList(result) => game_list_result.send(result),
+                NetworkResponse::GameJoin(result) => game_join_result.send(result),
+                NetworkResponse::GameCreate(result) => game_create_result.send(result),
             }
         }
     }
