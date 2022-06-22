@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_egui::egui::Ui;
 use bevy_egui::{egui, EguiContext};
 
 use crate::network::{
@@ -105,6 +106,10 @@ impl Default for UiState {
     }
 }
 
+fn game_to_string(game_id: impl AsRef<str>) -> String {
+    format!("Game: {}", game_id.as_ref())
+}
+
 fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
     commands.init_resource::<UiState>();
     event_writer.send(NetworkCommand::GetGameList);
@@ -170,19 +175,38 @@ fn room_menu(
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
+    let ui_state: &mut UiState = &mut ui_state;
     egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
-        ui.label("Rooms:");
-        egui::ScrollArea::vertical().show(ui, |ui| {
-            match &ui_state.room_status {
-                RoomStatus::Loading => {
-                    ui.spinner();
-                }
-                _ => {
-                    for room in &ui_state.games {
-                        ui.label(room);
-                    }
-                }
-            };
+        ui.columns(2, |columns| {
+            let ui_left: &mut Ui = &mut columns[0];
+
+            ui_left.label("Rooms:");
+            ui_left.separator();
+            egui::ScrollArea::vertical()
+                .auto_shrink([false, false])
+                .always_show_scroll(true)
+                .max_height(ui_left.available_height() - 50.0)
+                .show(ui_left, |ui| {
+                    match &ui_state.room_status {
+                        RoomStatus::Loading => {
+                            ui.spinner();
+                        }
+                        _ => {
+                            for game_id in &ui_state.games {
+                                ui.selectable_value(
+                                    &mut ui_state.selected,
+                                    Some(game_id.to_string()),
+                                    game_to_string(game_id),
+                                );
+                            }
+                        }
+                    };
+                });
+            ui_left.separator();
+
+            let ui_right: &mut Ui = &mut columns[1];
+            ui_right.label("Info:");
+            // TODO: add game info
         });
         ui.horizontal(|ui| {
             let button =
