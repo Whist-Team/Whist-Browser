@@ -207,6 +207,7 @@ fn room_menu(
             let ui_right: &mut Ui = &mut columns[1];
             ui_right.label("Info:");
             // TODO: add game info
+            ui_right.separator();
         });
         ui.horizontal(|ui| {
             let button =
