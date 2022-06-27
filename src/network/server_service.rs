@@ -54,7 +54,7 @@ impl ServerService {
             )
             .await?;
         if BEARER_TOKEN_TYPE == res.token_type {
-            self.server_connection.token(res.token);
+            self.server_connection.token(res.access_token);
             Ok(())
         } else {
             Err(LoginError::UnknownTokenType(res.token_type))

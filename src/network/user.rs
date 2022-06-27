@@ -30,14 +30,14 @@ impl LoginForm {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct LoginResponse {
-    pub token: String,
+    pub access_token: String,
     pub token_type: String,
 }
 
 impl LoginResponse {
-    pub fn new(token: impl Into<String>, token_type: impl Into<String>) -> Self {
+    pub fn new(access_token: impl Into<String>, token_type: impl Into<String>) -> Self {
         Self {
-            token: token.into(),
+            access_token: access_token.into(),
             token_type: token_type.into(),
         }
     }
