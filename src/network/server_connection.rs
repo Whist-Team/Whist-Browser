@@ -88,12 +88,13 @@ impl ServerConnection {
         body: Body<'_, B>,
     ) -> Result<Response, Error> {
         info!(
-            "request: {} {}{} query={:?} body={:?}",
+            "http request: {} {}{} query={:?} body={:?} auth={:?}",
             method,
             self.base_url,
             route.as_ref(),
             query,
-            body
+            body,
+            self.token
         );
         let mut req = self.http_client.request(method, self.join_url(route));
 
@@ -115,7 +116,9 @@ impl ServerConnection {
             req = req.bearer_auth(token);
         }
 
-        req.send().await?.error_for_status()
+        let resp = req.send().await?;
+        info!("http response: {:?}", resp);
+        resp.error_for_status()
     }
 
     /// Does a HTTP request and transforms the response body to a JSON object.
@@ -179,7 +182,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_json() {
-        let expected_info = WhistInfo::new("whist", "0.1.0");
+        let expected_info = WhistInfo::new("whist", "0.1.0", "0.1.0");
 
         let mock_server = MockServer::start().await;
         Mock::given(method("GET"))
@@ -196,7 +199,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_post_json_without_response_body() {
-        let expected_info = WhistInfo::new("whist", "0.1.0");
+        let expected_info = WhistInfo::new("whist", "0.1.0", "0.1.0");
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))

@@ -20,8 +20,8 @@ pub struct LoginForm {
 }
 
 impl LoginForm {
-    pub fn new(username: impl Into<String>, password: impl Into<String>) -> LoginForm {
-        LoginForm {
+    pub fn new(username: impl Into<String>, password: impl Into<String>) -> Self {
+        Self {
             username: username.into(),
             password: password.into(),
         }
@@ -30,14 +30,14 @@ impl LoginForm {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct LoginResponse {
-    pub token: String,
+    pub access_token: String,
     pub token_type: String,
 }
 
 impl LoginResponse {
-    pub fn new(token: impl Into<String>, token_type: impl Into<String>) -> LoginResponse {
-        LoginResponse {
-            token: token.into(),
+    pub fn new(access_token: impl Into<String>, token_type: impl Into<String>) -> Self {
+        Self {
+            access_token: access_token.into(),
             token_type: token_type.into(),
         }
     }
@@ -50,8 +50,8 @@ pub struct UserCreateRequest {
 }
 
 impl UserCreateRequest {
-    pub fn new(username: impl Into<String>, password: impl Into<String>) -> UserCreateRequest {
-        UserCreateRequest {
+    pub fn new(username: impl Into<String>, password: impl Into<String>) -> Self {
+        Self {
             username: username.into(),
             password: password.into(),
         }
@@ -64,8 +64,8 @@ pub struct UserCreateResponse {
 }
 
 impl UserCreateResponse {
-    pub fn new(user_id: impl Into<String>) -> UserCreateResponse {
-        UserCreateResponse {
+    pub fn new(user_id: impl Into<String>) -> Self {
+        Self {
             user_id: user_id.into(),
         }
     }

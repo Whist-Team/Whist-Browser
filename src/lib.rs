@@ -4,6 +4,7 @@ use crate::assets::LoadingPlugin;
 use crate::connect::ConnectMenuPlugin;
 use crate::login::LoginMenuPlugin;
 use crate::network::NetworkPlugin;
+use crate::rooms::RoomMenuPlugin;
 use crate::ui::BaseUiPlugin;
 
 mod assets;
@@ -11,10 +12,12 @@ mod card;
 mod connect;
 mod login;
 mod network;
+mod rooms;
 mod ui;
 
 pub const EXPECTED_GAME: &str = "whist";
-pub const EXPECTED_VERSION: &str = "0.1.1";
+pub const EXPECTED_CORE_VERSION: &str = "0.1.1";
+pub const EXPECTED_SERVER_VERSION: &str = "0.1.1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
@@ -22,6 +25,7 @@ pub enum GameState {
     ConnectMenu,
     LoginMenu,
     RoomMenu,
+    Ingame,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]
@@ -38,7 +42,8 @@ impl Plugin for GamePlugin {
             .add_plugin(LoadingPlugin)
             .add_plugin(NetworkPlugin)
             .add_plugin(ConnectMenuPlugin)
-            .add_plugin(LoginMenuPlugin);
+            .add_plugin(LoginMenuPlugin)
+            .add_plugin(RoomMenuPlugin);
     }
 }
 

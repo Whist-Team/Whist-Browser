@@ -9,6 +9,10 @@ pub struct ServerService {
     server_connection: ServerConnection,
 }
 
+pub type GameListResult = Result<GameListResponse, Error>;
+pub type GameJoinResult = Result<GameJoinResponse, Error>;
+pub type GameCreateResult = Result<GameCreateResponse, Error>;
+
 impl ServerService {
     /// Constructor
     /// # Arguments
@@ -30,8 +34,10 @@ impl ServerService {
         let info = self.get_info().await?.info;
         if info.game != crate::EXPECTED_GAME {
             Err(ConnectError::GameInvalid(info.game))
-        } else if info.version != crate::EXPECTED_VERSION {
-            Err(ConnectError::VersionInvalid(info.version))
+        } else if info.whist_core != crate::EXPECTED_CORE_VERSION {
+            Err(ConnectError::CoreVersionInvalid(info.whist_core))
+        } else if info.whist_server != crate::EXPECTED_SERVER_VERSION {
+            Err(ConnectError::ServerVersionInvalid(info.whist_server))
         } else {
             Ok(())
         }
@@ -48,7 +54,7 @@ impl ServerService {
             )
             .await?;
         if BEARER_TOKEN_TYPE == res.token_type {
-            self.server_connection.token(res.token);
+            self.server_connection.token(res.access_token);
             Ok(())
         } else {
             Err(LoginError::UnknownTokenType(res.token_type))
@@ -65,6 +71,43 @@ impl ServerService {
             )
             .await
     }
+
+    pub async fn get_games(&self) -> GameListResult {
+        self.server_connection
+            .request_with_json_result(
+                Method::GET,
+                "game/info/ids",
+                Query::<()>::None,
+                Body::<()>::Empty,
+            )
+            .await
+    }
+
+    pub async fn join_game(
+        &self,
+        game_id: impl AsRef<str>,
+        body: &GameJoinRequest,
+    ) -> GameJoinResult {
+        self.server_connection
+            .request_with_json_result(
+                Method::POST,
+                format!("game/join/{}", game_id.as_ref()),
+                Query::<()>::None,
+                Body::Json(body),
+            )
+            .await
+    }
+
+    pub async fn create_game(&self, body: &GameCreateRequest) -> GameCreateResult {
+        self.server_connection
+            .request_with_json_result(
+                Method::POST,
+                "game/create",
+                Query::<()>::None,
+                Body::Json(body),
+            )
+            .await
+    }
 }
 
 #[cfg(test)]
@@ -76,7 +119,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_json() {
-        let expected_info = WhistInfo::new("whist", "0.1.0");
+        let expected_info = WhistInfo::new("whist", "0.1.0", "0.1.0");
 
         let mock_server = MockServer::start().await;
         Mock::given(method("GET"))
