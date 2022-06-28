@@ -3,8 +3,8 @@ use std::future::Future;
 
 use bevy::prelude::*;
 use bevy::tasks::TaskPool;
-use tokio::sync::mpsc::error::TryRecvError;
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use futures::channel::mpsc::{unbounded, TryRecvError, UnboundedReceiver, UnboundedSender};
+use futures::StreamExt;
 
 pub struct Worker<I: Debug, O: Debug> {
     input: UnboundedSender<I>,
@@ -20,8 +20,8 @@ impl<I: Debug, O: Debug> Worker<I, O> {
     {
         info!("spawning worker");
 
-        let (input_tx, input_rx) = unbounded_channel::<I>();
-        let (output_tx, output_rx) = unbounded_channel::<O>();
+        let (input_tx, input_rx) = unbounded::<I>();
+        let (output_tx, output_rx) = unbounded::<O>();
         thread_pool
             .spawn(function(Worker {
                 input: output_tx,
@@ -44,8 +44,8 @@ impl<I: Debug, O: Debug> Worker<I, O> {
     {
         info!("spawning worker");
 
-        let (input_tx, input_rx) = unbounded_channel::<I>();
-        let (output_tx, output_rx) = unbounded_channel::<O>();
+        let (input_tx, input_rx) = unbounded::<I>();
+        let (output_tx, output_rx) = unbounded::<O>();
         thread_pool
             .spawn(async_compat::Compat::new(function(Worker {
                 input: output_tx,
@@ -61,14 +61,14 @@ impl<I: Debug, O: Debug> Worker<I, O> {
 
 impl<I: Debug, O: Debug> Worker<I, O> {
     pub fn send(&self, message: I) {
-        self.input.send(message).unwrap();
+        self.input.unbounded_send(message).unwrap();
     }
 
-    pub fn try_recv(&mut self) -> Result<O, TryRecvError> {
-        self.output.try_recv()
+    pub fn try_recv(&mut self) -> Result<Option<O>, TryRecvError> {
+        self.output.try_next()
     }
 
     pub async fn recv(&mut self) -> Option<O> {
-        self.output.recv().await
+        self.output.next().await
     }
 }

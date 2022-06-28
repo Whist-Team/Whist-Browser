@@ -108,7 +108,7 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
 }
 
 fn send_network_events(
-    network_worker: Option<Res<NetworkWorker>>,
+    network_worker: Option<ResMut<NetworkWorker>>,
     mut network_events_to_send: EventReader<NetworkCommand>,
 ) {
     if let Some(network_worker) = network_worker {
@@ -128,7 +128,7 @@ fn receive_network_events(
     mut game_create_result: EventWriter<GameCreateResult>,
 ) {
     if let Some(mut network_worker) = network_worker {
-        while let Ok(network_response) = network_worker.try_recv() {
+        while let Ok(Some(network_response)) = network_worker.try_recv() {
             info!("worker response: {:?}", network_response);
             match network_response {
                 NetworkResponse::ConnectSuccess => connect_result.send(ConnectResult::Success),
