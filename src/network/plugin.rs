@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::tasks::AsyncComputeTaskPool;
+use bevy::tasks::IoTaskPool;
 
 use crate::network::*;
 
@@ -54,16 +54,15 @@ enum NetworkResponse {
 type NetworkWorker = Worker<NetworkCommand, NetworkResponse>;
 type NetworkWorkerFlipped = Worker<NetworkResponse, NetworkCommand>;
 
-fn setup_worker(mut commands: Commands, thread_pool: Res<AsyncComputeTaskPool>) {
+fn setup_worker(mut commands: Commands, thread_pool: Res<IoTaskPool>) {
     commands.insert_resource(NetworkWorker::spawn(&thread_pool, network_worker));
 }
 
 async fn network_worker(mut worker: NetworkWorkerFlipped) {
     info!("network worker spawned");
-    #[allow(unused_assignments)]
     let mut server_service: Option<ServerService> = None;
     while let Some(command) = worker.recv().await {
-        info!("receiving command {:?}", command);
+        info!("receiving network command {:?}", command);
         match command {
             NetworkCommand::Connect(base_url) => {
                 server_service = Some(ServerService::new(base_url));
