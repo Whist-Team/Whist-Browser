@@ -1,19 +1,11 @@
-use reqwest::Error;
 use semver::{Version, VersionReq};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum ConnectError {
-    Request(String),
-    GameInvalid(String),
-    CoreVersionInvalid(Version),
-    ServerVersionInvalid(Version),
-}
-
-impl From<Error> for ConnectError {
-    fn from(error: Error) -> Self {
-        ConnectError::Request(error.to_string())
-    }
+pub enum RequirementError {
+    Game(String),
+    CoreVersion(Version),
+    ServerVersion(Version),
 }
 
 /// Required properties of whist server and core, used for checking validity of server when connecting
@@ -78,18 +70,18 @@ impl WhistInfo {
         }
     }
 
-    pub fn check_validity(&self, req: &WhistInfoReq) -> Result<(), ConnectError> {
+    pub fn check_validity(self, req: &WhistInfoReq) -> Result<WhistInfo, RequirementError> {
         let info = &self.info;
         if !req.game.eq_ignore_ascii_case(&info.game) {
-            Err(ConnectError::GameInvalid(info.game.to_owned()))
+            Err(RequirementError::Game(info.game.to_owned()))
         } else if !req.whist_core.matches(&info.whist_core) {
-            Err(ConnectError::CoreVersionInvalid(info.whist_core.to_owned()))
+            Err(RequirementError::CoreVersion(info.whist_core.to_owned()))
         } else if !req.whist_server.matches(&info.whist_server) {
-            Err(ConnectError::ServerVersionInvalid(
+            Err(RequirementError::ServerVersion(
                 info.whist_server.to_owned(),
             ))
         } else {
-            Ok(())
+            Ok(self)
         }
     }
 }
@@ -102,6 +94,6 @@ mod tests {
     fn test_validity() {
         let req = WhistInfoReq::new("whist", "^0.2", "^0.1");
         let info = WhistInfo::new("WHIST", "0.2.0", "0.1.1");
-        assert_eq!(info.check_validity(&req), Ok(()))
+        assert!(info.check_validity(&req).is_ok())
     }
 }
