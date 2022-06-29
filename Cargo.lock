@@ -2707,6 +2707,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "semver"
+version = "1.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d92beeab217753479be2f74e54187a6aed4c125ff0703a866c3147a02f0c6dd"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3494,6 +3503,7 @@ dependencies = [
  "gloo-net",
  "gloo-utils",
  "reqwest",
+ "semver",
  "serde",
  "serde_json",
  "tokio",
