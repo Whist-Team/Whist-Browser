@@ -31,16 +31,11 @@ impl ServerService {
     }
 
     pub async fn check_connection(&self) -> Result<(), ConnectError> {
-        let info = self.get_info().await?.info;
-        if info.game != crate::EXPECTED_GAME {
-            Err(ConnectError::GameInvalid(info.game))
-        } else if info.whist_core != crate::EXPECTED_CORE_VERSION {
-            Err(ConnectError::CoreVersionInvalid(info.whist_core))
-        } else if info.whist_server != crate::EXPECTED_SERVER_VERSION {
-            Err(ConnectError::ServerVersionInvalid(info.whist_server))
-        } else {
-            Ok(())
-        }
+        self.get_info().await?.check_validity(&WhistInfoReq::new(
+            crate::EXPECTED_GAME,
+            crate::EXPECTED_CORE_VERSION,
+            crate::EXPECTED_SERVER_VERSION,
+        ))
     }
 
     pub async fn login(&mut self, body: &LoginForm) -> Result<(), LoginError> {
