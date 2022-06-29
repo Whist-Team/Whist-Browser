@@ -4,6 +4,24 @@ use crate::network::*;
 
 const BEARER_TOKEN_TYPE: &str = "Bearer";
 
+#[derive(Debug)]
+pub enum ConnectError {
+    Request(Error),
+    Requirement(RequirementError),
+}
+
+impl From<Error> for ConnectError {
+    fn from(error: Error) -> Self {
+        ConnectError::Request(error)
+    }
+}
+
+impl From<RequirementError> for ConnectError {
+    fn from(error: RequirementError) -> Self {
+        ConnectError::Requirement(error)
+    }
+}
+
 /// Service to provide call to whist server routes.
 pub struct ServerService {
     server_connection: ServerConnection,
@@ -31,16 +49,12 @@ impl ServerService {
     }
 
     pub async fn check_connection(&self) -> Result<(), ConnectError> {
-        let info = self.get_info().await?.info;
-        if info.game != crate::EXPECTED_GAME {
-            Err(ConnectError::GameInvalid(info.game))
-        } else if info.whist_core != crate::EXPECTED_CORE_VERSION {
-            Err(ConnectError::CoreVersionInvalid(info.whist_core))
-        } else if info.whist_server != crate::EXPECTED_SERVER_VERSION {
-            Err(ConnectError::ServerVersionInvalid(info.whist_server))
-        } else {
-            Ok(())
-        }
+        self.get_info().await?.check_validity(&WhistInfoReq::new(
+            crate::EXPECTED_GAME,
+            crate::EXPECTED_CORE_VERSION,
+            crate::EXPECTED_SERVER_VERSION,
+        ))?;
+        Ok(())
     }
 
     pub async fn login(&mut self, body: &LoginForm) -> Result<(), LoginError> {
