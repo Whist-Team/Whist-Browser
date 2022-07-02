@@ -478,6 +478,7 @@ pub trait CardContainer: FromIterator<Card> + IntoIterator<Item = Card> + Extend
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
     use serde_json::json;
 
     use crate::card::{Card, OrderedCards, Rank, Suit, UnorderedCards};

@@ -1,8 +1,9 @@
+use std::fmt::{Debug, Formatter};
+
 use bevy::prelude::*;
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::fmt::{Debug, Formatter};
 
 pub enum Query<'a, S: Serialize + Debug = ()> {
     None,
@@ -156,6 +157,7 @@ impl ServerConnection {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
     use reqwest::{Method, Url};
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};

@@ -88,12 +88,14 @@ impl WhistInfo {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
+
     use super::*;
 
     #[test]
     fn test_validity() {
         let req = WhistInfoReq::new("whist", "^0.2", "^0.1");
         let info = WhistInfo::new("WHIST", "0.2.0", "0.1.1");
-        assert!(info.check_validity(&req).is_ok())
+        assert_eq!(info.check_validity(&req).is_ok(), true)
     }
 }

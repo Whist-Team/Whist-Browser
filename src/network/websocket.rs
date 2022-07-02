@@ -166,6 +166,7 @@ impl WebSocketReceiver {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
     use serde::{Deserialize, Serialize};
 
     use crate::network::*;
@@ -177,7 +178,7 @@ mod tests {
 
     /// only works with external websocket echo server on port 10000.
     ///
-    /// try 'docker run -p 10000:8080 jmalloc/echo-server' to start one
+    /// try 'docker run -p 10000:8080 jmalloc/echo-server' or 'cargo run --example ws_echo_server 0.0.0.0:10000' to start one
     // #[tokio::test]
     async fn test_ws_echo() {
         let data = Test {
