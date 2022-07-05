@@ -178,7 +178,7 @@ mod tests {
 
     /// only works with external websocket echo server on port 10000.
     ///
-    /// try 'docker run -p 10000:8080 jmalloc/echo-server' or 'cargo run --example ws_echo_server 0.0.0.0:10000' to start one
+    /// try 'cargo run --example ws_echo_server' to start one
     // #[tokio::test]
     async fn test_ws_echo() {
         let data = Test {
@@ -186,7 +186,6 @@ mod tests {
         };
 
         let (mut sender, mut receiver) = WebSocket::connect("ws://localhost:10000").await.unwrap();
-        receiver.recv_text().await.unwrap(); // ignore echo response from connect
 
         sender.send_json(&data).await.unwrap();
         let res: Test = receiver.recv_json().await.unwrap();
