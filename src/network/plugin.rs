@@ -13,9 +13,12 @@ impl Plugin for NetworkPlugin {
             .add_event::<GameListResult>()
             .add_event::<GameJoinResult>()
             .add_event::<GameCreateResult>()
+            .add_event::<WebSocketCommand>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
-            .add_system(receive_network_events);
+            .add_system(receive_network_events)
+            .add_system(send_websocket_commands)
+            .add_system(receive_websocket_responses);
     }
 }
 
@@ -51,8 +54,24 @@ enum NetworkResponse {
     GameCreate(GameCreateResult),
 }
 
+#[derive(Debug)]
+pub enum WebSocketCommand {
+    Connect(String),
+}
+
+#[derive(Debug)]
+enum WebSocketResponse {
+    ConnectSuccess,
+    ConnectError,
+    Event(Event),
+    Error,
+}
+
 type NetworkWorker = Worker<NetworkCommand, NetworkResponse>;
 type NetworkWorkerFlipped = Worker<NetworkResponse, NetworkCommand>;
+
+type WebSocketWorker = Worker<(), WebSocketResponse>;
+type WebSocketWorkerFlipped = Worker<WebSocketResponse, ()>;
 
 fn setup_worker(mut commands: Commands, thread_pool: Res<IoTaskPool>) {
     commands.insert_resource(NetworkWorker::spawn(&thread_pool, network_worker));
@@ -112,7 +131,7 @@ fn send_network_events(
 ) {
     if let Some(network_worker) = network_worker {
         for network_event in network_events_to_send.iter() {
-            info!("event: {:?}", network_event);
+            info!("network event: {:?}", network_event);
             network_worker.send(network_event.to_owned());
         }
     }
@@ -139,6 +158,54 @@ fn receive_network_events(
                 NetworkResponse::GameList(result) => game_list_result.send(result),
                 NetworkResponse::GameJoin(result) => game_join_result.send(result),
                 NetworkResponse::GameCreate(result) => game_create_result.send(result),
+            }
+        }
+    }
+}
+
+fn send_websocket_commands(
+    mut commands: Commands,
+    thread_pool: Res<IoTaskPool>,
+    mut websocket_events: EventReader<WebSocketCommand>,
+) {
+    for websocket_event in websocket_events.iter() {
+        info!("websocket event: {:?}", websocket_event);
+        match websocket_event {
+            WebSocketCommand::Connect(url) => {
+                let url = url.to_owned();
+                let worker = WebSocketWorker::spawn(
+                    &thread_pool,
+                    |worker: WebSocketWorkerFlipped| async move {
+                        match WebSocket::connect(url).await {
+                            Ok((_sender, mut receiver)) => {
+                                worker.send(WebSocketResponse::ConnectSuccess);
+                                while let Result::<Event, _>::Ok(event) = receiver.recv_json().await
+                                {
+                                    worker.send(WebSocketResponse::Event(event));
+                                }
+                                worker.send(WebSocketResponse::Error);
+                            }
+                            Err(_) => {
+                                worker.send(WebSocketResponse::ConnectError);
+                            }
+                        }
+                    },
+                );
+                commands.insert_resource(worker);
+            }
+        }
+    }
+}
+
+fn receive_websocket_responses(websocket_worker: Option<ResMut<WebSocketWorker>>) {
+    if let Some(mut websocket_worker) = websocket_worker {
+        while let Ok(Some(websocket_response)) = websocket_worker.try_recv() {
+            info!("websocket response: {:?}", websocket_response);
+            match websocket_response {
+                WebSocketResponse::ConnectSuccess => {}
+                WebSocketResponse::ConnectError => panic!("websocket connect error"),
+                WebSocketResponse::Event(event) => todo!("handle {:?} event", event),
+                WebSocketResponse::Error => panic!("websocket error"),
             }
         }
     }
