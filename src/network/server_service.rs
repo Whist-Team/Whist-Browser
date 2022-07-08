@@ -126,6 +126,7 @@ impl ServerService {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
     use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
