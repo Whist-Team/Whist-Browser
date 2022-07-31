@@ -73,8 +73,8 @@ type NetworkWorkerFlipped = Worker<NetworkResponse, NetworkCommand>;
 type WebSocketWorker = Worker<(), WebSocketResponse>;
 type WebSocketWorkerFlipped = Worker<WebSocketResponse, ()>;
 
-fn setup_worker(mut commands: Commands, thread_pool: Res<IoTaskPool>) {
-    commands.insert_resource(NetworkWorker::spawn(&thread_pool, network_worker));
+fn setup_worker(mut commands: Commands) {
+    commands.insert_resource(NetworkWorker::spawn(IoTaskPool::get(), network_worker));
 }
 
 async fn network_worker(mut worker: NetworkWorkerFlipped) {
@@ -165,7 +165,6 @@ fn receive_network_events(
 
 fn send_websocket_commands(
     mut commands: Commands,
-    thread_pool: Res<IoTaskPool>,
     mut websocket_events: EventReader<WebSocketCommand>,
 ) {
     for websocket_event in websocket_events.iter() {
@@ -174,7 +173,7 @@ fn send_websocket_commands(
             WebSocketCommand::Connect(url) => {
                 let url = url.to_owned();
                 let worker = WebSocketWorker::spawn(
-                    &thread_pool,
+                    IoTaskPool::get(),
                     |worker: WebSocketWorkerFlipped| async move {
                         match WebSocket::connect(url).await {
                             Ok((_sender, mut receiver)) => {

@@ -5,8 +5,8 @@ Front end client
 ## Deploy
 
 - Install wasm target: `rustup target add wasm32-unknown-unknown`
-- Install trunk: `cargo install --locked trunk`
-- Run `trunk serve`
+- Install trunk or wasm-server-runner : `cargo install --locked trunk` `cargo install --locked wasm-server-runner`
+- Run `trunk serve` or `cargo run --target wasm32-unknown-unknown`
 
 ## Development
 
