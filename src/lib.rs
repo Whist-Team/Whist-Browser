@@ -16,7 +16,7 @@ mod rooms;
 mod ui;
 
 pub const EXPECTED_GAME: &str = "whist";
-pub const EXPECTED_CORE_VERSION: &str = "^0.3";
+pub const EXPECTED_CORE_VERSION: &str = "^0.4";
 pub const EXPECTED_SERVER_VERSION: &str = "^0.4";
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
