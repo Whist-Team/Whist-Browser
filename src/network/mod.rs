@@ -16,6 +16,7 @@ mod async_worker;
 mod event;
 mod game;
 mod github;
+mod github_service;
 mod plugin;
 mod server_connection;
 mod server_service;

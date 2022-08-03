@@ -27,11 +27,6 @@ pub struct ServerService {
     server_connection: ServerConnection,
 }
 
-/// Service to provide call to github routes.
-pub struct GitHubService {
-    server_connection: ServerConnection,
-}
-
 pub type GameListResult = Result<GameListResponse, Error>;
 pub type GameJoinResult = Result<GameJoinResponse, Error>;
 pub type GameCreateResult = Result<GameCreateResponse, Error>;
@@ -123,31 +118,6 @@ impl ServerService {
             .request_with_json_result(
                 Method::POST,
                 "game/create",
-                Query::<()>::None,
-                Body::Json(body),
-            )
-            .await
-    }
-}
-
-impl GitHubService {
-    /// Constructor
-    /// # Arguments
-    /// * 'base_url' the url of the server
-    pub fn new(base_url: impl IntoUrl) -> Self {
-        Self {
-            server_connection: ServerConnection::new(base_url),
-        }
-    }
-
-    pub async fn request_github_auth(
-        &self,
-        body: &GitHubAuthRequest,
-    ) -> Result<GitHubTempTokenResult, AuthError> {
-        self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                "login/device/code",
                 Query::<()>::None,
                 Body::Json(body),
             )
