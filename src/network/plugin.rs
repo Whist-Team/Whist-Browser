@@ -46,10 +46,9 @@ pub enum NetworkCommand {
 
 #[derive(Debug)]
 enum NetworkResponse {
-    AuthSuccess,
-    AuthFailure(ConnectError),
     ConnectSuccess,
     ConnectFailure(ConnectError),
+    GithubAuth(GitHubTempTokenResult),
     LoginSuccess,
     LoginFailure(LoginError),
     GameList(GameListResult),
@@ -96,15 +95,13 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
             }
             NetworkCommand::GithubAuth(github_request) => {
                 let github_service = Some(GitHubService::new("https://github.com"));
-                let res = github_service
-                    .as_ref()
-                    .unwrap()
-                    .request_github_auth(&github_request)
-                    .await;
-                match res {
-                    Ok(_) => worker.send(NetworkResponse::AuthSuccess),
-                    Err(e) => worker.send(NetworkResponse::AuthFailure(e)),
-                };
+                worker.send(NetworkResponse::GithubAuth(
+                    github_service
+                        .as_ref()
+                        .unwrap()
+                        .request_github_auth(&github_request)
+                        .await,
+                ));
             }
             NetworkCommand::Login(login_form) => {
                 let res = server_service.as_mut().unwrap().login(&login_form).await;
@@ -156,6 +153,7 @@ fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
     mut connect_result: EventWriter<ConnectResult>,
     mut login_result: EventWriter<LoginResult>,
+    mut github_auth_result: EventWriter<GitHubTempTokenResult>,
     mut game_list_result: EventWriter<GameListResult>,
     mut game_join_result: EventWriter<GameJoinResult>,
     mut game_create_result: EventWriter<GameCreateResult>,
@@ -168,6 +166,7 @@ fn receive_network_events(
                 NetworkResponse::ConnectFailure(e) => {
                     connect_result.send(ConnectResult::Failure(e))
                 }
+                NetworkResponse::GithubAuth(result) => github_auth_result.send(result),
                 NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
                 NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
                 NetworkResponse::GameList(result) => game_list_result.send(result),
