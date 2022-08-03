@@ -5,6 +5,14 @@ pub struct GitHubAuthRequest {
     pub client_id: String,
 }
 
+impl GitHubAuthRequest {
+    pub fn new(client_id: impl Into<String>) -> Self {
+        Self {
+            client_id: client_id.into(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GitHubTempTokenResponse {
     pub device_code: String,
