@@ -29,3 +29,27 @@ impl GitHubService {
             .await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use pretty_assertions::assert_eq;
+    use wiremock::matchers::method;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    use crate::network::*;
+
+    #[tokio::test]
+    async fn test_get_json() {
+        let expected_info =
+            GitHubTempTokenResponse::new("abc", 900, 5, "cde", "https://github.com/login/device");
+        let auth_request = GitHubAuthRequest::new("abc");
+        let mock_server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(expected_info.to_owned()))
+            .mount(&mock_server)
+            .await;
+        let service = GitHubService::new(mock_server.uri());
+        let response_json = service.request_github_auth(&auth_request).await.unwrap();
+        assert_eq!(response_json, expected_info);
+    }
+}
