@@ -1,7 +1,11 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GitHubAuthRequest {
     pub code: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GitHubTempTokenResponse {
     pub device_code: String,
     pub expires_in: u8,
