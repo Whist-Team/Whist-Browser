@@ -30,7 +30,6 @@ pub struct ServerService {
 pub type GameListResult = Result<GameListResponse, Error>;
 pub type GameJoinResult = Result<GameJoinResponse, Error>;
 pub type GameCreateResult = Result<GameCreateResponse, Error>;
-pub type GitHubTempTokenResult = Result<GitHubTempTokenResponse, Error>;
 
 impl ServerService {
     /// Constructor

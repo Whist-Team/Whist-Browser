@@ -1,10 +1,12 @@
-use crate::network::{Body, GitHubAuthRequest, GitHubTempTokenResult, Query, ServerConnection};
-use reqwest::{IntoUrl, Method};
+use crate::network::{Body, GitHubAuthRequest, GitHubTempTokenResponse, Query, ServerConnection};
+use reqwest::{Error, IntoUrl, Method};
 
 /// Service to provide call to github routes.
 pub struct GitHubService {
     server_connection: ServerConnection,
 }
+
+pub type GitHubTempTokenResult = Result<GitHubTempTokenResponse, Error>;
 
 impl GitHubService {
     /// Constructor
