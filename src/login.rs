@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
+use std::env;
 
-use crate::network::{LoginForm, LoginResult, NetworkCommand};
+use crate::network::{GitHubAuthRequest, LoginForm, LoginResult, NetworkCommand};
 use crate::{GameState, MySystemLabel};
 
 pub struct LoginMenuPlugin;
@@ -96,11 +97,22 @@ fn login_menu(
             ui_state.login_status.enable_login_button(),
             egui::Button::new("Login"),
         );
+        let github_button = ui.add_enabled(
+            ui_state.login_status.enable_login_button(),
+            egui::Button::new("Github"),
+        );
         if button.clicked() {
             ui_state.login_status = LoginStatus::LoggingIn;
             event_writer.send(NetworkCommand::Login(LoginForm::new(
                 ui_state.username.as_str(),
                 ui_state.password.as_str(),
+            )));
+        }
+        if github_button.clicked() {
+            let client_id = env::var("GITHUB_CLIENT_ID").is_ok();
+            ui_state.login_status = LoginStatus::LoggingIn;
+            event_writer.send(NetworkCommand::GithubAuth(GitHubAuthRequest::new(
+                client_id,
             )));
         }
         ui.add_visible(
