@@ -41,10 +41,13 @@ pub enum NetworkCommand {
     GetGameList,
     GameJoin(String, GameJoinRequest),
     GameCreate(GameCreateRequest),
+    GithubAuth(GitHubAuthRequest),
 }
 
 #[derive(Debug)]
 enum NetworkResponse {
+    AuthSuccess,
+    AuthFailure(ConnectError),
     ConnectSuccess,
     ConnectFailure(ConnectError),
     LoginSuccess,
@@ -89,6 +92,18 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                 match res {
                     Ok(_) => worker.send(NetworkResponse::ConnectSuccess),
                     Err(e) => worker.send(NetworkResponse::ConnectFailure(e)),
+                };
+            }
+            NetworkCommand::GithubAuth(github_request) => {
+                let github_service = Some(GitHubService::new("https://github.com"));
+                let res = github_service
+                    .as_ref()
+                    .unwrap()
+                    .request_github_auth(&github_request)
+                    .await;
+                match res {
+                    Ok(_) => worker.send(NetworkResponse::AuthSuccess),
+                    Err(e) => worker.send(NetworkResponse::AuthFailure(e)),
                 };
             }
             NetworkCommand::Login(login_form) => {
