@@ -140,7 +140,10 @@ impl GitHubService {
         }
     }
 
-    pub async fn request_github_auth(&self, body: &GitHubAuthRequest) -> GitHubTempTokenResult {
+    pub async fn request_github_auth(
+        &self,
+        body: &GitHubAuthRequest,
+    ) -> Result<GitHubTempTokenResult, AuthError> {
         self.server_connection
             .request_with_json_result(
                 Method::POST,

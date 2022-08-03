@@ -1,5 +1,10 @@
+use reqwest::Error;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug)]
+pub enum LoginError {
+    Request(Error),
+}
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GitHubAuthRequest {
     pub client_id: String,
