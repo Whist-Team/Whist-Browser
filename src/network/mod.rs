@@ -14,6 +14,7 @@ pub use whist_info::*;
 mod async_worker;
 mod event;
 mod game;
+mod github;
 mod plugin;
 mod server_connection;
 mod server_service;
