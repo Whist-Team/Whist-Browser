@@ -109,7 +109,7 @@ fn login_menu(
             )));
         }
         if github_button.clicked() {
-            let client_id = env::var("GITHUB_CLIENT_ID").is_ok();
+            let client_id = env::var("GITHUB_CLIENT_ID").unwrap();
             ui_state.login_status = LoginStatus::LoggingIn;
             event_writer.send(NetworkCommand::GithubAuth(GitHubAuthRequest::new(
                 client_id,
