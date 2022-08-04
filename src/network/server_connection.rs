@@ -1,6 +1,7 @@
 use std::fmt::{Debug, Formatter};
 
 use bevy::prelude::*;
+use reqwest::header::HeaderMap;
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -87,17 +88,25 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
+        header: Option<HeaderMap>,
     ) -> Result<Response, Error> {
         info!(
-            "http request: {} {}{} query={:?} body={:?} auth={:?}",
+            "http request: {} {}{} query={:?} body={:?} auth={:?} header={:?}",
             method,
             self.base_url,
             route.as_ref(),
             query,
             body,
+            header,
             self.token
         );
         let mut req = self.http_client.request(method, self.join_url(route));
+
+        if let Some(header) = header {
+            if !header.is_empty() {
+                req = req.headers(header)
+            }
+        }
 
         if let Query::Some(query) = query {
             req = req.query(query);
@@ -141,8 +150,9 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
+        header: Option<HeaderMap>,
     ) -> Result<R, Error> {
-        self.request(method, route, query, body)
+        self.request(method, route, query, body, header)
             .await?
             .json::<R>()
             .await
@@ -193,7 +203,13 @@ mod tests {
             .await;
         let conn = ServerConnection::new(mock_server.uri());
         let response_json: WhistInfo = conn
-            .request_with_json_result(Method::GET, "route", Query::<()>::None, Body::<()>::Empty)
+            .request_with_json_result(
+                Method::GET,
+                "route",
+                Query::<()>::None,
+                Body::<()>::Empty,
+                None,
+            )
             .await
             .unwrap();
         assert_eq!(response_json, expected_info);
@@ -215,6 +231,7 @@ mod tests {
                 "route",
                 Query::<()>::None,
                 Body::Json(&expected_info),
+                None,
             )
             .await
             .unwrap();
