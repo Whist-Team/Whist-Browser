@@ -1,6 +1,8 @@
+use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
 use bevy::prelude::*;
+use reqwest::header::HeaderMap;
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -31,6 +33,20 @@ impl<S: Serialize + Debug> Debug for Body<'_, S> {
             Body::Empty => write!(f, "Empty"),
             Body::Json(data) => write!(f, "Json({:?})", data),
             Body::Form(data) => write!(f, "Form({:?})", data),
+        }
+    }
+}
+
+pub enum Header<'a, S: Serialize + Debug = ()> {
+    None,
+    HeaderMap(&'a S),
+}
+
+impl<S: Serialize + Debug> Debug for Header<'_, S> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Header::None => write!(f, "None"),
+            Header::HeaderMap(data) => write!(f, "HeaderMap({:?})", data),
         }
     }
 }
@@ -87,17 +103,23 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
+        header: HeaderMap,
     ) -> Result<Response, Error> {
         info!(
-            "http request: {} {}{} query={:?} body={:?} auth={:?}",
+            "http request: {} {}{} query={:?} body={:?} auth={:?} header={:?}",
             method,
             self.base_url,
             route.as_ref(),
             query,
             body,
+            header,
             self.token
         );
         let mut req = self.http_client.request(method, self.join_url(route));
+
+        if header.len() > 0 {
+            req = req.headers(header)
+        }
 
         if let Query::Some(query) = query {
             req = req.query(query);
