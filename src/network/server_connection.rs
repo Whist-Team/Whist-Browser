@@ -151,8 +151,9 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
+        header: Option<HeaderMap>,
     ) -> Result<R, Error> {
-        self.request(method, route, query, body)
+        self.request(method, route, query, body, header)
             .await?
             .json::<R>()
             .await
