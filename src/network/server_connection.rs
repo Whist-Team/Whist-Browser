@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
 use bevy::prelude::*;
@@ -204,7 +203,13 @@ mod tests {
             .await;
         let conn = ServerConnection::new(mock_server.uri());
         let response_json: WhistInfo = conn
-            .request_with_json_result(Method::GET, "route", Query::<()>::None, Body::<()>::Empty)
+            .request_with_json_result(
+                Method::GET,
+                "route",
+                Query::<()>::None,
+                Body::<()>::Empty,
+                None,
+            )
             .await
             .unwrap();
         assert_eq!(response_json, expected_info);
@@ -226,6 +231,7 @@ mod tests {
                 "route",
                 Query::<()>::None,
                 Body::Json(&expected_info),
+                None,
             )
             .await
             .unwrap();

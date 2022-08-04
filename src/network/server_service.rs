@@ -44,7 +44,7 @@ impl ServerService {
     /// Retrieves the whist info object from the server.
     pub async fn get_info(&self) -> Result<WhistInfo, Error> {
         self.server_connection
-            .request_with_json_result(Method::GET, "", Query::<()>::None, Body::<()>::Empty)
+            .request_with_json_result(Method::GET, "", Query::<()>::None, Body::<()>::Empty, None)
             .await
     }
 
@@ -65,6 +65,7 @@ impl ServerService {
                 "user/auth",
                 Query::<()>::None,
                 Body::Form(body),
+                None,
             )
             .await?;
         if BEARER_TOKEN_TYPE == res.token_type {
@@ -82,6 +83,7 @@ impl ServerService {
                 "user/auth/create",
                 Query::<()>::None,
                 Body::Json(body),
+                None,
             )
             .await
     }
@@ -93,6 +95,7 @@ impl ServerService {
                 "game/info/ids",
                 Query::<()>::None,
                 Body::<()>::Empty,
+                None,
             )
             .await
     }
@@ -108,6 +111,7 @@ impl ServerService {
                 format!("game/join/{}", game_id.as_ref()),
                 Query::<()>::None,
                 Body::Json(body),
+                None,
             )
             .await
     }
@@ -119,6 +123,7 @@ impl ServerService {
                 "game/create",
                 Query::<()>::None,
                 Body::Json(body),
+                None,
             )
             .await
     }
