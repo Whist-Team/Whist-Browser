@@ -37,20 +37,6 @@ impl<S: Serialize + Debug> Debug for Body<'_, S> {
     }
 }
 
-pub enum Header<'a, S: Serialize + Debug = ()> {
-    None,
-    HeaderMap(&'a S),
-}
-
-impl<S: Serialize + Debug> Debug for Header<'_, S> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Header::None => write!(f, "None"),
-            Header::HeaderMap(data) => write!(f, "HeaderMap({:?})", data),
-        }
-    }
-}
-
 /// Provides basic REST communication with the server.
 pub struct ServerConnection {
     /// The main url without any routes.
