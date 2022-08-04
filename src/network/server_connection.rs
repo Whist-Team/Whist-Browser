@@ -103,7 +103,7 @@ impl ServerConnection {
         let mut req = self.http_client.request(method, self.join_url(route));
 
         if let Some(header) = header {
-            if header.len() > 0 {
+            if !header.is_empty() {
                 req = req.headers(header)
             }
         }
