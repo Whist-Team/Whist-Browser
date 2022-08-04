@@ -1,4 +1,5 @@
 use crate::network::{Body, GitHubAuthRequest, GitHubTempTokenResponse, Query, ServerConnection};
+use reqwest::header::HeaderMap;
 use reqwest::{Error, IntoUrl, Method};
 
 /// Service to provide call to github routes.
@@ -19,12 +20,15 @@ impl GitHubService {
     }
 
     pub async fn request_github_auth(&self, body: &GitHubAuthRequest) -> GitHubTempTokenResult {
+        let mut headers = HeaderMap::new();
+        headers.insert("Accept", "application/json".parse().unwrap());
         self.server_connection
             .request_with_json_result(
                 Method::POST,
                 "login/device/code",
                 Query::<()>::None,
                 Body::Json(body),
+                Some(headers),
             )
             .await
     }
