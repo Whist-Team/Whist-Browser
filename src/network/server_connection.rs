@@ -89,7 +89,7 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
-        header: HeaderMap,
+        header: Option<HeaderMap>,
     ) -> Result<Response, Error> {
         info!(
             "http request: {} {}{} query={:?} body={:?} auth={:?} header={:?}",
@@ -103,8 +103,10 @@ impl ServerConnection {
         );
         let mut req = self.http_client.request(method, self.join_url(route));
 
-        if header.len() > 0 {
-            req = req.headers(header)
+        if let Some(header) = header {
+            if header.len() > 0 {
+                req = req.headers(header)
+            }
         }
 
         if let Query::Some(query) = query {
