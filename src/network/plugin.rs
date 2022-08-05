@@ -95,13 +95,9 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                 };
             }
             NetworkCommand::GithubAuth(github_request) => {
-                let github_service = Some(GitHubService::new("https://github.com"));
+                let github_service = GitHubService::new("https://github.com");
                 worker.send(NetworkResponse::GithubAuth(
-                    github_service
-                        .as_ref()
-                        .unwrap()
-                        .request_github_auth(&github_request)
-                        .await,
+                    github_service.request_github_auth(&github_request).await,
                 ));
             }
             NetworkCommand::Login(login_form) => {
