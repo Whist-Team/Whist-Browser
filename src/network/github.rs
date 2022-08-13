@@ -13,7 +13,7 @@ impl GitHubAuthRequest {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GitHubTempTokenResponse {
     pub device_code: String,
     pub expires_in: i32,
@@ -38,4 +38,14 @@ impl GitHubTempTokenResponse {
             verification_uri: verification_uri.into(),
         }
     }
+}
+
+impl fmt::Debug for GitHubTempTokenResponse {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+
+        write!(f, "GithHubTempTokenResponse: device_code: ****, expires_in: {}, interval: {}, user_code: ****, verification_uri: {}",
+        self.expires_in, self.interval, self.verification_uri);
+
+    }
+
 }
