@@ -1,6 +1,7 @@
 use std::fmt::{Debug, Formatter};
 
 use bevy::prelude::*;
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT};
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -79,6 +80,7 @@ impl ServerConnection {
     /// * `route`: The route after the base url, include optional path variables.
     /// * `query`: Optional query parameters to append to the url.
     /// * `body`: Optional data that needs to be serialized into the request body.
+    /// * `headers`: Optional additional header fields to set.
     ///
     /// returns: Result<Response, Error>
     pub async fn request<Q: Serialize + Debug, B: Serialize + Debug>(
@@ -87,17 +89,23 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
+        headers: Option<HeaderMap>,
     ) -> Result<Response, Error> {
         info!(
-            "http request: {} {}{} query={:?} body={:?} auth={:?}",
+            "http request: {} {}{} query={:?} body={:?} headers={:?} auth={:?}",
             method,
             self.base_url,
             route.as_ref(),
             query,
             body,
+            headers,
             self.token
         );
         let mut req = self.http_client.request(method, self.join_url(route));
+
+        if let Some(headers) = headers {
+            req = req.headers(headers)
+        }
 
         if let Query::Some(query) = query {
             req = req.query(query);
@@ -129,6 +137,7 @@ impl ServerConnection {
     /// * 'route' - The route after the base url, include optional path variables.
     /// * `query`: Optional query parameters to append to the url.
     /// * 'body' - Optional data that needs to be serialized into the request body.
+    /// * `headers`: Optional additional header fields to set.
     ///
     /// returns: Result<Response, Error>
     pub async fn request_with_json_result<
@@ -141,8 +150,11 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
+        headers: Option<HeaderMap>,
     ) -> Result<R, Error> {
-        self.request(method, route, query, body)
+        let mut headers = headers.unwrap_or_default();
+        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+        self.request(method, route, query, body, Some(headers))
             .await?
             .json::<R>()
             .await
@@ -193,7 +205,13 @@ mod tests {
             .await;
         let conn = ServerConnection::new(mock_server.uri());
         let response_json: WhistInfo = conn
-            .request_with_json_result(Method::GET, "route", Query::<()>::None, Body::<()>::Empty)
+            .request_with_json_result(
+                Method::GET,
+                "route",
+                Query::<()>::None,
+                Body::<()>::Empty,
+                None,
+            )
             .await
             .unwrap();
         assert_eq!(response_json, expected_info);
@@ -215,6 +233,7 @@ mod tests {
                 "route",
                 Query::<()>::None,
                 Body::Json(&expected_info),
+                None,
             )
             .await
             .unwrap();
