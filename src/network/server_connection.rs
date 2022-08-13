@@ -1,8 +1,8 @@
 use std::fmt::{Debug, Formatter};
 
 use bevy::prelude::*;
-use reqwest::header::HeaderMap;
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
+use reqwest::header::{ACCEPT, HeaderMap, HeaderValue};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -80,6 +80,7 @@ impl ServerConnection {
     /// * `route`: The route after the base url, include optional path variables.
     /// * `query`: Optional query parameters to append to the url.
     /// * `body`: Optional data that needs to be serialized into the request body.
+    /// * `headers`: Optional additional header fields to set.
     ///
     /// returns: Result<Response, Error>
     pub async fn request<Q: Serialize + Debug, B: Serialize + Debug>(
@@ -88,24 +89,22 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
-        header: Option<HeaderMap>,
+        headers: Option<HeaderMap>,
     ) -> Result<Response, Error> {
         info!(
-            "http request: {} {}{} query={:?} body={:?} header={:?} auth={:?}",
+            "http request: {} {}{} query={:?} body={:?} headers={:?} auth={:?}",
             method,
             self.base_url,
             route.as_ref(),
             query,
             body,
-            header,
+            headers,
             self.token
         );
         let mut req = self.http_client.request(method, self.join_url(route));
 
-        if let Some(header) = header {
-            if !header.is_empty() {
-                req = req.headers(header)
-            }
+        if let Some(headers) = headers {
+            req = req.headers(headers)
         }
 
         if let Query::Some(query) = query {
@@ -138,6 +137,7 @@ impl ServerConnection {
     /// * 'route' - The route after the base url, include optional path variables.
     /// * `query`: Optional query parameters to append to the url.
     /// * 'body' - Optional data that needs to be serialized into the request body.
+    /// * `headers`: Optional additional header fields to set.
     ///
     /// returns: Result<Response, Error>
     pub async fn request_with_json_result<
@@ -150,9 +150,11 @@ impl ServerConnection {
         route: impl AsRef<str>,
         query: Query<'_, Q>,
         body: Body<'_, B>,
-        header: Option<HeaderMap>,
+        headers: Option<HeaderMap>,
     ) -> Result<R, Error> {
-        self.request(method, route, query, body, header)
+        let mut headers = headers.unwrap_or_default();
+        headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
+        self.request(method, route, query, body, Some(headers))
             .await?
             .json::<R>()
             .await
@@ -169,8 +171,8 @@ impl ServerConnection {
 mod tests {
     use pretty_assertions::assert_eq;
     use reqwest::{Method, Url};
-    use wiremock::matchers::method;
     use wiremock::{Mock, MockServer, ResponseTemplate};
+    use wiremock::matchers::method;
 
     use crate::network::*;
 
