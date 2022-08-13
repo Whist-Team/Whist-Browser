@@ -1,8 +1,8 @@
 use std::fmt::{Debug, Formatter};
 
 use bevy::prelude::*;
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT};
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
-use reqwest::header::{ACCEPT, HeaderMap, HeaderValue};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -171,8 +171,8 @@ impl ServerConnection {
 mod tests {
     use pretty_assertions::assert_eq;
     use reqwest::{Method, Url};
-    use wiremock::{Mock, MockServer, ResponseTemplate};
     use wiremock::matchers::method;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
 
     use crate::network::*;
 
