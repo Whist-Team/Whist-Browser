@@ -45,7 +45,7 @@ impl fmt::Debug for GitHubTempTokenResponse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 
         write!(f, "GithHubTempTokenResponse: device_code: ****, expires_in: {}, interval: {}, user_code: ****, verification_uri: {}",
-        self.expires_in, self.interval, self.verification_uri);
+        self.expires_in, self.interval, self.verification_uri)
 
     }
 
