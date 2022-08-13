@@ -91,7 +91,7 @@ impl ServerConnection {
         header: Option<HeaderMap>,
     ) -> Result<Response, Error> {
         info!(
-            "http request: {} {}{} query={:?} body={:?} auth={:?} header={:?}",
+            "http request: {} {}{} query={:?} body={:?} header={:?} auth={:?}",
             method,
             self.base_url,
             route.as_ref(),
