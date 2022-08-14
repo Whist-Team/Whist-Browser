@@ -1,5 +1,7 @@
-use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GitHubAuthRequest {
@@ -43,11 +45,13 @@ impl GitHubTempTokenResponse {
 
 impl fmt::Debug for GitHubTempTokenResponse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "GithHubTempTokenResponse: device_code: ****, expires_in: {}, interval: {}, \
-            user_code: ****, verification_uri: {}",
-            self.expires_in, self.interval, self.verification_uri
-        )
+        let mut output = HashMap::new();
+        let interval = self.interval.to_string();
+        let veri_uri = self.verification_uri.to_string();
+        output.insert("device_code", "****");
+        output.insert("interval", &interval);
+        output.insert("user_code", "****");
+        output.insert("verification_uri", &veri_uri);
+        write!(f, "GithHubTempTokenResponse {:?}", output)
     }
 }
