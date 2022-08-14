@@ -3,7 +3,7 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GitHubAuthRequest {
     pub client_id: String,
 }
@@ -13,6 +13,14 @@ impl GitHubAuthRequest {
         Self {
             client_id: client_id.into(),
         }
+    }
+}
+
+impl fmt::Debug for GitHubAuthRequest {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut output = HashMap::new();
+        output.insert("client_id", "****");
+        write!(f, "GithHubTempTokenResponse {:?}", output)
     }
 }
 
