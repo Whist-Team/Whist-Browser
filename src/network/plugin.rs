@@ -33,6 +33,7 @@ pub enum ConnectResult {
 pub enum LoginResult {
     Success,
     Failure(LoginError),
+    GitHubWait(GitHubTempTokenResult),
 }
 
 #[derive(Debug, Clone)]
@@ -43,6 +44,7 @@ pub enum NetworkCommand {
     GameJoin(String, GameJoinRequest),
     GameCreate(GameCreateRequest),
     GithubAuth(GitHubAuthRequest),
+    SwapToken(SwapTokenRequest),
 }
 
 #[derive(Debug)]
@@ -96,9 +98,19 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
             }
             NetworkCommand::GithubAuth(github_request) => {
                 let github_service = GitHubService::new("https://github.com");
-                worker.send(NetworkResponse::GithubAuth(
-                    github_service.request_github_auth(&github_request).await,
-                ));
+                let git_res = github_service.request_github_auth(&github_request).await;
+                worker.send(NetworkResponse::GithubAuth(git_res));
+            }
+            NetworkCommand::SwapToken(swap_token_request) => {
+                let whist_res = server_service
+                    .as_mut()
+                    .unwrap()
+                    .github_auth(&swap_token_request)
+                    .await;
+                match whist_res {
+                    Ok(_) => worker.send(NetworkResponse::LoginSuccess),
+                    Err(e) => worker.send(NetworkResponse::LoginFailure(e)),
+                };
             }
             NetworkCommand::Login(login_form) => {
                 let res = server_service.as_mut().unwrap().login(&login_form).await;
@@ -150,7 +162,6 @@ fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
     mut connect_result: EventWriter<ConnectResult>,
     mut login_result: EventWriter<LoginResult>,
-    mut github_auth_result: EventWriter<GitHubTempTokenResult>,
     mut game_list_result: EventWriter<GameListResult>,
     mut game_join_result: EventWriter<GameJoinResult>,
     mut game_create_result: EventWriter<GameCreateResult>,
@@ -163,7 +174,9 @@ fn receive_network_events(
                 NetworkResponse::ConnectFailure(e) => {
                     connect_result.send(ConnectResult::Failure(e))
                 }
-                NetworkResponse::GithubAuth(result) => github_auth_result.send(result),
+                NetworkResponse::GithubAuth(result) => {
+                    login_result.send(LoginResult::GitHubWait(result))
+                }
                 NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
                 NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
                 NetworkResponse::GameList(result) => game_list_result.send(result),
