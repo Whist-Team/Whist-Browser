@@ -45,7 +45,7 @@ impl LoginResponse {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct SwapTokenRequest {
     pub device_code: String,
 }
