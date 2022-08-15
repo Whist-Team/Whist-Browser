@@ -20,7 +20,7 @@ impl fmt::Debug for GitHubAuthRequest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut output = HashMap::new();
         output.insert("client_id", "****");
-        write!(f, "GithHubTempTokenResponse {:?}", output)
+        write!(f, "GitHubAuthRequest {:?}", output)
     }
 }
 
