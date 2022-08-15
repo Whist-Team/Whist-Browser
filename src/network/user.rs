@@ -44,6 +44,19 @@ impl LoginResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct SwapTokenRequest {
+    pub device_code: String,
+}
+
+impl SwapTokenRequest {
+    pub fn new(device_code: impl Into<String>) -> Self {
+        Self {
+            device_code: device_code.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct UserCreateRequest {
     pub username: String,
     pub password: String,
