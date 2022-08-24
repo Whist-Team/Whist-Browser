@@ -60,14 +60,10 @@ jobs:
           command: install
           args: grcov
       - uses: Swatinem/rust-cache@v2
-      - name: Run coverage tests on src
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: src
       - id: coverage
         name: create coverage
         run: |
+          cargo test src
           grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*" -o lcov.info
       - uses: codecov/codecov-action@v3
         with:
