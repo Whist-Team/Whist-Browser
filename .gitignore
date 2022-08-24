@@ -5,3 +5,4 @@
 **/*.rs.bk
 /grcov
 *.profraw
+*.profdata
