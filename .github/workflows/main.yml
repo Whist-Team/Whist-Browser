@@ -57,7 +57,6 @@ jobs:
           export RUSTFLAGS="-Cinstrument-coverage"
           export LLVM_PROFILE_FILE="whist_browser-%p-%m.profraw"
           cargo test src --verbose
-          llvm-profdata merge -sparse whist_browser-*.profraw -o whist_browser.profdata
           ./grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*" -o lcov.info
       - uses: codecov/codecov-action@v3
         with:
