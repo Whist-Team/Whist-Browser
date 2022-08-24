@@ -53,7 +53,7 @@ jobs:
           profile: minimal
           toolchain: nightly
           override: true
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - name: Run coverage tests on src
         uses: actions-rs/cargo@v1
         with:
