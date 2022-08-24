@@ -3,3 +3,6 @@
 /dist
 
 **/*.rs.bk
+/grcov
+*.profraw
+*.profdata
