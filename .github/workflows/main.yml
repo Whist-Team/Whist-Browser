@@ -54,6 +54,7 @@ jobs:
           toolchain: nightly
           override: true
       - uses: actions-rs/cargo@v1
+        name: Install grcov
         with:
           command: install
           args: grcov
