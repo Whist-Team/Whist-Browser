@@ -53,6 +53,7 @@ jobs:
           profile: minimal
           toolchain: nightly
           override: true
+          components: llvm-tools-preview
       - uses: actions-rs/cargo@v1
         name: Install grcov
         with:
