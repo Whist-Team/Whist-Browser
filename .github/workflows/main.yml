@@ -41,6 +41,10 @@ jobs:
   test-coverage:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup environment
+        run: |
+          export RUSTFLAGS="-Cinstrument-coverage"
+          export LLVM_PROFILE_FILE="whist_browser-%p-%m.profraw"
       - uses: actions/checkout@v3
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
@@ -50,13 +54,15 @@ jobs:
           toolchain: nightly
           override: true
       - uses: Swatinem/rust-cache@v1
+      - name: Run coverage tests on src
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: src
       - id: coverage
         name: create coverage
         run: |
           curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-x86_64-unknown-linux-gnu.tar.bz2 | tar jxf -
-          export RUSTFLAGS="-Cinstrument-coverage"
-          export LLVM_PROFILE_FILE="whist_browser-%p-%m.profraw"
-          cargo test src --verbose
           ./grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*" -o lcov.info
       - uses: codecov/codecov-action@v3
         with:
