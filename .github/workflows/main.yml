@@ -60,9 +60,9 @@ jobs:
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
       - id: coverage
         run: |
-          - LLVM_PROFILE_FILE="your_name-%p-%m.profraw" cargo test --verbose
-          - ./grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*" -o lcov.info
-          - bash <(curl -s https://codecov.io/bash) -f lcov.info
+          LLVM_PROFILE_FILE="your_name-%p-%m.profraw" cargo test --verbose
+          ./grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "/*" -o lcov.info
+          bash <(curl -s https://codecov.io/bash) -f lcov.info
       - uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
