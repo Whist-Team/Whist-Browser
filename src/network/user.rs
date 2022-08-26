@@ -1,6 +1,5 @@
 use reqwest::Error;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt;
 
 #[derive(Debug)]
@@ -60,9 +59,9 @@ impl SwapTokenRequest {
 
 impl fmt::Debug for SwapTokenRequest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut output = HashMap::new();
-        output.insert("device_code", &self.device_code);
-        write!(f, "SwapTokenRequest {:?}", output)
+        f.debug_struct("SwapTokenRequest")
+            .field("device_code", &self.device_code)
+            .finish()
     }
 }
 

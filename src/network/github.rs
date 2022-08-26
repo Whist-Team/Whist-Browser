@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
@@ -18,9 +17,9 @@ impl GitHubAuthRequest {
 
 impl fmt::Debug for GitHubAuthRequest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut output = HashMap::new();
-        output.insert("client_id", "****");
-        write!(f, "GitHubAuthRequest {:?}", output)
+        f.debug_struct("GitHubAuthRequest")
+            .field("client_id", &"****")
+            .finish()
     }
 }
 
@@ -53,13 +52,13 @@ impl GitHubTempTokenResponse {
 
 impl fmt::Debug for GitHubTempTokenResponse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut output = HashMap::new();
         let interval = self.interval.to_string();
         let veri_uri = self.verification_uri.to_string();
-        output.insert("device_code", "****");
-        output.insert("interval", &interval);
-        output.insert("user_code", "****");
-        output.insert("verification_uri", &veri_uri);
-        write!(f, "GithHubTempTokenResponse {:?}", output)
+        f.debug_struct("GitHubTempTokenResponse")
+            .field("device_code", &"****")
+            .field("interval", &interval)
+            .field("user_code", &"****")
+            .field("verification_uri", &veri_uri)
+            .finish()
     }
 }

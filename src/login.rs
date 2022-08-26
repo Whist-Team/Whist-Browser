@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
-use std::collections::HashMap;
 use std::{env, fmt};
 
 use crate::network::{GitHubAuthRequest, LoginForm, LoginResult, NetworkCommand, SwapTokenRequest};
@@ -37,9 +36,9 @@ impl GitHubAuthData {
 
 impl fmt::Debug for GitHubAuthData {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut output = HashMap::new();
-        output.insert("user_code", &self.user_code);
-        write!(f, "GitHubAuthData {:?}", output)
+        f.debug_struct("GitHubAuthData")
+            .field("user_code", &self.user_code)
+            .finish()
     }
 }
 
