@@ -76,6 +76,25 @@ impl ServerService {
         }
     }
 
+    pub async fn github_auth(&mut self, body: &SwapTokenRequest) -> Result<(), LoginError> {
+        let res: LoginResponse = self
+            .server_connection
+            .request_with_json_result(
+                Method::POST,
+                "oauth2/github/device",
+                Query::<()>::None,
+                Body::Json(body),
+                None,
+            )
+            .await?;
+        if BEARER_TOKEN_TYPE == res.token_type {
+            self.server_connection.token(res.access_token);
+            Ok(())
+        } else {
+            Err(LoginError::UnknownTokenType(res.token_type))
+        }
+    }
+
     pub async fn create_user(&self, body: &UserCreateRequest) -> Result<UserCreateResponse, Error> {
         self.server_connection
             .request_with_json_result(

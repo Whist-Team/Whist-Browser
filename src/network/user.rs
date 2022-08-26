@@ -1,5 +1,6 @@
 use reqwest::Error;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug)]
 pub enum LoginError {
@@ -40,6 +41,27 @@ impl LoginResponse {
             access_token: access_token.into(),
             token_type: token_type.into(),
         }
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct SwapTokenRequest {
+    pub device_code: String,
+}
+
+impl SwapTokenRequest {
+    pub fn new(device_code: impl Into<String>) -> Self {
+        Self {
+            device_code: device_code.into(),
+        }
+    }
+}
+
+impl fmt::Debug for SwapTokenRequest {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("SwapTokenRequest")
+            .field("device_code", &self.device_code)
+            .finish()
     }
 }
 

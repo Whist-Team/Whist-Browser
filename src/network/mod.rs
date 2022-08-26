@@ -4,6 +4,8 @@
 pub use async_worker::*;
 pub use event::*;
 pub use game::*;
+pub use github::*;
+pub use github_service::*;
 pub use plugin::*;
 pub use server_connection::*;
 pub use server_service::*;
@@ -14,6 +16,8 @@ pub use whist_info::*;
 mod async_worker;
 mod event;
 mod game;
+mod github;
+mod github_service;
 mod plugin;
 mod server_connection;
 mod server_service;

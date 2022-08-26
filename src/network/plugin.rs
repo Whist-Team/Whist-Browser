@@ -13,6 +13,7 @@ impl Plugin for NetworkPlugin {
             .add_event::<GameListResult>()
             .add_event::<GameJoinResult>()
             .add_event::<GameCreateResult>()
+            .add_event::<GitHubTempTokenResult>()
             .add_event::<WebSocketCommand>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
@@ -32,6 +33,7 @@ pub enum ConnectResult {
 pub enum LoginResult {
     Success,
     Failure(LoginError),
+    GitHubWait(GitHubTempTokenResult),
 }
 
 #[derive(Debug, Clone)]
@@ -41,12 +43,15 @@ pub enum NetworkCommand {
     GetGameList,
     GameJoin(String, GameJoinRequest),
     GameCreate(GameCreateRequest),
+    GithubAuth(GitHubAuthRequest),
+    SwapToken(SwapTokenRequest),
 }
 
 #[derive(Debug)]
 enum NetworkResponse {
     ConnectSuccess,
     ConnectFailure(ConnectError),
+    GithubAuth(GitHubTempTokenResult),
     LoginSuccess,
     LoginFailure(LoginError),
     GameList(GameListResult),
@@ -89,6 +94,22 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                 match res {
                     Ok(_) => worker.send(NetworkResponse::ConnectSuccess),
                     Err(e) => worker.send(NetworkResponse::ConnectFailure(e)),
+                };
+            }
+            NetworkCommand::GithubAuth(github_request) => {
+                let github_service = GitHubService::new("https://github.com");
+                let git_res = github_service.request_github_auth(&github_request).await;
+                worker.send(NetworkResponse::GithubAuth(git_res));
+            }
+            NetworkCommand::SwapToken(swap_token_request) => {
+                let whist_res = server_service
+                    .as_mut()
+                    .unwrap()
+                    .github_auth(&swap_token_request)
+                    .await;
+                match whist_res {
+                    Ok(_) => worker.send(NetworkResponse::LoginSuccess),
+                    Err(e) => worker.send(NetworkResponse::LoginFailure(e)),
                 };
             }
             NetworkCommand::Login(login_form) => {
@@ -152,6 +173,9 @@ fn receive_network_events(
                 NetworkResponse::ConnectSuccess => connect_result.send(ConnectResult::Success),
                 NetworkResponse::ConnectFailure(e) => {
                     connect_result.send(ConnectResult::Failure(e))
+                }
+                NetworkResponse::GithubAuth(result) => {
+                    login_result.send(LoginResult::GitHubWait(result))
                 }
                 NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
                 NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
