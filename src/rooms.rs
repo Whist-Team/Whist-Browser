@@ -130,7 +130,7 @@ fn update_ui_state(
         assert!(matches!(ui_state.room_status, RoomStatus::Loading));
         match game_list_result {
             Ok(game_list) => {
-                ui_state.games = game_list.games.to_owned();
+                ui_state.games = game_list.rooms.to_owned();
                 ui_state.room_status = RoomStatus::Loaded;
             }
             Err(e) => {
