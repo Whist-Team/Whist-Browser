@@ -65,7 +65,7 @@ mod tests {
     #[test]
     fn test_game_create_request_serialize_1() {
         let expected = json!({
-            "game_name": "asdf",
+            "room_name": "asdf",
             "password": null,
             "min_player": null,
             "max_player": null,
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn test_game_create_request_serialize_2() {
         let expected = json!({
-            "game_name": "asdf",
+            "room_name": "asdf",
             "password": "12345_is_a_bad_password",
             "min_player": null,
             "max_player": null,
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn test_game_create_request_serialize_3() {
         let expected = json!({
-            "game_name": "asdf",
+            "room_name": "asdf",
             "password": "12345_is_a_bad_password",
             "min_player": 4,
             "max_player": 4,
