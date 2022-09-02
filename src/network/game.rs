@@ -7,7 +7,7 @@ pub struct GameListResponse {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameCreateRequest {
-    pub game_name: String,
+    pub room_name: String,
     pub password: Option<String>,
     pub min_player: Option<u8>,
     pub max_player: Option<u8>,
@@ -33,7 +33,7 @@ pub struct GameJoinResponse {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameCreateResponse {
-    pub game_id: String,
+    pub room_id: String,
 }
 
 #[cfg(test)]
@@ -71,7 +71,7 @@ mod tests {
             "max_player": null,
         });
         let actual = serde_json::to_value(&GameCreateRequest {
-            game_name: "asdf".to_string(),
+            room_name: "asdf".to_string(),
             password: None,
             min_player: None,
             max_player: None,
@@ -89,7 +89,7 @@ mod tests {
             "max_player": null,
         });
         let actual = serde_json::to_value(&GameCreateRequest {
-            game_name: "asdf".to_string(),
+            room_name: "asdf".to_string(),
             password: Some("12345_is_a_bad_password".to_string()),
             min_player: None,
             max_player: None,
@@ -107,7 +107,7 @@ mod tests {
             "max_player": 4,
         });
         let actual = serde_json::to_value(&GameCreateRequest {
-            game_name: "asdf".to_string(),
+            room_name: "asdf".to_string(),
             password: Some("12345_is_a_bad_password".to_string()),
             min_player: Some(4),
             max_player: Some(4),

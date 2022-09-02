@@ -289,7 +289,7 @@ fn room_menu(
                     if button.clicked() {
                         ui_state.room_status = RoomStatus::CreatingAndJoining;
                         event_writer.send(NetworkCommand::GameCreate(GameCreateRequest {
-                            game_name: ui_state.name.to_string(),
+                            room_name: ui_state.name.to_string(),
                             password: if ui_state.password.is_empty() {
                                 None
                             } else {
