@@ -6,7 +6,7 @@ use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,
     GameListResult, NetworkCommand,
 };
-use crate::{GameState, MySystemLabel};
+use crate::{GameState, MySystemLabel, ROOM_ID};
 
 pub struct RoomMenuPlugin;
 
@@ -143,6 +143,9 @@ fn update_ui_state(
         match game_join_result {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
+                    unsafe {
+                        ROOM_ID = ui_state.selected.clone();
+                    }
                     state.set(GameState::RoomLobby).unwrap();
                 }
             },

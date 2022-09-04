@@ -1,5 +1,5 @@
 use crate::network::{NetworkCommand, RoomInfoResponse, RoomInfoResult};
-use crate::{GameState, MySystemLabel};
+use crate::{GameState, MySystemLabel, ROOM_ID};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
@@ -74,7 +74,10 @@ impl Default for UiState {
 
 fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
     commands.init_resource::<UiState>();
-    event_writer.send(NetworkCommand::RoomInfo("".to_string()));
+    unsafe {
+        let room_id = ROOM_ID.clone().unwrap();
+        event_writer.send(NetworkCommand::RoomInfo(room_id));
+    }
 }
 
 fn remove_ui_state(mut commands: Commands) {
