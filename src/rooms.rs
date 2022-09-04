@@ -143,7 +143,7 @@ fn update_ui_state(
         match game_join_result {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
-                    state.set(GameState::Ingame).unwrap();
+                    state.set(GameState::RoomLobby).unwrap();
                 }
             },
             Err(e) => {
@@ -158,7 +158,7 @@ fn update_ui_state(
         ));
         match game_create_result {
             Ok(_) => {
-                state.set(GameState::Ingame).unwrap();
+                state.set(GameState::RoomLobby).unwrap();
             }
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
