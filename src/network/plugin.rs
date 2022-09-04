@@ -46,6 +46,7 @@ pub enum NetworkCommand {
     GameCreate(GameCreateRequest),
     GithubAuth(GitHubAuthRequest),
     RoomInfo(String),
+    StartRoom(String),
     SwapToken(SwapTokenRequest),
 }
 
@@ -153,6 +154,9 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                     .get_room_info(room_id)
                     .await,
             )),
+            NetworkCommand::StartRoom(room_id) => {
+                todo!()
+            }
         }
     }
 }

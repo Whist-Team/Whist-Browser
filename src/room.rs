@@ -106,7 +106,11 @@ fn update_ui_state(
     }
 }
 
-fn lobby_menu(mut egui_context: ResMut<EguiContext>, mut ui_state: ResMut<UiState>) {
+fn lobby_menu(
+    mut egui_context: ResMut<EguiContext>,
+    mut ui_state: ResMut<UiState>,
+    mut event_writer: EventWriter<NetworkCommand>,
+) {
     egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
         ui.horizontal(|ui| {
             ui.label(format!("Room: {}", ui_state.name));
@@ -115,5 +119,9 @@ fn lobby_menu(mut egui_context: ResMut<EguiContext>, mut ui_state: ResMut<UiStat
             ui_state.room_status.enable_start_button(),
             egui::Button::new("Start"),
         );
+        if start_button.clicked() {
+            ui_state.room_status = RoomStatus::Starting;
+            event_writer.send(NetworkCommand::StartRoom());
+        }
     });
 }
