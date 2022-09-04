@@ -142,11 +142,8 @@ fn update_ui_state(
         assert!(matches!(ui_state.room_status, RoomStatus::Joining));
         match game_join_result {
             Ok(res) => match res.status {
-                GameJoinStatus::Joined => {
+                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
                     state.set(GameState::Ingame).unwrap();
-                }
-                GameJoinStatus::AlreadyJoined => {
-                    ui_state.room_status = RoomStatus::Error(format!("{:?}", res.status));
                 }
             },
             Err(e) => {
