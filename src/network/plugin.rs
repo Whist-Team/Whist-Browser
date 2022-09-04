@@ -14,6 +14,7 @@ impl Plugin for NetworkPlugin {
             .add_event::<GameJoinResult>()
             .add_event::<GameCreateResult>()
             .add_event::<GitHubTempTokenResult>()
+            .add_event::<RoomInfoResult>()
             .add_event::<WebSocketCommand>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
@@ -44,6 +45,7 @@ pub enum NetworkCommand {
     GameJoin(String, GameJoinRequest),
     GameCreate(GameCreateRequest),
     GithubAuth(GitHubAuthRequest),
+    RoomInfo(String),
     SwapToken(SwapTokenRequest),
 }
 
@@ -57,6 +59,7 @@ enum NetworkResponse {
     GameList(GameListResult),
     GameJoin(GameJoinResult),
     GameCreate(GameCreateResult),
+    RoomInfo(RoomInfoResult),
 }
 
 #[derive(Debug)]
@@ -142,6 +145,14 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                         .await,
                 ));
             }
+
+            NetworkCommand::RoomInfo(room_id) => worker.send(NetworkResponse::RoomInfo(
+                server_service
+                    .as_ref()
+                    .unwrap()
+                    .get_room_info(room_id)
+                    .await,
+            )),
         }
     }
 }
@@ -165,6 +176,7 @@ fn receive_network_events(
     mut game_list_result: EventWriter<GameListResult>,
     mut game_join_result: EventWriter<GameJoinResult>,
     mut game_create_result: EventWriter<GameCreateResult>,
+    mut room_info_result: EventWriter<RoomInfoResult>,
 ) {
     if let Some(mut network_worker) = network_worker {
         while let Ok(Some(network_response)) = network_worker.try_recv() {
@@ -182,6 +194,7 @@ fn receive_network_events(
                 NetworkResponse::GameList(result) => game_list_result.send(result),
                 NetworkResponse::GameJoin(result) => game_join_result.send(result),
                 NetworkResponse::GameCreate(result) => game_create_result.send(result),
+                NetworkResponse::RoomInfo(result) => room_info_result.send(result),
             }
         }
     }
