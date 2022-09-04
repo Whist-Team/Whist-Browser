@@ -4,6 +4,7 @@ use crate::assets::LoadingPlugin;
 use crate::connect::ConnectMenuPlugin;
 use crate::login::LoginMenuPlugin;
 use crate::network::NetworkPlugin;
+use crate::room::RoomLobbyPlugin;
 use crate::rooms::RoomMenuPlugin;
 use crate::ui::BaseUiPlugin;
 
@@ -26,6 +27,7 @@ pub enum GameState {
     ConnectMenu,
     LoginMenu,
     RoomMenu,
+    RoomLobby,
     Ingame,
 }
 
@@ -44,7 +46,8 @@ impl Plugin for GamePlugin {
             .add_plugin(NetworkPlugin)
             .add_plugin(ConnectMenuPlugin)
             .add_plugin(LoginMenuPlugin)
-            .add_plugin(RoomMenuPlugin);
+            .add_plugin(RoomMenuPlugin)
+            .add_plugin(RoomLobbyPlugin);
     }
 }
 
