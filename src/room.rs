@@ -1,6 +1,22 @@
-use crate::network::{RoomInfoResponse, RoomInfoResult};
+use crate::network::{NetworkCommand, RoomInfoResponse, RoomInfoResult};
+use crate::{GameState, MySystemLabel};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
+
+pub struct RoomLobbyPlugin;
+
+impl Plugin for RoomLobbyPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_set(SystemSet::on_enter(GameState::RoomLobby).with_system(add_ui_state))
+            .add_system_set(
+                SystemSet::on_update(GameState::RoomLobby)
+                    .after(MySystemLabel::EguiTop)
+                    .with_system(update_ui_state)
+                    .with_system(lobby_menu.after(update_ui_state)),
+            )
+            .add_system_set(SystemSet::on_exit(GameState::RoomLobby).with_system(remove_ui_state));
+    }
+}
 
 #[derive(Debug)]
 enum RoomStatus {
@@ -56,6 +72,15 @@ impl Default for UiState {
     }
 }
 
+fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
+    commands.init_resource::<UiState>();
+    event_writer.send(NetworkCommand::RoomInfo("".to_string()));
+}
+
+fn remove_ui_state(mut commands: Commands) {
+    commands.remove_resource::<UiState>();
+}
+
 fn update_ui_state(
     mut ui_state: ResMut<UiState>,
     mut room_info_results: EventReader<RoomInfoResult>,
@@ -79,8 +104,10 @@ fn update_ui_state(
 }
 
 fn lobby_menu(mut egui_context: ResMut<EguiContext>, mut ui_state: ResMut<UiState>) {
-    let ui_state: &mut UiState = &mut ui_state;
     egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
+        ui.horizontal(|ui| {
+            ui.label(format!("Room: {}", ui_state.name));
+        });
         let start_button = ui.add_enabled(
             ui_state.room_status.enable_start_button(),
             egui::Button::new("Start"),
