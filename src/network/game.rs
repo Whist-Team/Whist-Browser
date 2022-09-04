@@ -14,7 +14,7 @@ pub struct GameCreateRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct GameInfoResponse {
+pub struct RoomInfoResponse {
     pub name: String,
     pub password: bool,
     pub rubber_number: u8,

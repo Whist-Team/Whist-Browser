@@ -1,4 +1,5 @@
 use reqwest::{Error, IntoUrl, Method};
+use wiremock::matchers::headers;
 
 use crate::network::*;
 
@@ -27,6 +28,7 @@ pub struct ServerService {
     server_connection: ServerConnection,
 }
 
+pub type RoomInfoResult = Result<RoomInfoResponse, Error>;
 pub type GameListResult = Result<GameListResponse, Error>;
 pub type GameJoinResult = Result<GameJoinResponse, Error>;
 pub type GameCreateResult = Result<GameCreateResponse, Error>;
@@ -112,6 +114,18 @@ impl ServerService {
             .request_with_json_result(
                 Method::GET,
                 "room/info/ids",
+                Query::<()>::None,
+                Body::<()>::Empty,
+                None,
+            )
+            .await
+    }
+
+    pub async fn get_room_info(&self, room_id: impl AsRef<str>) -> RoomInfoResult {
+        self.server_connection
+            .request_with_json_result(
+                Method::GET,
+                format!("room/info/{}", room_id.as_ref()),
                 Query::<()>::None,
                 Body::<()>::Empty,
                 None,
