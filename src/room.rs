@@ -1,4 +1,4 @@
-use crate::network::{NetworkCommand, RoomInfoResponse, RoomInfoResult};
+use crate::network::{NetworkCommand, RoomInfoResult};
 use crate::{GameState, MySystemLabel, ROOM_ID};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
