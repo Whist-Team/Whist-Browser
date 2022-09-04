@@ -12,6 +12,7 @@ mod card;
 mod connect;
 mod login;
 mod network;
+mod room;
 mod rooms;
 mod ui;
 
