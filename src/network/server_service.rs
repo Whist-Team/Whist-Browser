@@ -1,5 +1,4 @@
 use reqwest::{Error, IntoUrl, Method};
-use wiremock::matchers::headers;
 
 use crate::network::*;
 
