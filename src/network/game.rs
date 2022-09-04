@@ -14,6 +14,19 @@ pub struct GameCreateRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct GameInfoResponse {
+    pub name: String,
+    pub password: bool,
+    pub rubber_number: u8,
+    pub game_number: u8,
+    pub hand_number: u8,
+    pub trick_number: u8,
+    pub min_player: u8,
+    pub max_player: u8,
+    pub player_number: u8,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameJoinRequest {
     pub password: Option<String>,
 }
