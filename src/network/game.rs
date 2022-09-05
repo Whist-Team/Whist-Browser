@@ -27,6 +27,11 @@ pub struct RoomInfoResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct RoomStartResponse {
+    pub status: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameJoinRequest {
     pub password: Option<String>,
 }

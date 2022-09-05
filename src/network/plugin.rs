@@ -61,6 +61,7 @@ enum NetworkResponse {
     GameJoin(GameJoinResult),
     GameCreate(GameCreateResult),
     RoomInfo(RoomInfoResult),
+    RoomStart(RoomStartResult),
 }
 
 #[derive(Debug)]
@@ -154,9 +155,9 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                     .get_room_info(room_id)
                     .await,
             )),
-            NetworkCommand::StartRoom(room_id) => {
-                todo!()
-            }
+            NetworkCommand::StartRoom(room_id) => worker.send(NetworkResponse::RoomStart(
+                server_service.as_ref().unwrap().start_room(room_id).await,
+            )),
         }
     }
 }
@@ -181,6 +182,7 @@ fn receive_network_events(
     mut game_join_result: EventWriter<GameJoinResult>,
     mut game_create_result: EventWriter<GameCreateResult>,
     mut room_info_result: EventWriter<RoomInfoResult>,
+    mut room_start_result: EventWriter<RoomStartResult>,
 ) {
     if let Some(mut network_worker) = network_worker {
         while let Ok(Some(network_response)) = network_worker.try_recv() {
@@ -199,6 +201,7 @@ fn receive_network_events(
                 NetworkResponse::GameJoin(result) => game_join_result.send(result),
                 NetworkResponse::GameCreate(result) => game_create_result.send(result),
                 NetworkResponse::RoomInfo(result) => room_info_result.send(result),
+                NetworkResponse::RoomStart(result) => room_start_result.send(result),
             }
         }
     }

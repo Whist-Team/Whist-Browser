@@ -28,6 +28,7 @@ pub struct ServerService {
 }
 
 pub type RoomInfoResult = Result<RoomInfoResponse, Error>;
+pub type RoomStartResult = Result<RoomStartResponse, Error>;
 pub type GameListResult = Result<GameListResponse, Error>;
 pub type GameJoinResult = Result<GameJoinResponse, Error>;
 pub type GameCreateResult = Result<GameCreateResponse, Error>;
@@ -155,6 +156,18 @@ impl ServerService {
                 "room/create",
                 Query::<()>::None,
                 Body::Json(body),
+                None,
+            )
+            .await
+    }
+
+    pub async fn start_room(&self, room_id: impl AsRef<str>) -> RoomStartResult {
+        self.server_connection
+            .request_with_json_result(
+                Method::POST,
+                format!("room/start/{}", room_id.as_ref()),
+                Query::<()>::None,
+                Body::<()>::Empty,
                 None,
             )
             .await
