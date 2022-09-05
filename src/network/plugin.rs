@@ -14,6 +14,7 @@ impl Plugin for NetworkPlugin {
             .add_event::<GameJoinResult>()
             .add_event::<GameCreateResult>()
             .add_event::<GitHubTempTokenResult>()
+            .add_event::<UserCreateResult>()
             .add_event::<WebSocketCommand>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
