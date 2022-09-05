@@ -111,7 +111,7 @@ fn lobby_menu(
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
-    egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
+    egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| unsafe {
         ui.horizontal(|ui| {
             ui.label(format!("Room: {}", ui_state.name));
         });
@@ -121,7 +121,7 @@ fn lobby_menu(
         );
         if start_button.clicked() {
             ui_state.room_status = RoomStatus::Starting;
-            event_writer.send(NetworkCommand::StartRoom());
+            event_writer.send(NetworkCommand::StartRoom(ROOM_ID.clone().unwrap()));
         }
     });
 }
