@@ -2,6 +2,7 @@ use crate::network::{NetworkCommand, RoomInfoResult};
 use crate::player::Player;
 use crate::{GameState, Globals, MySystemLabel};
 use bevy::prelude::*;
+use bevy_egui::egui::Ui;
 use bevy_egui::{egui, EguiContext};
 
 pub struct RoomLobbyPlugin;
@@ -39,6 +40,7 @@ struct UiState {
     min_player: u8,
     max_player: u8,
     players: Vec<Player>,
+    selected: Option<String>,
 }
 
 impl UiState {
@@ -63,6 +65,7 @@ impl Default for UiState {
             min_player: 0,
             max_player: 0,
             players: Vec::new(),
+            selected: None,
         }
     }
 }
@@ -110,9 +113,39 @@ fn lobby_menu(
     globals: Res<Globals>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
+    let ui_state: &mut UiState = &mut ui_state;
     egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
         ui.horizontal(|ui| {
             ui.label(format!("Room: {}", ui_state.name));
+        });
+        ui.columns(2, |columns| {
+            let ui_left: &mut Ui = &mut columns[0];
+            ui_left.label("Players:");
+            ui_left.separator();
+            egui::ScrollArea::vertical()
+                .auto_shrink([false, false])
+                .always_show_scroll(true)
+                .max_height(ui_left.available_height() - 50.0)
+                .show(ui_left, |ui| {
+                    match &ui_state.room_status {
+                        _ => {
+                            for player in &ui_state.players {
+                                let username = player.clone().username;
+                                ui.selectable_value(
+                                    &mut ui_state.selected,
+                                    Some(username.to_string()),
+                                    &username,
+                                );
+                            }
+                        }
+                    };
+                });
+            ui_left.separator();
+
+            let ui_right: &mut Ui = &mut columns[1];
+            ui_right.label("Info:");
+            // TODO: add player info
+            ui_right.separator();
         });
         let start_button =
             ui.add_enabled(ui_state.enable_start_button(), egui::Button::new("Start"));
