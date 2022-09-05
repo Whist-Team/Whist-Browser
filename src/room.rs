@@ -120,7 +120,11 @@ fn lobby_menu(
         });
         ui.columns(2, |columns| {
             let ui_left: &mut Ui = &mut columns[0];
-            ui_left.label("Players:");
+            ui_left.label(format!(
+                "Players: {}/{}",
+                ui_state.players.len(),
+                ui_state.max_player
+            ));
             ui_left.separator();
             egui::ScrollArea::vertical()
                 .auto_shrink([false, false])
