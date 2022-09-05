@@ -27,6 +27,7 @@ pub struct ServerService {
     server_connection: ServerConnection,
 }
 
+pub type UserCreateResult = Result<UserCreateResponse, Error>;
 pub type GameListResult = Result<GameListResponse, Error>;
 pub type GameJoinResult = Result<GameJoinResponse, Error>;
 pub type GameCreateResult = Result<GameCreateResponse, Error>;
