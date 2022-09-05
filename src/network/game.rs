@@ -1,3 +1,4 @@
+use crate::player::Player;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -23,7 +24,7 @@ pub struct RoomInfoResponse {
     pub trick_number: u8,
     pub min_player: u8,
     pub max_player: u8,
-    pub player_number: u8,
+    pub players: Vec<Player>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]

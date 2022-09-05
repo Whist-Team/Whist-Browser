@@ -1,4 +1,5 @@
 use crate::network::{NetworkCommand, RoomInfoResult};
+use crate::player::Player;
 use crate::{GameState, Globals, MySystemLabel};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
@@ -37,7 +38,7 @@ struct UiState {
     trick_number: u8,
     min_player: u8,
     max_player: u8,
-    player_number: u8,
+    players: Vec<Player>,
 }
 
 impl UiState {
@@ -61,7 +62,7 @@ impl Default for UiState {
             trick_number: 0,
             min_player: 0,
             max_player: 0,
-            player_number: 0,
+            players: Vec::new(),
         }
     }
 }
@@ -96,7 +97,7 @@ fn update_ui_state(
                 ui_state.trick_number = room_info.trick_number.to_owned();
                 ui_state.min_player = room_info.min_player.to_owned();
                 ui_state.max_player = room_info.max_player.to_owned();
-                ui_state.player_number = room_info.player_number.to_owned();
+                ui_state.players = room_info.players.to_owned();
             }
             Err(e) => ui_state.room_status = RoomStatus::Error(format!("{:?}", e)),
         }
