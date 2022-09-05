@@ -6,7 +6,7 @@ use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,
     GameListResult, NetworkCommand,
 };
-use crate::{GameState, MySystemLabel, ROOM_ID};
+use crate::{GameState, Globals, MySystemLabel};
 
 pub struct RoomMenuPlugin;
 
@@ -112,6 +112,7 @@ fn game_to_string(game_id: impl AsRef<str>) -> String {
 
 fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
     commands.init_resource::<UiState>();
+    commands.init_resource::<Globals>();
     event_writer.send(NetworkCommand::GetGameList);
 }
 
@@ -122,6 +123,7 @@ fn remove_ui_state(mut commands: Commands) {
 fn update_ui_state(
     mut state: ResMut<State<GameState>>,
     mut ui_state: ResMut<UiState>,
+    mut globals: ResMut<Globals>,
     mut game_list_results: EventReader<GameListResult>,
     mut game_join_results: EventReader<GameJoinResult>,
     mut game_create_results: EventReader<GameCreateResult>,
@@ -143,9 +145,7 @@ fn update_ui_state(
         match game_join_result {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
-                    unsafe {
-                        ROOM_ID = ui_state.selected.clone();
-                    }
+                    globals.room_id = ui_state.selected.clone();
                     state.set(GameState::RoomLobby).unwrap();
                 }
             },

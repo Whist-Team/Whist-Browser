@@ -1,5 +1,5 @@
 use crate::network::{NetworkCommand, RoomInfoResult};
-use crate::{GameState, MySystemLabel, ROOM_ID};
+use crate::{GameState, Globals, MySystemLabel};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
@@ -72,12 +72,15 @@ impl Default for UiState {
     }
 }
 
-fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
+fn add_ui_state(
+    mut commands: Commands,
+    mut event_writer: EventWriter<NetworkCommand>,
+    globals: Res<Globals>,
+) {
     commands.init_resource::<UiState>();
-    unsafe {
-        let room_id = ROOM_ID.clone().unwrap();
-        event_writer.send(NetworkCommand::RoomInfo(room_id));
-    }
+
+    let room_id = globals.room_id.clone().unwrap();
+    event_writer.send(NetworkCommand::RoomInfo(room_id));
 }
 
 fn remove_ui_state(mut commands: Commands) {
@@ -109,9 +112,10 @@ fn update_ui_state(
 fn lobby_menu(
     mut egui_context: ResMut<EguiContext>,
     mut ui_state: ResMut<UiState>,
+    globals: Res<Globals>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
-    egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| unsafe {
+    egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
         ui.horizontal(|ui| {
             ui.label(format!("Room: {}", ui_state.name));
         });
@@ -121,7 +125,8 @@ fn lobby_menu(
         );
         if start_button.clicked() {
             ui_state.room_status = RoomStatus::Starting;
-            event_writer.send(NetworkCommand::StartRoom(ROOM_ID.clone().unwrap()));
+            let room_id = globals.room_id.clone().unwrap();
+            event_writer.send(NetworkCommand::StartRoom(room_id));
         }
     });
 }
