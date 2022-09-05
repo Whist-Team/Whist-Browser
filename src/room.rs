@@ -27,12 +27,6 @@ enum RoomStatus {
     Started,
 }
 
-impl RoomStatus {
-    pub(crate) fn enable_start_button(&self) -> bool {
-        matches!(self, RoomStatus::ReadyToStart)
-    }
-}
-
 struct UiState {
     room_status: RoomStatus,
     name: String,
