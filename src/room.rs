@@ -114,10 +114,8 @@ fn lobby_menu(
         ui.horizontal(|ui| {
             ui.label(format!("Room: {}", ui_state.name));
         });
-        let start_button = ui.add_enabled(
-            ui_state.room_status.enable_start_button(),
-            egui::Button::new("Start"),
-        );
+        let start_button =
+            ui.add_enabled(ui_state.enable_start_button(), egui::Button::new("Start"));
         if start_button.clicked() {
             ui_state.room_status = RoomStatus::Starting;
             let room_id = globals.room_id.clone().unwrap();
