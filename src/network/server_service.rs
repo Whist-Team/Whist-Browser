@@ -100,7 +100,7 @@ impl ServerService {
         self.server_connection
             .request_with_json_result(
                 Method::POST,
-                "user/auth/create",
+                "user/create",
                 Query::<()>::None,
                 Body::Json(body),
                 None,
