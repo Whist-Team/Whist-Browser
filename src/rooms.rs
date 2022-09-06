@@ -161,6 +161,7 @@ fn update_ui_state(
         ));
         match game_create_result {
             Ok(_) => {
+                globals.room_id = ui_state.selected.clone();
                 state.set(GameState::RoomLobby).unwrap();
             }
             Err(e) => {
