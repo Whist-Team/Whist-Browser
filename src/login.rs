@@ -257,9 +257,9 @@ fn login_menu(
                         }))
                     }
 
-                    let button = ui
+                    let cancel_button = ui
                         .add_enabled(ui_state.enable_cancel_button(), egui::Button::new("Cancel"));
-                    if button.clicked() {
+                    if cancel_button.clicked() {
                         ui_state.reset();
                     }
                 });
