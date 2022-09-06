@@ -4,6 +4,7 @@ use std::{env, fmt};
 
 use crate::network::{
     GitHubAuthRequest, LoginForm, LoginResult, NetworkCommand, SwapTokenRequest, UserCreateRequest,
+    UserCreateResult,
 };
 use crate::{GameState, MySystemLabel};
 
@@ -51,6 +52,7 @@ enum LoginStatus {
     LoginError(String),
     RegisterWindow,
     Registering,
+    RegisteringError(String),
     GitHubRequest,
     GitHubAuth(GitHubAuthData),
 }
@@ -143,6 +145,7 @@ fn update_ui_state(
     mut state: ResMut<State<GameState>>,
     mut ui_state: ResMut<UiState>,
     mut login_results: EventReader<LoginResult>,
+    mut register_results: EventReader<UserCreateResult>,
 ) {
     if let Some(connect_result) = login_results.iter().next() {
         assert!(matches!(
@@ -164,6 +167,15 @@ fn update_ui_state(
                 Err(_) => ui_state.login_status = LoginStatus::NotStarted,
             },
         };
+    }
+    if let Some(register_result) = register_results.iter().next() {
+        assert!(matches!(ui_state.login_status, LoginStatus::Registering));
+        match register_result {
+            Ok(_) => ui_state.login_status = LoginStatus::NotStarted,
+            Err(e) => {
+                ui_state.login_status = LoginStatus::RegisteringError(format!("{:?}", e));
+            }
+        }
     }
 }
 
@@ -254,7 +266,7 @@ fn login_menu(
                         event_writer.send(NetworkCommand::UserCreate(UserCreateRequest {
                             username: ui_state.username.to_string(),
                             password: ui_state.password.to_string(),
-                        }))
+                        }));
                     }
 
                     let cancel_button = ui
