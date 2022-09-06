@@ -29,6 +29,7 @@ pub struct ServerService {
 
 pub type RoomInfoResult = Result<RoomInfoResponse, Error>;
 pub type RoomStartResult = Result<RoomStartResponse, Error>;
+pub type UserCreateResult = Result<UserCreateResponse, Error>;
 pub type GameListResult = Result<GameListResponse, Error>;
 pub type GameJoinResult = Result<GameJoinResponse, Error>;
 pub type GameCreateResult = Result<GameCreateResponse, Error>;
@@ -101,7 +102,7 @@ impl ServerService {
         self.server_connection
             .request_with_json_result(
                 Method::POST,
-                "user/auth/create",
+                "user/create",
                 Query::<()>::None,
                 Body::Json(body),
                 None,

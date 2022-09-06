@@ -16,6 +16,7 @@ impl Plugin for NetworkPlugin {
             .add_event::<GitHubTempTokenResult>()
             .add_event::<RoomInfoResult>()
             .add_event::<RoomStartResult>()
+            .add_event::<UserCreateResult>()
             .add_event::<WebSocketCommand>()
             .add_startup_system(setup_worker)
             .add_system(send_network_events)
@@ -41,6 +42,7 @@ pub enum LoginResult {
 #[derive(Debug, Clone)]
 pub enum NetworkCommand {
     Connect(String),
+    UserCreate(UserCreateRequest),
     Login(LoginForm),
     GetGameList,
     GameJoin(String, GameJoinRequest),
@@ -63,6 +65,7 @@ enum NetworkResponse {
     GameCreate(GameCreateResult),
     RoomInfo(RoomInfoResult),
     RoomStart(RoomStartResult),
+    UserCreate(UserCreateResult),
 }
 
 #[derive(Debug)]
@@ -117,6 +120,15 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                     Ok(_) => worker.send(NetworkResponse::LoginSuccess),
                     Err(e) => worker.send(NetworkResponse::LoginFailure(e)),
                 };
+            }
+            NetworkCommand::UserCreate(register_request) => {
+                worker.send(NetworkResponse::UserCreate(
+                    server_service
+                        .as_ref()
+                        .unwrap()
+                        .create_user(&register_request)
+                        .await,
+                ))
             }
             NetworkCommand::Login(login_form) => {
                 let res = server_service.as_mut().unwrap().login(&login_form).await;
@@ -177,6 +189,7 @@ fn send_network_events(
 
 fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
+    mut create_user_result: EventWriter<UserCreateResult>,
     mut connect_result: EventWriter<ConnectResult>,
     mut login_result: EventWriter<LoginResult>,
     mut game_list_result: EventWriter<GameListResult>,
@@ -196,6 +209,7 @@ fn receive_network_events(
                 NetworkResponse::GithubAuth(result) => {
                     login_result.send(LoginResult::GitHubWait(result))
                 }
+                NetworkResponse::UserCreate(result) => create_user_result.send(result),
                 NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
                 NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
                 NetworkResponse::GameList(result) => game_list_result.send(result),
