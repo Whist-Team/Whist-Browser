@@ -6,9 +6,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  CARGO_INCREMENTAL: 0
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
