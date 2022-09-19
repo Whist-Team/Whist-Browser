@@ -34,7 +34,9 @@ jobs:
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: whist-browser
       - name: Run doc tests with all features (this also compiles README examples)
         run: cargo test --doc --all-features
   check-cross:
@@ -50,7 +52,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           target: ${{ matrix.target }}
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: whist-browser
       - name: Check
         run: cargo check --target ${{ matrix.target }} --all-features
   lint:
@@ -62,7 +66,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: whist-browser
       - name: Check format
         run: cargo fmt --all -- --check
       - name: Run clippy
