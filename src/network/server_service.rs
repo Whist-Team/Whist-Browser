@@ -29,6 +29,7 @@ pub struct ServerService {
 
 pub type GameListResult = Result<GameListResponse, Error>;
 pub type GameJoinResult = Result<GameJoinResponse, Error>;
+pub type GameReconnectResult = Result<GameReconnectResponse, Error>;
 pub type GameCreateResult = Result<GameCreateResponse, Error>;
 
 impl ServerService {
@@ -130,6 +131,18 @@ impl ServerService {
                 format!("room/join/{}", game_id.as_ref()),
                 Query::<()>::None,
                 Body::Json(body),
+                None,
+            )
+            .await
+    }
+
+    pub async fn reconnect(&self) -> GameReconnectResult {
+        self.server_connection
+            .request_with_json_result(
+                Method::POST,
+                "room/reconnect/",
+                Query::<()>::None,
+                Body::<()>::Empty,
                 None,
             )
             .await
