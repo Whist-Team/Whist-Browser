@@ -130,7 +130,7 @@ fn update_ui_state(
         assert!(matches!(ui_state.room_status, RoomStatus::Loading));
         match game_list_result {
             Ok(game_list) => {
-                ui_state.games = game_list.games.to_owned();
+                ui_state.games = game_list.rooms.to_owned();
                 ui_state.room_status = RoomStatus::Loaded;
             }
             Err(e) => {
@@ -289,7 +289,7 @@ fn room_menu(
                     if button.clicked() {
                         ui_state.room_status = RoomStatus::CreatingAndJoining;
                         event_writer.send(NetworkCommand::GameCreate(GameCreateRequest {
-                            game_name: ui_state.name.to_string(),
+                            room_name: ui_state.name.to_string(),
                             password: if ui_state.password.is_empty() {
                                 None
                             } else {

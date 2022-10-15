@@ -6,8 +6,8 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  CARGO_INCREMENTAL: 0
+permissions:
+  contents: write
 
 jobs:
   deploy:
@@ -17,22 +17,20 @@ jobs:
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
         if: runner.os == 'linux'
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
           target: wasm32-unknown-unknown
       - name: Install trunk
         uses: jetli/trunk-action@v0.1.0
         with:
           version: 'latest'
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: whist-browser
       - name: Build Release
         run: |
           trunk build --release --public-url "${GITHUB_REPOSITORY#*/}"
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages
           folder: dist

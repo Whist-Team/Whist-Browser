@@ -112,7 +112,7 @@ impl ServerService {
         self.server_connection
             .request_with_json_result(
                 Method::GET,
-                "game/info/ids",
+                "room/info/ids",
                 Query::<()>::None,
                 Body::<()>::Empty,
                 None,
@@ -128,7 +128,7 @@ impl ServerService {
         self.server_connection
             .request_with_json_result(
                 Method::POST,
-                format!("game/join/{}", game_id.as_ref()),
+                format!("room/join/{}", game_id.as_ref()),
                 Query::<()>::None,
                 Body::Json(body),
                 None,
@@ -140,7 +140,7 @@ impl ServerService {
         self.server_connection
             .request_with_json_result(
                 Method::POST,
-                "game/create",
+                "room/create",
                 Query::<()>::None,
                 Body::Json(body),
                 None,
