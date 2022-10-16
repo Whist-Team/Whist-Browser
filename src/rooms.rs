@@ -133,9 +133,12 @@ fn update_ui_state(
     }
     if let Some(game_reconnect_result) = game_reconnect_results.iter().next_back() {
         match game_reconnect_result {
-            Ok(_) => {
-                state.set(GameState::Ingame).unwrap();
-            }
+            Ok(res) => match res.status {
+                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
+                    state.set(GameState::Ingame).unwrap();
+                }
+                GameJoinStatus::NotJoined => ui_state.room_status = RoomStatus::Loading,
+            },
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
             }
@@ -159,6 +162,9 @@ fn update_ui_state(
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
                     state.set(GameState::Ingame).unwrap();
+                }
+                GameJoinStatus::NotJoined => {
+                    ui_state.room_status = RoomStatus::Error("Not joined".to_string())
                 }
             },
             Err(e) => {
