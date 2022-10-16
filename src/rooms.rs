@@ -4,7 +4,7 @@ use bevy_egui::{egui, EguiContext};
 
 use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,
-    GameListResult, NetworkCommand,
+    GameListResult, GameReconnectResult, NetworkCommand,
 };
 use crate::{GameState, MySystemLabel};
 
@@ -124,8 +124,23 @@ fn update_ui_state(
     mut ui_state: ResMut<UiState>,
     mut game_list_results: EventReader<GameListResult>,
     mut game_join_results: EventReader<GameJoinResult>,
+    mut game_reconnect_results: EventReader<GameReconnectResult>,
     mut game_create_results: EventReader<GameCreateResult>,
+    mut event_writer: EventWriter<NetworkCommand>,
 ) {
+    if matches!(ui_state.room_status, RoomStatus::Loading) {
+        event_writer.send(NetworkCommand::GameReconnect)
+    }
+    if let Some(game_reconnect_result) = game_reconnect_results.iter().next_back() {
+        match game_reconnect_result {
+            Ok(game_reconnect) => {
+                state.set(GameState::Ingame).unwrap();
+            }
+            Err(e) => {
+                ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
+            }
+        }
+    }
     if let Some(game_list_result) = game_list_results.iter().next_back() {
         assert!(matches!(ui_state.room_status, RoomStatus::Loading));
         match game_list_result {
