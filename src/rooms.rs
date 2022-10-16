@@ -133,7 +133,7 @@ fn update_ui_state(
     }
     if let Some(game_reconnect_result) = game_reconnect_results.iter().next_back() {
         match game_reconnect_result {
-            Ok(game_reconnect) => {
+            Ok(_) => {
                 state.set(GameState::Ingame).unwrap();
             }
             Err(e) => {
