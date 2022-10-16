@@ -24,6 +24,8 @@ pub enum GameJoinStatus {
     Joined,
     #[serde(rename = "already joined")]
     AlreadyJoined,
+    #[serde(rename = "not joined")]
+    NotJoined,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
