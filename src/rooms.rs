@@ -110,9 +110,8 @@ fn game_to_string(game_id: impl AsRef<str>) -> String {
     format!("Game: {}", game_id.as_ref())
 }
 
-fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
+fn add_ui_state(mut commands: Commands) {
     commands.init_resource::<UiState>();
-    event_writer.send(NetworkCommand::GetGameList);
 }
 
 fn remove_ui_state(mut commands: Commands) {
@@ -134,10 +133,14 @@ fn update_ui_state(
     if let Some(game_reconnect_result) = game_reconnect_results.iter().next_back() {
         match game_reconnect_result {
             Ok(res) => match res.status {
-                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
-                    state.set(GameState::Ingame).unwrap();
-                }
-                GameJoinStatus::NotJoined => ui_state.room_status = RoomStatus::Loading,
+                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => match res.password {
+                    Some(true) => {
+                        ui_state.selected = res.room_id.clone();
+                        ui_state.room_status = RoomStatus::JoinWindow
+                    }
+                    _ => state.set(GameState::Ingame).unwrap(),
+                },
+                GameJoinStatus::NotJoined => event_writer.send(NetworkCommand::GetGameList),
             },
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
