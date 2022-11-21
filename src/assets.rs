@@ -8,9 +8,6 @@ pub struct LoadingPlugin;
 
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(|asset_server: Res<AssetServer>| {
-            asset_server.watch_for_changes().unwrap()
-        });
         app.add_system_set(SystemSet::on_enter(GameState::LoadingAssets).with_system(load_assets))
             .add_system_set(
                 SystemSet::on_update(GameState::LoadingAssets).with_system(update_assets),
