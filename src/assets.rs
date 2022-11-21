@@ -18,6 +18,7 @@ impl Plugin for LoadingPlugin {
     }
 }
 
+#[derive(Resource)]
 pub struct GameAssets {
     font: Handle<Font>,
     monospace_font: Handle<Font>,
