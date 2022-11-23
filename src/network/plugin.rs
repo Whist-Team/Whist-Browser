@@ -36,7 +36,7 @@ pub enum LoginResult {
     GitHubWait(GitHubTempTokenResult),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Resource)]
 pub enum NetworkCommand {
     Connect(String),
     Login(LoginForm),
