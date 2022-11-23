@@ -42,7 +42,7 @@ features = ["render", "bevy_winit", "png"]
 [target.'cfg(not(target_family = "wasm"))'.dependencies.bevy]
 version = "0.9.0"
 default-features = false
-features = ["x11", "wayland"]
+features = ["x11", "wayland", "filesystem_watcher"]
 
 [target.'cfg(target_family = "wasm")'.dependencies.getrandom]
 version = "0.2"
