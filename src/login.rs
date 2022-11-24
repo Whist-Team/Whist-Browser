@@ -81,6 +81,7 @@ impl LoginStatus {
     }
 }
 
+#[derive(Resource)]
 struct UiState {
     username: String,
     password: String,

@@ -512,7 +512,7 @@ mod tests {
             "suit": "hearts",
             "rank": "ace",
         });
-        let actual = serde_json::to_value(&card).unwrap();
+        let actual = serde_json::to_value(card).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -532,7 +532,7 @@ mod tests {
             {"suit": "hearts", "rank": '2'},
             {"suit": "hearts", "rank": '4'}
         ]});
-        let actual = serde_json::to_value(&cards).unwrap();
+        let actual = serde_json::to_value(cards).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -552,7 +552,7 @@ mod tests {
             {"suit": "hearts", "rank": '2'},
             {"suit": "hearts", "rank": '4'}
         ]});
-        let actual = serde_json::to_value(&cards).unwrap();
+        let actual = serde_json::to_value(cards).unwrap();
         assert_eq!(expected, actual);
     }
 }
