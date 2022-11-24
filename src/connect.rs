@@ -46,6 +46,7 @@ impl ConnectStatus {
     }
 }
 
+#[derive(Resource)]
 struct UiState {
     connect_url: String,
     connect_status: ConnectStatus,

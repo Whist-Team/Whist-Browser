@@ -7,14 +7,25 @@ use whist_browser::GamePlugin;
 
 #[bevy_main]
 fn main() {
-    App::new()
-        .insert_resource(WindowDescriptor {
+    let mut plugins = DefaultPlugins.build();
+    plugins = plugins.set(WindowPlugin {
+        window: WindowDescriptor {
             title: "Whist".to_string(),
             width: 800.0,
             height: 600.0,
             ..default()
-        })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(GamePlugin)
-        .run();
+        },
+        ..default()
+    });
+
+    #[cfg(not(target_family = "wasm"))]
+    {
+        println!("Enabling filesystem watcher for asset reload");
+        plugins = plugins.set(AssetPlugin {
+            watch_for_changes: true,
+            ..default()
+        });
+    }
+
+    App::new().add_plugins(plugins).add_plugin(GamePlugin).run();
 }

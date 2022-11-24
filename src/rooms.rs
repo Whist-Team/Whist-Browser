@@ -34,6 +34,7 @@ enum RoomStatus {
     CreatingAndJoining,
 }
 
+#[derive(Resource)]
 struct UiState {
     room_status: RoomStatus,
     games: Vec<String>,
