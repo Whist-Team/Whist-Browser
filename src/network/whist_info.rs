@@ -12,19 +12,13 @@ pub enum RequirementError {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct WhistInfoReq {
     pub game: String,
-    pub whist_core: VersionReq,
     pub whist_server: VersionReq,
 }
 
 impl WhistInfoReq {
-    pub fn new(
-        game: impl Into<String>,
-        whist_core: impl AsRef<str>,
-        whist_server: impl AsRef<str>,
-    ) -> Self {
+    pub fn new(game: impl Into<String>, whist_server: impl AsRef<str>) -> Self {
         Self {
             game: game.into(),
-            whist_core: VersionReq::parse(whist_core.as_ref()).unwrap(),
             whist_server: VersionReq::parse(whist_server.as_ref()).unwrap(),
         }
     }
@@ -74,12 +68,6 @@ impl WhistInfo {
         let info = &self.info;
         if !req.game.eq_ignore_ascii_case(&info.game) {
             Err(RequirementError::Game(info.game.to_owned()))
-        } else if !req.whist_core.matches(&info.whist_core) {
-            Err(RequirementError::CoreVersion(info.whist_core.to_owned()))
-        } else if !req.whist_server.matches(&info.whist_server) {
-            Err(RequirementError::ServerVersion(
-                info.whist_server.to_owned(),
-            ))
         } else {
             Ok(self)
         }
@@ -94,7 +82,7 @@ mod tests {
 
     #[test]
     fn test_validity() {
-        let req = WhistInfoReq::new("whist", "^0.2", "^0.1");
+        let req = WhistInfoReq::new("whist", "^0.1");
         let info = WhistInfo::new("WHIST", "0.2.0", "0.1.1");
         assert_eq!(info.check_validity(&req).is_ok(), true)
     }
