@@ -83,7 +83,7 @@ jobs:
         run: |
           pip install -U pip
           pip --version
-        python --version
+          python --version
       - name: Install Whist Server
         run: pip install -r .github/workflows/end_to_end_requirements.txt
       - name: Start Whist Server
