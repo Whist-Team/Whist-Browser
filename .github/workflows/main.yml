@@ -79,10 +79,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
+      - name: Update pip
+        run: |
+        pip install -U pip
+        pip --version
+        python --version
       - name: Install Whist Server
-        run: python3 run -m pip install -r .github/workflows/end_to_end_requirements.txt
+        run: pip install -r .github/workflows/end_to_end_requirements.txt
       - name: Start Whist Server
-        run: python3 -m whist_server --admin_name=root --admin_pwd=password 0.0.0.0 8080
+        run: python -m whist_server --admin_name=root --admin_pwd=password 0.0.0.0 8080
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
