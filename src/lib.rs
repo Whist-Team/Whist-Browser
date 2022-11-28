@@ -11,7 +11,7 @@ mod assets;
 mod card;
 mod connect;
 mod login;
-mod network;
+pub mod network;
 mod rooms;
 mod ui;
 
