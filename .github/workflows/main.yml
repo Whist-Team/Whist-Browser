@@ -81,8 +81,8 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
       - name: Update pip
         run: |
-        pip install -U pip
-        pip --version
+          pip install -U pip
+          pip --version
         python --version
       - name: Install Whist Server
         run: pip install -r .github/workflows/end_to_end_requirements.txt
