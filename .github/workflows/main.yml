@@ -95,4 +95,4 @@ jobs:
         with:
           shared-key: whist-browser
       - name: Run end-to-end tests
-        run: cargo test --test end_to_end_test
+        run: cargo test -- --ignored
