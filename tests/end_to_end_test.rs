@@ -1,5 +1,3 @@
-use whist_browser;
-
 #[tokio::test]
 async fn test_start() {
     let service = whist_browser::network::ServerService::new("http://localhost:8080");
