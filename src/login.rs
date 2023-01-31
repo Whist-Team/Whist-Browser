@@ -115,7 +115,7 @@ fn update_ui_state(
                 state.set(GameState::RoomMenu).unwrap();
             }
             LoginResult::Failure(e) => {
-                ui_state.login_status = LoginStatus::LoginError(format!("{:?}", e));
+                ui_state.login_status = LoginStatus::LoginError(format!("{e:?}"));
             }
             LoginResult::GitHubWait(result) => match result {
                 Ok(token) => {
