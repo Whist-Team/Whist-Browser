@@ -16,7 +16,7 @@ pub enum WebSocketError {
 
 impl From<serde_json::Error> for WebSocketError {
     fn from(error: serde_json::Error) -> Self {
-        WebSocketError::Serde(format!("{}", error))
+        WebSocketError::Serde(format!("{error}"))
     }
 }
 
@@ -37,7 +37,7 @@ impl From<gloo_utils::errors::JsError> for WebSocketError {
 #[cfg(not(target_family = "wasm"))]
 impl From<tokio_tungstenite::tungstenite::Error> for WebSocketError {
     fn from(error: tokio_tungstenite::tungstenite::Error) -> Self {
-        WebSocketError::WebSocketError(format!("{:?}", error))
+        WebSocketError::WebSocketError(format!("{error:?}"))
     }
 }
 
@@ -50,7 +50,7 @@ impl WebSocket {
             "http" => url.set_scheme("ws").unwrap(),
             "https" => url.set_scheme("wss").unwrap(),
             "ws" | "wss" => {}
-            other => panic!("unsupported url scheme '{}'", other),
+            other => panic!("unsupported url scheme '{other}'"),
         }
 
         url

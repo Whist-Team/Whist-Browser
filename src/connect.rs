@@ -81,7 +81,7 @@ fn update_ui_state(
                 state.set(GameState::LoginMenu).unwrap();
             }
             ConnectResult::Failure(e) => {
-                ui_state.connect_status = ConnectStatus::ConnectionError(format!("{:?}", e));
+                ui_state.connect_status = ConnectStatus::ConnectionError(format!("{e:?}"));
             }
         };
     }
