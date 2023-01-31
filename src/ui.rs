@@ -57,7 +57,7 @@ fn fps_text(mut egui_context: ResMut<EguiContext>, diagnostics: Res<Diagnostics>
     egui::TopBottomPanel::top("fps_panel").show(egui_context.ctx_mut(), |ui| {
         ui.horizontal(|ui| {
             ui.label("FPS:");
-            ui.monospace(format!("{:.0}", fps));
+            ui.monospace(format!("{fps:.0}"));
         });
     });
 }
