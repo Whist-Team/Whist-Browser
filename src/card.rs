@@ -499,7 +499,7 @@ mod tests {
             suit: Suit::Hearts,
             rank: Rank::Ace,
         };
-        assert_eq!("ace of hearts", format!("{}", card));
+        assert_eq!("ace of hearts", format!("{card}"));
     }
 
     #[test]
