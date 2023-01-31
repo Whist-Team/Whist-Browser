@@ -51,7 +51,7 @@ impl Display for CardVariant {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             CardVariant::Back => write!(f, "Back"),
-            CardVariant::Front(card) => write!(f, "{}", card),
+            CardVariant::Front(card) => write!(f, "{card}"),
         }
     }
 }
@@ -499,7 +499,7 @@ mod tests {
             suit: Suit::Hearts,
             rank: Rank::Ace,
         };
-        assert_eq!("ace of hearts", format!("{}", card));
+        assert_eq!("ace of hearts", format!("{card}"));
     }
 
     #[test]
