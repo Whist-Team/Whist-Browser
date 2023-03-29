@@ -8,10 +8,8 @@ pub struct LoadingPlugin;
 
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::LoadingAssets).with_system(load_assets))
-            .add_system_set(
-                SystemSet::on_update(GameState::LoadingAssets).with_system(update_assets),
-            );
+        app.add_system(load_assets.in_schedule(OnEnter(GameState::LoadingAssets)))
+            .add_system(update_assets.in_set(OnUpdate(GameState::LoadingAssets)));
     }
 }
 
@@ -56,7 +54,7 @@ fn load_assets(
 }
 
 fn update_assets(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     server: Res<AssetServer>,
     assets: Res<GameAssets>,
 ) {
@@ -64,7 +62,7 @@ fn update_assets(
         LoadState::Failed | LoadState::Unloaded | LoadState::NotLoaded => {
             panic!("error loading assets")
         }
-        LoadState::Loaded => state.set(GameState::ConnectMenu).unwrap(),
+        LoadState::Loaded => state.set(GameState::ConnectMenu),
         _ => {}
     };
 }

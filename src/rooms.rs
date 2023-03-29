@@ -1,25 +1,25 @@
 use bevy::prelude::*;
 use bevy_egui::egui::Ui;
-use bevy_egui::{egui, EguiContext};
+use bevy_egui::{egui, EguiContexts};
 
 use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,
     GameListResult, NetworkCommand,
 };
-use crate::{GameState, MySystemLabel};
+use crate::{GameState, MySystemSets};
 
 pub struct RoomMenuPlugin;
 
 impl Plugin for RoomMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::RoomMenu).with_system(add_ui_state))
-            .add_system_set(
-                SystemSet::on_update(GameState::RoomMenu)
-                    .after(MySystemLabel::EguiTop)
-                    .with_system(update_ui_state)
-                    .with_system(room_menu.after(update_ui_state)),
+        app.add_system(add_ui_state.in_schedule(OnEnter(GameState::RoomMenu)))
+            .add_systems(
+                (update_ui_state, room_menu)
+                    .chain()
+                    .in_set(OnUpdate(GameState::RoomMenu))
+                    .after(MySystemSets::EguiTop),
             )
-            .add_system_set(SystemSet::on_exit(GameState::RoomMenu).with_system(remove_ui_state));
+            .add_system(remove_ui_state.in_schedule(OnExit(GameState::RoomMenu)));
     }
 }
 
@@ -121,13 +121,13 @@ fn remove_ui_state(mut commands: Commands) {
 }
 
 fn update_ui_state(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<UiState>,
     mut game_list_results: EventReader<GameListResult>,
     mut game_join_results: EventReader<GameJoinResult>,
     mut game_create_results: EventReader<GameCreateResult>,
 ) {
-    if let Some(game_list_result) = game_list_results.iter().next_back() {
+    if let Some(game_list_result) = game_list_results.iter().last() {
         assert!(matches!(ui_state.room_status, RoomStatus::Loading));
         match game_list_result {
             Ok(game_list) => {
@@ -139,12 +139,12 @@ fn update_ui_state(
             }
         }
     }
-    if let Some(game_join_result) = game_join_results.iter().next_back() {
+    if let Some(game_join_result) = game_join_results.iter().last() {
         assert!(matches!(ui_state.room_status, RoomStatus::Joining));
         match game_join_result {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined => {
-                    state.set(GameState::Ingame).unwrap();
+                    state.set(GameState::Ingame);
                 }
                 GameJoinStatus::AlreadyJoined => {
                     ui_state.room_status = RoomStatus::Error(format!("{:?}", res.status));
@@ -155,14 +155,14 @@ fn update_ui_state(
             }
         }
     }
-    if let Some(game_create_result) = game_create_results.iter().next_back() {
+    if let Some(game_create_result) = game_create_results.iter().last() {
         assert!(matches!(
             ui_state.room_status,
             RoomStatus::CreatingAndJoining
         ));
         match game_create_result {
             Ok(_) => {
-                state.set(GameState::Ingame).unwrap();
+                state.set(GameState::Ingame);
             }
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{e:?}"));
@@ -172,7 +172,7 @@ fn update_ui_state(
 }
 
 fn room_menu(
-    mut egui_context: ResMut<EguiContext>,
+    mut egui_context: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
