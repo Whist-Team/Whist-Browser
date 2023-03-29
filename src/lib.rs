@@ -19,8 +19,9 @@ pub const EXPECTED_GAME: &str = "whist";
 pub const EXPECTED_CORE_VERSION: &str = "^0.4";
 pub const EXPECTED_SERVER_VERSION: &str = "^0.5";
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum GameState {
+    #[default]
     LoadingAssets,
     ConnectMenu,
     LoginMenu,
@@ -28,8 +29,8 @@ pub enum GameState {
     Ingame,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]
-pub enum MySystemLabel {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemSet)]
+pub enum MySystemSets {
     EguiTop,
 }
 
@@ -37,7 +38,8 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_state(GameState::LoadingAssets)
+        app.add_state::<GameState>()
+            // .configure_set(MySystemSets::EguiTop.after(CoreSet::Update))
             .add_plugin(BaseUiPlugin)
             .add_plugin(LoadingPlugin)
             .add_plugin(NetworkPlugin)
