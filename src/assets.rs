@@ -1,6 +1,5 @@
 use bevy::asset::{HandleId, LoadState};
 use bevy::prelude::*;
-use bevy::text::Font;
 
 use crate::ui::{MONOSPACE_FONT, PROPORTIONAL_FONT};
 use crate::GameState;
