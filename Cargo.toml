@@ -71,7 +71,7 @@ features = ["json", "websocket"]
 version = "0.1"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies.tokio-tungstenite]
-version = "0.18"
+version = "0.19"
 
 [dev-dependencies]
 pretty_assertions = "1"
