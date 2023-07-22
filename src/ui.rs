@@ -16,7 +16,7 @@ impl Plugin for BaseUiPlugin {
         app.add_plugin(EguiPlugin)
             .insert_resource(EguiSettings { scale_factor: 2.0 })
             .add_system(setup_fonts.in_schedule(OnExit(GameState::LoadingAssets)));
-        app.add_plugin(FrameTimeDiagnosticsPlugin::default())
+        app.add_plugin(FrameTimeDiagnosticsPlugin)
             .add_system(fps_text.in_set(MySystemSets::EguiTop));
     }
 }
