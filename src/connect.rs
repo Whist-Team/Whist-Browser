@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext};
+use bevy_egui::{egui, EguiContexts};
 
 use crate::network::{ConnectResult, NetworkCommand};
-use crate::{GameState, MySystemLabel};
+use crate::{GameState, MySystemSets};
 
 const INITIAL_URL: &str = "http://localhost:8080";
 
@@ -10,16 +10,14 @@ pub struct ConnectMenuPlugin;
 
 impl Plugin for ConnectMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::ConnectMenu).with_system(add_ui_state))
-            .add_system_set(
-                SystemSet::on_update(GameState::ConnectMenu)
-                    .after(MySystemLabel::EguiTop)
-                    .with_system(update_ui_state)
-                    .with_system(connect_menu.after(update_ui_state)),
+        app.add_system(add_ui_state.in_schedule(OnEnter(GameState::ConnectMenu)))
+            .add_systems(
+                (update_ui_state, connect_menu)
+                    .chain()
+                    .in_set(OnUpdate(GameState::ConnectMenu))
+                    .after(MySystemSets::EguiTop),
             )
-            .add_system_set(
-                SystemSet::on_exit(GameState::ConnectMenu).with_system(remove_ui_state),
-            );
+            .add_system(remove_ui_state.in_schedule(OnExit(GameState::ConnectMenu)));
     }
 }
 
@@ -70,7 +68,7 @@ fn remove_ui_state(mut commands: Commands) {
 }
 
 fn update_ui_state(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<UiState>,
     mut connect_results: EventReader<ConnectResult>,
 ) {
@@ -78,17 +76,17 @@ fn update_ui_state(
         assert!(matches!(ui_state.connect_status, ConnectStatus::Connecting));
         match connect_result {
             ConnectResult::Success => {
-                state.set(GameState::LoginMenu).unwrap();
+                state.set(GameState::LoginMenu);
             }
             ConnectResult::Failure(e) => {
-                ui_state.connect_status = ConnectStatus::ConnectionError(format!("{:?}", e));
+                ui_state.connect_status = ConnectStatus::ConnectionError(format!("{e:?}"));
             }
         };
     }
 }
 
 fn connect_menu(
-    mut egui_context: ResMut<EguiContext>,
+    mut egui_context: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
