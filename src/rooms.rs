@@ -131,7 +131,7 @@ fn update_ui_state(
     if matches!(ui_state.room_status, RoomStatus::Loading) {
         event_writer.send(NetworkCommand::GameReconnect)
     }
-    if let Some(game_reconnect_result) = game_reconnect_results.iter().next_back() {
+    if let Some(game_reconnect_result) = game_reconnect_results.iter().next() {
         match game_reconnect_result {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => match res.password {
@@ -139,7 +139,7 @@ fn update_ui_state(
                         ui_state.selected = res.room_id.clone();
                         ui_state.room_status = RoomStatus::JoinWindow
                     }
-                    _ => state.set(GameState::Ingame).unwrap(),
+                    _ => state.set(GameState::Ingame),
                 },
                 GameJoinStatus::NotJoined => event_writer.send(NetworkCommand::GetGameList),
             },
