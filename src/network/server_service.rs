@@ -51,7 +51,6 @@ impl ServerService {
     pub async fn check_connection(&self) -> Result<(), ConnectError> {
         self.get_info().await?.check_validity(&WhistInfoReq::new(
             crate::EXPECTED_GAME,
-            crate::EXPECTED_CORE_VERSION,
             crate::EXPECTED_SERVER_VERSION,
         ))?;
         Ok(())
