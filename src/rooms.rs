@@ -131,7 +131,7 @@ fn update_ui_state(
     if matches!(ui_state.room_status, RoomStatus::Loading) {
         event_writer.send(NetworkCommand::GameReconnect)
     }
-    if let Some(game_reconnect_result) = game_reconnect_results.iter().next() {
+    if let Some(game_reconnect_result) = game_reconnect_results.iter().last() {
         match game_reconnect_result {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => match res.password {
@@ -149,7 +149,6 @@ fn update_ui_state(
         }
     }
     if let Some(game_list_result) = game_list_results.iter().last() {
-        assert!(matches!(ui_state.room_status, RoomStatus::Loading));
         match game_list_result {
             Ok(game_list) => {
                 ui_state.games = game_list.rooms.to_owned();
