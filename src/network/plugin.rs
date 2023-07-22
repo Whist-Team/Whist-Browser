@@ -71,7 +71,7 @@ pub enum WebSocketCommand {
 enum WebSocketResponse {
     ConnectSuccess,
     ConnectError,
-    Event(Event),
+    Event(NetworkEvent),
     Error,
 }
 
@@ -210,7 +210,8 @@ fn send_websocket_commands(
                         match WebSocket::connect(url).await {
                             Ok((_sender, mut receiver)) => {
                                 worker.send(WebSocketResponse::ConnectSuccess);
-                                while let Result::<Event, _>::Ok(event) = receiver.recv_json().await
+                                while let Result::<NetworkEvent, _>::Ok(event) =
+                                    receiver.recv_json().await
                                 {
                                     worker.send(WebSocketResponse::Event(event));
                                 }

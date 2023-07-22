@@ -15,7 +15,7 @@ impl<S: Serialize + Debug> Debug for Query<'_, S> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Query::None => write!(f, "None"),
-            Query::Some(data) => write!(f, "Some({:?})", data),
+            Query::Some(data) => write!(f, "Some({data:?})"),
         }
     }
 }
@@ -30,8 +30,8 @@ impl<S: Serialize + Debug> Debug for Body<'_, S> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Body::Empty => write!(f, "Empty"),
-            Body::Json(data) => write!(f, "Json({:?})", data),
-            Body::Form(data) => write!(f, "Form({:?})", data),
+            Body::Json(data) => write!(f, "Json({data:?})"),
+            Body::Form(data) => write!(f, "Form({data:?})"),
         }
     }
 }

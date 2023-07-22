@@ -1,22 +1,23 @@
-use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext};
 use std::{env, fmt};
 
+use bevy::prelude::*;
+use bevy_egui::{egui, EguiContexts};
+
 use crate::network::{GitHubAuthRequest, LoginForm, LoginResult, NetworkCommand, SwapTokenRequest};
-use crate::{GameState, MySystemLabel};
+use crate::{GameState, MySystemSets};
 
 pub struct LoginMenuPlugin;
 
 impl Plugin for LoginMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::LoginMenu).with_system(add_ui_state))
-            .add_system_set(
-                SystemSet::on_update(GameState::LoginMenu)
-                    .after(MySystemLabel::EguiTop)
-                    .with_system(update_ui_state)
-                    .with_system(login_menu.after(update_ui_state)),
+        app.add_system(add_ui_state.in_schedule(OnEnter(GameState::LoginMenu)))
+            .add_systems(
+                (update_ui_state, login_menu)
+                    .chain()
+                    .in_set(OnUpdate(GameState::LoginMenu))
+                    .after(MySystemSets::EguiTop),
             )
-            .add_system_set(SystemSet::on_exit(GameState::LoginMenu).with_system(remove_ui_state));
+            .add_system(remove_ui_state.in_schedule(OnExit(GameState::LoginMenu)));
     }
 }
 
@@ -101,7 +102,7 @@ fn remove_ui_state(mut commands: Commands) {
 }
 
 fn update_ui_state(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<UiState>,
     mut login_results: EventReader<LoginResult>,
 ) {
@@ -112,10 +113,10 @@ fn update_ui_state(
         ));
         match connect_result {
             LoginResult::Success => {
-                state.set(GameState::RoomMenu).unwrap();
+                state.set(GameState::RoomMenu);
             }
             LoginResult::Failure(e) => {
-                ui_state.login_status = LoginStatus::LoginError(format!("{:?}", e));
+                ui_state.login_status = LoginStatus::LoginError(format!("{e:?}"));
             }
             LoginResult::GitHubWait(result) => match result {
                 Ok(token) => {
@@ -129,7 +130,7 @@ fn update_ui_state(
 }
 
 fn login_menu(
-    mut egui_context: ResMut<EguiContext>,
+    mut egui_context: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {

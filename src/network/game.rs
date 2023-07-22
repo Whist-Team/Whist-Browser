@@ -79,7 +79,7 @@ mod tests {
             "min_player": null,
             "max_player": null,
         });
-        let actual = serde_json::to_value(&GameCreateRequest {
+        let actual = serde_json::to_value(GameCreateRequest {
             room_name: "asdf".to_string(),
             password: None,
             min_player: None,
@@ -97,7 +97,7 @@ mod tests {
             "min_player": null,
             "max_player": null,
         });
-        let actual = serde_json::to_value(&GameCreateRequest {
+        let actual = serde_json::to_value(GameCreateRequest {
             room_name: "asdf".to_string(),
             password: Some("12345_is_a_bad_password".to_string()),
             min_player: None,
@@ -115,7 +115,7 @@ mod tests {
             "min_player": 4,
             "max_player": 4,
         });
-        let actual = serde_json::to_value(&GameCreateRequest {
+        let actual = serde_json::to_value(GameCreateRequest {
             room_name: "asdf".to_string(),
             password: Some("12345_is_a_bad_password".to_string()),
             min_player: Some(4),
