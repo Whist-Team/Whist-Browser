@@ -39,7 +39,7 @@ winit = { version = "0.28", default-features = false }
 image = { version = "0.24", default-features = false }
 
 [dependencies.bevy]
-version = "0.10"
+version = "0.11"
 default-features = false
 features = [
     "bevy_asset",
@@ -55,12 +55,12 @@ features = [
 ]
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies.bevy]
-version = "0.10"
+version = "0.11"
 default-features = false
 features = ["x11", "wayland", "filesystem_watcher"]
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies.bevy]
-version = "0.10"
+version = "0.11"
 default-features = false
 features = ["bevy_dylib"]
 
