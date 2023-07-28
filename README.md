@@ -11,8 +11,21 @@ Front end client
 ## Development
 
 ### Requirements
+
 #### Linux
+
 The following packages are required to build locally.
+
 ```shell
 sudo apt install g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
+```
+
+### Version
+
+The client checks if it is compatible with the Core and Server version.
+The right version can be set in `src/lib.rs`.
+
+```rust
+pub const EXPECTED_CORE_VERSION: &str = "^0.4";
+pub const EXPECTED_SERVER_VERSION: &str = "^0.5";
 ```
