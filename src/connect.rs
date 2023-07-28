@@ -10,14 +10,15 @@ pub struct ConnectMenuPlugin;
 
 impl Plugin for ConnectMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(add_ui_state.in_schedule(OnEnter(GameState::ConnectMenu)))
+        app.add_systems(OnEnter(GameState::ConnectMenu), add_ui_state)
             .add_systems(
+                Update,
                 (update_ui_state, connect_menu)
                     .chain()
-                    .in_set(OnUpdate(GameState::ConnectMenu))
+                    .run_if(in_state(GameState::ConnectMenu))
                     .after(MySystemSets::EguiTop),
             )
-            .add_system(remove_ui_state.in_schedule(OnExit(GameState::ConnectMenu)));
+            .add_systems(OnExit(GameState::ConnectMenu), remove_ui_state);
     }
 }
 

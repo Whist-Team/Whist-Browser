@@ -3,21 +3,25 @@ use std::{env, fmt};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
-use crate::network::{GitHubAuthRequest, LoginForm, LoginResult, NetworkCommand, SwapTokenRequest};
+use crate::network::{
+    GitHubAuthRequest, GitHubTempTokenResult, LoginForm, LoginResult, NetworkCommand,
+    SwapTokenRequest,
+};
 use crate::{GameState, MySystemSets};
 
 pub struct LoginMenuPlugin;
 
 impl Plugin for LoginMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(add_ui_state.in_schedule(OnEnter(GameState::LoginMenu)))
+        app.add_systems(OnEnter(GameState::LoginMenu), add_ui_state)
             .add_systems(
+                Update,
                 (update_ui_state, login_menu)
                     .chain()
-                    .in_set(OnUpdate(GameState::LoginMenu))
+                    .run_if(in_state(GameState::LoginMenu))
                     .after(MySystemSets::EguiTop),
             )
-            .add_system(remove_ui_state.in_schedule(OnExit(GameState::LoginMenu)));
+            .add_systems(OnExit(GameState::LoginMenu), remove_ui_state);
     }
 }
 
@@ -118,7 +122,7 @@ fn update_ui_state(
             LoginResult::Failure(e) => {
                 ui_state.login_status = LoginStatus::LoginError(format!("{e:?}"));
             }
-            LoginResult::GitHubWait(result) => match result {
+            LoginResult::GitHubWait(GitHubTempTokenResult(result)) => match result {
                 Ok(token) => {
                     let data = GitHubAuthData::new(&token.user_code, &token.device_code);
                     ui_state.login_status = LoginStatus::GitHubAuth(data);
