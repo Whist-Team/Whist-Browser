@@ -73,12 +73,12 @@ features = ["js"]
 version = "0.2"
 
 [target.'cfg(target_family = "wasm")'.dependencies.gloo-net]
-version = "0.3"
+version = "0.4"
 default-features = false
 features = ["json", "websocket"]
 
 [target.'cfg(target_family = "wasm")'.dependencies.gloo-utils]
-version = "0.1"
+version = "0.2"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies.tokio-tungstenite]
 version = "0.20"
