@@ -17,7 +17,7 @@ mod ui;
 
 pub const EXPECTED_GAME: &str = "whist";
 pub const EXPECTED_CORE_VERSION: &str = "^0.9";
-pub const EXPECTED_SERVER_VERSION: &str = "^0.6";
+pub const EXPECTED_SERVER_VERSION: &str = "^0.7";
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum GameState {
