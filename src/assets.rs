@@ -8,8 +8,11 @@ pub struct LoadingPlugin;
 
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(load_assets.in_schedule(OnEnter(GameState::LoadingAssets)))
-            .add_system(update_assets.in_set(OnUpdate(GameState::LoadingAssets)));
+        app.add_systems(OnEnter(GameState::LoadingAssets), load_assets)
+            .add_systems(
+                Update,
+                update_assets.run_if(in_state(GameState::LoadingAssets)),
+            );
     }
 }
 

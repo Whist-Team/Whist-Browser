@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
+use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiPlugin, EguiSettings};
 
@@ -13,11 +13,14 @@ pub struct BaseUiPlugin;
 
 impl Plugin for BaseUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(EguiPlugin)
-            .insert_resource(EguiSettings { scale_factor: 2.0 })
-            .add_system(setup_fonts.in_schedule(OnExit(GameState::LoadingAssets)));
-        app.add_plugin(FrameTimeDiagnosticsPlugin)
-            .add_system(fps_text.in_set(MySystemSets::EguiTop));
+        app.add_plugins(EguiPlugin)
+            .insert_resource(EguiSettings {
+                scale_factor: 2.0,
+                ..default()
+            })
+            .add_systems(OnExit(GameState::LoadingAssets), setup_fonts);
+        app.add_plugins(FrameTimeDiagnosticsPlugin)
+            .add_systems(Update, fps_text.in_set(MySystemSets::EguiTop));
     }
 }
 
@@ -48,7 +51,7 @@ fn setup_fonts(mut egui_context: EguiContexts) {
     });
 }
 
-fn fps_text(mut egui_context: EguiContexts, diagnostics: Res<Diagnostics>) {
+fn fps_text(mut egui_context: EguiContexts, diagnostics: Res<DiagnosticsStore>) {
     let fps = diagnostics
         .get(FrameTimeDiagnosticsPlugin::FPS)
         .unwrap()

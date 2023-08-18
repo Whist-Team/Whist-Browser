@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_egui::egui::scroll_area::ScrollBarVisibility;
 use bevy_egui::egui::Ui;
 use bevy_egui::{egui, EguiContexts};
 
@@ -12,14 +13,15 @@ pub struct RoomMenuPlugin;
 
 impl Plugin for RoomMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(add_ui_state.in_schedule(OnEnter(GameState::RoomMenu)))
+        app.add_systems(OnEnter(GameState::RoomMenu), add_ui_state)
             .add_systems(
+                Update,
                 (update_ui_state, room_menu)
                     .chain()
-                    .in_set(OnUpdate(GameState::RoomMenu))
+                    .run_if(in_state(GameState::RoomMenu))
                     .after(MySystemSets::EguiTop),
             )
-            .add_system(remove_ui_state.in_schedule(OnExit(GameState::RoomMenu)));
+            .add_systems(OnExit(GameState::RoomMenu), remove_ui_state);
     }
 }
 
@@ -149,7 +151,7 @@ fn update_ui_state(
         }
     }
     if let Some(game_list_result) = game_list_results.iter().last() {
-        match game_list_result {
+        match &game_list_result.0 {
             Ok(game_list) => {
                 ui_state.games = game_list.rooms.to_owned();
                 ui_state.room_status = RoomStatus::Loaded;
@@ -161,7 +163,7 @@ fn update_ui_state(
     }
     if let Some(game_join_result) = game_join_results.iter().last() {
         assert!(matches!(ui_state.room_status, RoomStatus::Joining));
-        match game_join_result {
+        match &game_join_result.0 {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
                     state.set(GameState::Ingame);
@@ -180,7 +182,7 @@ fn update_ui_state(
             ui_state.room_status,
             RoomStatus::CreatingAndJoining
         ));
-        match game_create_result {
+        match &game_create_result.0 {
             Ok(_) => {
                 state.set(GameState::Ingame);
             }
@@ -205,7 +207,7 @@ fn room_menu(
             ui_left.separator();
             egui::ScrollArea::vertical()
                 .auto_shrink([false, false])
-                .always_show_scroll(true)
+                .scroll_bar_visibility(ScrollBarVisibility::AlwaysVisible)
                 .max_height(ui_left.available_height() - 50.0)
                 .show(ui_left, |ui| {
                     match &ui_state.room_status {

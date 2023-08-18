@@ -20,12 +20,18 @@ fn main() {
 
     #[cfg(not(target_family = "wasm"))]
     {
+        use bevy::asset::ChangeWatcher;
+        use std::time::Duration;
+
         println!("Enabling filesystem watcher for asset reload");
         plugins = plugins.set(AssetPlugin {
-            watch_for_changes: true,
+            watch_for_changes: ChangeWatcher::with_delay(Duration::from_secs(1)),
             ..default()
         });
     }
 
-    App::new().add_plugins(plugins).add_plugin(GamePlugin).run();
+    App::new()
+        .add_plugins(plugins)
+        .add_plugins(GamePlugin)
+        .run();
 }
