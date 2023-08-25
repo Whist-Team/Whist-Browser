@@ -6,7 +6,6 @@ use bevy_egui::{egui, EguiContexts};
 use crate::network::{
     GitHubAuthRequest, GitHubTempTokenResult, LoginForm, LoginResult, NetworkCommand,
     SwapTokenRequest, UserCreateRequest, UserCreateResult,
-
 };
 use crate::{GameState, MySystemSets};
 
