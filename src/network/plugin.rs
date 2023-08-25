@@ -16,28 +16,33 @@ impl Plugin for NetworkPlugin {
             .add_event::<GitHubTempTokenResult>()
             .add_event::<UserCreateResult>()
             .add_event::<WebSocketCommand>()
-            .add_startup_system(setup_worker)
-            .add_system(send_network_events)
-            .add_system(receive_network_events)
-            .add_system(send_websocket_commands)
-            .add_system(receive_websocket_responses);
+            .add_systems(Startup, setup_worker)
+            .add_systems(
+                Update,
+                (
+                    send_network_events,
+                    receive_network_events,
+                    send_websocket_commands,
+                    receive_websocket_responses,
+                ),
+            );
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub enum ConnectResult {
     Success,
     Failure(ConnectError),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub enum LoginResult {
     Success,
     Failure(LoginError),
     GitHubWait(GitHubTempTokenResult),
 }
 
-#[derive(Debug, Clone, Resource)]
+#[derive(Debug, Clone, Event)]
 pub enum NetworkCommand {
     Connect(String),
     UserCreate(UserCreateRequest),
@@ -49,7 +54,7 @@ pub enum NetworkCommand {
     SwapToken(SwapTokenRequest),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 enum NetworkResponse {
     ConnectSuccess,
     ConnectFailure(ConnectError),
@@ -62,7 +67,7 @@ enum NetworkResponse {
     UserCreate(UserCreateResult),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub enum WebSocketCommand {
     Connect(String),
 }

@@ -40,12 +40,14 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>()
             // .configure_set(MySystemSets::EguiTop.after(CoreSet::Update))
-            .add_plugin(BaseUiPlugin)
-            .add_plugin(LoadingPlugin)
-            .add_plugin(NetworkPlugin)
-            .add_plugin(ConnectMenuPlugin)
-            .add_plugin(LoginMenuPlugin)
-            .add_plugin(RoomMenuPlugin);
+            .add_plugins((
+                BaseUiPlugin,
+                LoadingPlugin,
+                NetworkPlugin,
+                ConnectMenuPlugin,
+                LoginMenuPlugin,
+                RoomMenuPlugin,
+            ));
     }
 }
 
