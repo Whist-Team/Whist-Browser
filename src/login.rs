@@ -173,7 +173,7 @@ fn update_ui_state(
     }
     if let Some(register_result) = register_results.iter().next() {
         assert!(matches!(ui_state.login_status, LoginStatus::Registering));
-        match register_result {
+        match &register_result.0 {
             Ok(_) => ui_state.login_status = LoginStatus::NotStarted,
             Err(e) => {
                 ui_state.login_status = LoginStatus::RegisteringError(format!("{:?}", e));
