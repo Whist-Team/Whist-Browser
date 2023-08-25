@@ -35,7 +35,7 @@ pub struct GameListResult(pub Result<GameListResponse, Error>);
 pub struct GameJoinResult(pub Result<GameJoinResponse, Error>);
 
 #[derive(Debug, Event)]
-pub type GameReconnectResult = Result<GameReconnectResponse, Error>;
+pub struct GameReconnectResult(pub Result<GameReconnectResponse, Error>);
 
 #[derive(Debug, Event)]
 pub struct GameCreateResult(pub Result<GameCreateResponse, Error>);
