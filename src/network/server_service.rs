@@ -29,7 +29,7 @@ pub struct ServerService {
 }
 
 #[derive(Debug, Event)]
-pub type UserCreateResult(pub Result<UserCreateResponse, Error>);
+pub struct UserCreateResult(pub Result<UserCreateResponse, Error>);
 
 #[derive(Debug, Event)]
 pub struct GameListResult(pub Result<GameListResponse, Error>);
