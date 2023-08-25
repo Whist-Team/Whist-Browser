@@ -114,7 +114,7 @@ impl ServerService {
                     Body::Json(body),
                     None,
                 )
-                .await
+                .await,
         )
     }
 
