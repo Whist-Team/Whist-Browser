@@ -134,7 +134,7 @@ fn update_ui_state(
         event_writer.send(NetworkCommand::GameReconnect)
     }
     if let Some(game_reconnect_result) = game_reconnect_results.iter().last() {
-        match game_reconnect_result {
+        match &game_reconnect_result.0 {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => match res.password {
                     Some(true) => {
