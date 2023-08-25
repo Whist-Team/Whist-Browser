@@ -151,14 +151,14 @@ impl ServerService {
     pub async fn reconnect(&self) -> GameReconnectResult {
         GameReconnectResult(
             self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                "room/reconnect/",
-                Query::<()>::None,
-                Body::<()>::Empty,
-                None,
-            )
-            .await,
+                .request_with_json_result(
+                    Method::POST,
+                    "room/reconnect/",
+                    Query::<()>::None,
+                    Body::<()>::Empty,
+                    None,
+                )
+                .await,
         )
     }
 
