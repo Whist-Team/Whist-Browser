@@ -24,11 +24,20 @@ pub enum GameJoinStatus {
     Joined,
     #[serde(rename = "already joined")]
     AlreadyJoined,
+    #[serde(rename = "not joined")]
+    NotJoined,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameJoinResponse {
     pub status: GameJoinStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct GameReconnectResponse {
+    pub status: GameJoinStatus,
+    pub room_id: Option<String>,
+    pub password: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
