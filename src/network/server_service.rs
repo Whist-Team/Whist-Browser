@@ -149,7 +149,8 @@ impl ServerService {
     }
 
     pub async fn reconnect(&self) -> GameReconnectResult {
-        self.server_connection
+        GameReconnectResult(
+            self.server_connection
             .request_with_json_result(
                 Method::POST,
                 "room/reconnect/",
@@ -157,7 +158,8 @@ impl ServerService {
                 Body::<()>::Empty,
                 None,
             )
-            .await
+            .await,
+        )
     }
 
     pub async fn create_game(&self, body: &GameCreateRequest) -> GameCreateResult {
