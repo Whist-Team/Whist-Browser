@@ -181,7 +181,7 @@ fn send_network_events(
     }
 }
 
-fn receive_network_events(
+#[allow(clippy::too_many_arguments)] fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
     mut create_user_result: EventWriter<UserCreateResult>,
     mut connect_result: EventWriter<ConnectResult>,
