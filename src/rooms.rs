@@ -5,7 +5,7 @@ use bevy_egui::{egui, EguiContexts};
 
 use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,
-    GameListResult, NetworkCommand,
+    GameListResult, GameReconnectResult, NetworkCommand,
 };
 use crate::{GameState, MySystemSets};
 
@@ -113,9 +113,8 @@ fn game_to_string(game_id: impl AsRef<str>) -> String {
     format!("Game: {}", game_id.as_ref())
 }
 
-fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
+fn add_ui_state(mut commands: Commands) {
     commands.init_resource::<UiState>();
-    event_writer.send(NetworkCommand::GetGameList);
 }
 
 fn remove_ui_state(mut commands: Commands) {
@@ -127,10 +126,31 @@ fn update_ui_state(
     mut ui_state: ResMut<UiState>,
     mut game_list_results: EventReader<GameListResult>,
     mut game_join_results: EventReader<GameJoinResult>,
+    mut game_reconnect_results: EventReader<GameReconnectResult>,
     mut game_create_results: EventReader<GameCreateResult>,
+    mut event_writer: EventWriter<NetworkCommand>,
 ) {
+    if matches!(ui_state.room_status, RoomStatus::Loading) {
+        event_writer.send(NetworkCommand::GameReconnect)
+    }
+    if let Some(game_reconnect_result) = game_reconnect_results.iter().last() {
+        match &game_reconnect_result.0 {
+            Ok(res) => match res.status {
+                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => match res.password {
+                    Some(true) => {
+                        ui_state.selected = res.room_id.clone();
+                        ui_state.room_status = RoomStatus::JoinWindow
+                    }
+                    _ => state.set(GameState::Ingame),
+                },
+                GameJoinStatus::NotJoined => event_writer.send(NetworkCommand::GetGameList),
+            },
+            Err(e) => {
+                ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
+            }
+        }
+    }
     if let Some(game_list_result) = game_list_results.iter().last() {
-        assert!(matches!(ui_state.room_status, RoomStatus::Loading));
         match &game_list_result.0 {
             Ok(game_list) => {
                 ui_state.games = game_list.rooms.to_owned();
@@ -145,11 +165,11 @@ fn update_ui_state(
         assert!(matches!(ui_state.room_status, RoomStatus::Joining));
         match &game_join_result.0 {
             Ok(res) => match res.status {
-                GameJoinStatus::Joined => {
+                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
                     state.set(GameState::Ingame);
                 }
-                GameJoinStatus::AlreadyJoined => {
-                    ui_state.room_status = RoomStatus::Error(format!("{:?}", res.status));
+                GameJoinStatus::NotJoined => {
+                    ui_state.room_status = RoomStatus::Error("Not joined".to_string())
                 }
             },
             Err(e) => {
