@@ -38,6 +38,9 @@ pub struct GameListResult(pub Result<GameListResponse, Error>);
 pub struct GameJoinResult(pub Result<GameJoinResponse, Error>);
 
 #[derive(Debug, Event)]
+pub struct GameReconnectResult(pub Result<GameReconnectResponse, Error>);
+
+#[derive(Debug, Event)]
 pub struct GameCreateResult(pub Result<GameCreateResponse, Error>);
 
 impl ServerService {
@@ -144,6 +147,20 @@ impl ServerService {
                     format!("room/join/{}", game_id.as_ref()),
                     Query::<()>::None,
                     Body::Json(body),
+                    None,
+                )
+                .await,
+        )
+    }
+
+    pub async fn reconnect(&self) -> GameReconnectResult {
+        GameReconnectResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    "room/reconnect/",
+                    Query::<()>::None,
+                    Body::<()>::Empty,
                     None,
                 )
                 .await,
