@@ -187,7 +187,6 @@ fn login_menu(
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
-    let ui_state: &mut UiState = &mut ui_state;
     egui::CentralPanel::default().show(egui_context.ctx_mut(), |ui| {
         ui.horizontal(|ui| {
             ui.label("Username: ");
