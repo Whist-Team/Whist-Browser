@@ -29,6 +29,9 @@ pub struct ServerService {
 }
 
 #[derive(Debug, Event)]
+pub struct UserCreateResult(pub Result<UserCreateResponse, Error>);
+
+#[derive(Debug, Event)]
 pub struct GameListResult(pub Result<GameListResponse, Error>);
 
 #[derive(Debug, Event)]
@@ -104,16 +107,18 @@ impl ServerService {
         }
     }
 
-    pub async fn create_user(&self, body: &UserCreateRequest) -> Result<UserCreateResponse, Error> {
-        self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                "user/auth/create",
-                Query::<()>::None,
-                Body::Json(body),
-                None,
-            )
-            .await
+    pub async fn create_user(&self, body: &UserCreateRequest) -> UserCreateResult {
+        UserCreateResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    "user/create",
+                    Query::<()>::None,
+                    Body::Json(body),
+                    None,
+                )
+                .await,
+        )
     }
 
     pub async fn get_games(&self) -> GameListResult {
