@@ -29,10 +29,10 @@ pub struct ServerService {
 }
 
 #[derive(Debug, Event)]
-pub type RoomInfoResult(pub Result<RoomInfoResponse, Error>);
+pub struct RoomInfoResult(pub Result<RoomInfoResponse, Error>);
 
 #[derive(Debug, Event)]
-pub type RoomStartResul(pub Result<RoomStartResponse, Error>);
+pub struct RoomStartResul(pub Result<RoomStartResponse, Error>);
 
 #[derive(Debug, Event)]
 pub struct UserCreateResult(pub Result<UserCreateResponse, Error>);
