@@ -6,6 +6,7 @@ use bevy::tasks::TaskPool;
 use futures::channel::mpsc::{unbounded, TryRecvError, UnboundedReceiver, UnboundedSender};
 use futures::StreamExt;
 
+#[derive(Resource)]
 pub struct Worker<I: Debug, O: Debug> {
     input: UnboundedSender<I>,
     output: UnboundedReceiver<O>,

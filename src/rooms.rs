@@ -1,25 +1,28 @@
 use bevy::prelude::*;
+use bevy_egui::egui::scroll_area::ScrollBarVisibility;
 use bevy_egui::egui::Ui;
-use bevy_egui::{egui, EguiContext};
+use bevy_egui::{egui, EguiContexts};
 
 use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,
-    GameListResult, NetworkCommand,
+    GameListResult, GameReconnectResult, NetworkCommand,
 };
+
 use crate::{GameState, Globals, MySystemLabel};
 
 pub struct RoomMenuPlugin;
 
 impl Plugin for RoomMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::RoomMenu).with_system(add_ui_state))
-            .add_system_set(
-                SystemSet::on_update(GameState::RoomMenu)
-                    .after(MySystemLabel::EguiTop)
-                    .with_system(update_ui_state)
-                    .with_system(room_menu.after(update_ui_state)),
+        app.add_systems(OnEnter(GameState::RoomMenu), add_ui_state)
+            .add_systems(
+                Update,
+                (update_ui_state, room_menu)
+                    .chain()
+                    .run_if(in_state(GameState::RoomMenu))
+                    .after(MySystemSets::EguiTop),
             )
-            .add_system_set(SystemSet::on_exit(GameState::RoomMenu).with_system(remove_ui_state));
+            .add_systems(OnExit(GameState::RoomMenu), remove_ui_state);
     }
 }
 
@@ -34,6 +37,7 @@ enum RoomStatus {
     CreatingAndJoining,
 }
 
+#[derive(Resource)]
 struct UiState {
     room_status: RoomStatus,
     games: Vec<String>,
@@ -110,7 +114,7 @@ fn game_to_string(game_id: impl AsRef<str>) -> String {
     format!("Game: {}", game_id.as_ref())
 }
 
-fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
+fn add_ui_state(mut commands: Commands) {
     commands.init_resource::<UiState>();
     commands.init_resource::<Globals>();
     event_writer.send(NetworkCommand::GetGameList);
@@ -121,58 +125,82 @@ fn remove_ui_state(mut commands: Commands) {
 }
 
 fn update_ui_state(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<UiState>,
     mut globals: ResMut<Globals>,
     mut game_list_results: EventReader<GameListResult>,
     mut game_join_results: EventReader<GameJoinResult>,
+    mut game_reconnect_results: EventReader<GameReconnectResult>,
     mut game_create_results: EventReader<GameCreateResult>,
+    mut event_writer: EventWriter<NetworkCommand>,
 ) {
-    if let Some(game_list_result) = game_list_results.iter().next_back() {
-        assert!(matches!(ui_state.room_status, RoomStatus::Loading));
-        match game_list_result {
-            Ok(game_list) => {
-                ui_state.games = game_list.rooms.to_owned();
-                ui_state.room_status = RoomStatus::Loaded;
-            }
-            Err(e) => {
-                ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
-            }
-        }
+    if matches!(ui_state.room_status, RoomStatus::Loading) {
+        event_writer.send(NetworkCommand::GameReconnect)
     }
-    if let Some(game_join_result) = game_join_results.iter().next_back() {
-        assert!(matches!(ui_state.room_status, RoomStatus::Joining));
-        match game_join_result {
+    if let Some(game_reconnect_result) = game_reconnect_results.iter().last() {
+        match &game_reconnect_result.0 {
             Ok(res) => match res.status {
-                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
-                    globals.room_id = ui_state.selected.clone();
-                    state.set(GameState::RoomLobby).unwrap();
-                }
+                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => match res.password {
+                    Some(true) => {
+                        ui_state.selected = res.room_id.clone();
+                        ui_state.room_status = RoomStatus::JoinWindow
+                    }
+                    _ => state.set(GameState::Ingame),
+                },
+                GameJoinStatus::NotJoined => event_writer.send(NetworkCommand::GetGameList),
             },
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
             }
         }
     }
-    if let Some(game_create_result) = game_create_results.iter().next_back() {
+    if let Some(game_list_result) = game_list_results.iter().last() {
+        match &game_list_result.0 {
+            Ok(game_list) => {
+                ui_state.games = game_list.rooms.to_owned();
+                ui_state.room_status = RoomStatus::Loaded;
+            }
+            Err(e) => {
+                ui_state.room_status = RoomStatus::Error(format!("{e:?}"));
+            }
+        }
+    }
+    if let Some(game_join_result) = game_join_results.iter().last() {
+        assert!(matches!(ui_state.room_status, RoomStatus::Joining));
+        match &game_join_result.0 {
+            Ok(res) => match res.status {
+                GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
+                    globals.room_id = ui_state.selected.clone();
+                    state.set(GameState::RoomLobby).unwrap();
+                }
+                GameJoinStatus::NotJoined => {
+                    ui_state.room_status = RoomStatus::Error("Not joined".to_string())
+                }
+            },
+            Err(e) => {
+                ui_state.room_status = RoomStatus::Error(format!("{e:?}"));
+            }
+        }
+    }
+    if let Some(game_create_result) = game_create_results.iter().last() {
         assert!(matches!(
             ui_state.room_status,
             RoomStatus::CreatingAndJoining
         ));
-        match game_create_result {
+        match &game_create_result.0 {
             Ok(_) => {
                 globals.room_id = ui_state.selected.clone();
                 state.set(GameState::RoomLobby).unwrap();
             }
             Err(e) => {
-                ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
+                ui_state.room_status = RoomStatus::Error(format!("{e:?}"));
             }
         }
     }
 }
 
 fn room_menu(
-    mut egui_context: ResMut<EguiContext>,
+    mut egui_context: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
@@ -185,7 +213,7 @@ fn room_menu(
             ui_left.separator();
             egui::ScrollArea::vertical()
                 .auto_shrink([false, false])
-                .always_show_scroll(true)
+                .scroll_bar_visibility(ScrollBarVisibility::AlwaysVisible)
                 .max_height(ui_left.available_height() - 50.0)
                 .show(ui_left, |ui| {
                     match &ui_state.room_status {

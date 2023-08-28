@@ -1,25 +1,27 @@
-use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext};
 use std::{env, fmt};
 
+use bevy::prelude::*;
+use bevy_egui::{egui, EguiContexts};
+
 use crate::network::{
-    GitHubAuthRequest, LoginForm, LoginResult, NetworkCommand, SwapTokenRequest, UserCreateRequest,
-    UserCreateResult,
+    GitHubAuthRequest, GitHubTempTokenResult, LoginForm, LoginResult, NetworkCommand,
+    SwapTokenRequest, UserCreateRequest, UserCreateResult,
 };
-use crate::{GameState, MySystemLabel};
+use crate::{GameState, MySystemSets};
 
 pub struct LoginMenuPlugin;
 
 impl Plugin for LoginMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::LoginMenu).with_system(add_ui_state))
-            .add_system_set(
-                SystemSet::on_update(GameState::LoginMenu)
-                    .after(MySystemLabel::EguiTop)
-                    .with_system(update_ui_state)
-                    .with_system(login_menu.after(update_ui_state)),
+        app.add_systems(OnEnter(GameState::LoginMenu), add_ui_state)
+            .add_systems(
+                Update,
+                (update_ui_state, login_menu)
+                    .chain()
+                    .run_if(in_state(GameState::LoginMenu))
+                    .after(MySystemSets::EguiTop),
             )
-            .add_system_set(SystemSet::on_exit(GameState::LoginMenu).with_system(remove_ui_state));
+            .add_systems(OnExit(GameState::LoginMenu), remove_ui_state);
     }
 }
 
@@ -81,6 +83,7 @@ impl LoginStatus {
     }
 }
 
+#[derive(Resource)]
 struct UiState {
     username: String,
     password: String,
@@ -142,7 +145,7 @@ fn remove_ui_state(mut commands: Commands) {
 }
 
 fn update_ui_state(
-    mut state: ResMut<State<GameState>>,
+    mut state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<UiState>,
     mut login_results: EventReader<LoginResult>,
     mut register_results: EventReader<UserCreateResult>,
@@ -154,12 +157,12 @@ fn update_ui_state(
         ));
         match connect_result {
             LoginResult::Success => {
-                state.set(GameState::RoomMenu).unwrap();
+                state.set(GameState::RoomMenu);
             }
             LoginResult::Failure(e) => {
-                ui_state.login_status = LoginStatus::LoginError(format!("{:?}", e));
+                ui_state.login_status = LoginStatus::LoginError(format!("{e:?}"));
             }
-            LoginResult::GitHubWait(result) => match result {
+            LoginResult::GitHubWait(GitHubTempTokenResult(result)) => match result {
                 Ok(token) => {
                     let data = GitHubAuthData::new(&token.user_code, &token.device_code);
                     ui_state.login_status = LoginStatus::GitHubAuth(data);
@@ -170,7 +173,7 @@ fn update_ui_state(
     }
     if let Some(register_result) = register_results.iter().next() {
         assert!(matches!(ui_state.login_status, LoginStatus::Registering));
-        match register_result {
+        match &register_result.0 {
             Ok(_) => ui_state.login_status = LoginStatus::NotStarted,
             Err(e) => {
                 ui_state.login_status = LoginStatus::RegisteringError(format!("{:?}", e));
@@ -180,7 +183,7 @@ fn update_ui_state(
 }
 
 fn login_menu(
-    mut egui_context: ResMut<EguiContext>,
+    mut egui_context: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {

@@ -1,3 +1,4 @@
+use bevy::ecs::event::*;
 use reqwest::{Error, IntoUrl, Method};
 
 use crate::network::*;
@@ -27,12 +28,26 @@ pub struct ServerService {
     server_connection: ServerConnection,
 }
 
-pub type RoomInfoResult = Result<RoomInfoResponse, Error>;
-pub type RoomStartResult = Result<RoomStartResponse, Error>;
-pub type UserCreateResult = Result<UserCreateResponse, Error>;
-pub type GameListResult = Result<GameListResponse, Error>;
-pub type GameJoinResult = Result<GameJoinResponse, Error>;
-pub type GameCreateResult = Result<GameCreateResponse, Error>;
+#[derive(Debug, Event)]
+pub type RoomInfoResult(pub Result<RoomInfoResponse, Error>);
+
+#[derive(Debug, Event)]
+pub type RoomStartResul(pub Result<RoomStartResponse, Error>);
+
+#[derive(Debug, Event)]
+pub struct UserCreateResult(pub Result<UserCreateResponse, Error>);
+
+#[derive(Debug, Event)]
+pub struct GameListResult(pub Result<GameListResponse, Error>);
+
+#[derive(Debug, Event)]
+pub struct GameJoinResult(pub Result<GameJoinResponse, Error>);
+
+#[derive(Debug, Event)]
+pub struct GameReconnectResult(pub Result<GameReconnectResponse, Error>);
+
+#[derive(Debug, Event)]
+pub struct GameCreateResult(pub Result<GameCreateResponse, Error>);
 
 impl ServerService {
     /// Constructor
@@ -98,28 +113,32 @@ impl ServerService {
         }
     }
 
-    pub async fn create_user(&self, body: &UserCreateRequest) -> Result<UserCreateResponse, Error> {
-        self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                "user/create",
-                Query::<()>::None,
-                Body::Json(body),
-                None,
-            )
-            .await
+    pub async fn create_user(&self, body: &UserCreateRequest) -> UserCreateResult {
+        UserCreateResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    "user/create",
+                    Query::<()>::None,
+                    Body::Json(body),
+                    None,
+                )
+                .await,
+        )
     }
 
     pub async fn get_games(&self) -> GameListResult {
-        self.server_connection
-            .request_with_json_result(
-                Method::GET,
-                "room/info/ids",
-                Query::<()>::None,
-                Body::<()>::Empty,
-                None,
-            )
-            .await
+        GameListResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::GET,
+                    "room/info/ids",
+                    Query::<()>::None,
+                    Body::<()>::Empty,
+                    None,
+                )
+                .await,
+        )
     }
 
     pub async fn get_room_info(&self, room_id: impl AsRef<str>) -> RoomInfoResult {
@@ -139,27 +158,45 @@ impl ServerService {
         game_id: impl AsRef<str>,
         body: &GameJoinRequest,
     ) -> GameJoinResult {
-        self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                format!("room/join/{}", game_id.as_ref()),
-                Query::<()>::None,
-                Body::Json(body),
-                None,
-            )
-            .await
+        GameJoinResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    format!("room/join/{}", game_id.as_ref()),
+                    Query::<()>::None,
+                    Body::Json(body),
+                    None,
+                )
+                .await,
+        )
+    }
+
+    pub async fn reconnect(&self) -> GameReconnectResult {
+        GameReconnectResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    "room/reconnect/",
+                    Query::<()>::None,
+                    Body::<()>::Empty,
+                    None,
+                )
+                .await,
+        )
     }
 
     pub async fn create_game(&self, body: &GameCreateRequest) -> GameCreateResult {
-        self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                "room/create",
-                Query::<()>::None,
-                Body::Json(body),
-                None,
-            )
-            .await
+        GameCreateResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    "room/create",
+                    Query::<()>::None,
+                    Body::Json(body),
+                    None,
+                )
+                .await,
+        )
     }
 
     pub async fn start_room(&self, room_id: impl AsRef<str>) -> RoomStartResult {

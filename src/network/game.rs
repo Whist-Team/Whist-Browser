@@ -43,11 +43,20 @@ pub enum GameJoinStatus {
     Joined,
     #[serde(rename = "already joined")]
     AlreadyJoined,
+    #[serde(rename = "not joined")]
+    NotJoined,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameJoinResponse {
     pub status: GameJoinStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct GameReconnectResponse {
+    pub status: GameJoinStatus,
+    pub room_id: Option<String>,
+    pub password: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -89,7 +98,7 @@ mod tests {
             "min_player": null,
             "max_player": null,
         });
-        let actual = serde_json::to_value(&GameCreateRequest {
+        let actual = serde_json::to_value(GameCreateRequest {
             room_name: "asdf".to_string(),
             password: None,
             min_player: None,
@@ -107,7 +116,7 @@ mod tests {
             "min_player": null,
             "max_player": null,
         });
-        let actual = serde_json::to_value(&GameCreateRequest {
+        let actual = serde_json::to_value(GameCreateRequest {
             room_name: "asdf".to_string(),
             password: Some("12345_is_a_bad_password".to_string()),
             min_player: None,
@@ -125,7 +134,7 @@ mod tests {
             "min_player": 4,
             "max_player": 4,
         });
-        let actual = serde_json::to_value(&GameCreateRequest {
+        let actual = serde_json::to_value(GameCreateRequest {
             room_name: "asdf".to_string(),
             password: Some("12345_is_a_bad_password".to_string()),
             min_player: Some(4),

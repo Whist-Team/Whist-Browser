@@ -7,9 +7,6 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  CARGO_INCREMENTAL: 0
-
 jobs:
   test:
     strategy:
@@ -22,39 +19,26 @@ jobs:
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
         if: runner.os == 'linux'
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: Swatinem/rust-cache@v1
+          shared-key: whist-browser
       - name: Build tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-targets --all-features --no-run --locked
+        run: cargo test --all-targets --all-features --no-run --locked
       - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-targets --all-features -- --nocapture
+        run: cargo test --all-targets --all-features -- --nocapture
   all-doc-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: Swatinem/rust-cache@v1
+          shared-key: whist-browser
       - name: Run doc tests with all features (this also compiles README examples)
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --doc --all-features
+        run: cargo test --doc --all-features
   check-cross:
     strategy:
       matrix:
@@ -65,38 +49,27 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
           target: ${{ matrix.target }}
-      - uses: Swatinem/rust-cache@v1
-      - name: Check
-        uses: actions-rs/cargo@v1
+      - uses: Swatinem/rust-cache@v2
         with:
-          command: check
-          args: --target ${{ matrix.target }} --all-features
+          shared-key: whist-browser
+      - name: Check
+        run: cargo check --target ${{ matrix.target }} --all-features
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Install libs
         run: sudo apt-get update; sudo apt-get install --no-install-recommends g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev libssl-dev
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: whist-browser
       - name: Check format
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
       - name: Run clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-targets --all-features -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings

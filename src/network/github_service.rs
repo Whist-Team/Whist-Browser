@@ -1,3 +1,4 @@
+use bevy::prelude::Event;
 use reqwest::{Error, IntoUrl, Method};
 
 use crate::network::{Body, GitHubAuthRequest, GitHubTempTokenResponse, Query, ServerConnection};
@@ -7,7 +8,8 @@ pub struct GitHubService {
     server_connection: ServerConnection,
 }
 
-pub type GitHubTempTokenResult = Result<GitHubTempTokenResponse, Error>;
+#[derive(Debug, Event)]
+pub struct GitHubTempTokenResult(pub Result<GitHubTempTokenResponse, Error>);
 
 impl GitHubService {
     /// Constructor
@@ -20,15 +22,17 @@ impl GitHubService {
     }
 
     pub async fn request_github_auth(&self, body: &GitHubAuthRequest) -> GitHubTempTokenResult {
-        self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                "login/device/code",
-                Query::<()>::None,
-                Body::Json(body),
-                None,
-            )
-            .await
+        GitHubTempTokenResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    "login/device/code",
+                    Query::<()>::None,
+                    Body::Json(body),
+                    None,
+                )
+                .await,
+        )
     }
 }
 
@@ -51,7 +55,7 @@ mod tests {
             .mount(&mock_server)
             .await;
         let service = GitHubService::new(mock_server.uri());
-        let response_json = service.request_github_auth(&auth_request).await.unwrap();
+        let response_json = service.request_github_auth(&auth_request).await.0.unwrap();
         assert_eq!(response_json, expected_info);
     }
 }

@@ -12,34 +12,40 @@ impl Plugin for NetworkPlugin {
             .add_event::<LoginResult>()
             .add_event::<GameListResult>()
             .add_event::<GameJoinResult>()
+            .add_event::<GameReconnectResult>()
             .add_event::<GameCreateResult>()
             .add_event::<GitHubTempTokenResult>()
             .add_event::<RoomInfoResult>()
             .add_event::<RoomStartResult>()
             .add_event::<UserCreateResult>()
             .add_event::<WebSocketCommand>()
-            .add_startup_system(setup_worker)
-            .add_system(send_network_events)
-            .add_system(receive_network_events)
-            .add_system(send_websocket_commands)
-            .add_system(receive_websocket_responses);
+            .add_systems(Startup, setup_worker)
+            .add_systems(
+                Update,
+                (
+                    send_network_events,
+                    receive_network_events,
+                    send_websocket_commands,
+                    receive_websocket_responses,
+                ),
+            );
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub enum ConnectResult {
     Success,
     Failure(ConnectError),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub enum LoginResult {
     Success,
     Failure(LoginError),
     GitHubWait(GitHubTempTokenResult),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Event)]
 pub enum NetworkCommand {
     Connect(String),
     UserCreate(UserCreateRequest),
@@ -47,13 +53,14 @@ pub enum NetworkCommand {
     GetGameList,
     GameJoin(String, GameJoinRequest),
     GameCreate(GameCreateRequest),
+    GameReconnect,
     GithubAuth(GitHubAuthRequest),
     RoomInfo(String),
     StartRoom(String),
     SwapToken(SwapTokenRequest),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 enum NetworkResponse {
     ConnectSuccess,
     ConnectFailure(ConnectError),
@@ -62,13 +69,14 @@ enum NetworkResponse {
     LoginFailure(LoginError),
     GameList(GameListResult),
     GameJoin(GameJoinResult),
+    GameReconnect(GameReconnectResult),
     GameCreate(GameCreateResult),
     RoomInfo(RoomInfoResult),
     RoomStart(RoomStartResult),
     UserCreate(UserCreateResult),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub enum WebSocketCommand {
     Connect(String),
 }
@@ -77,7 +85,7 @@ pub enum WebSocketCommand {
 enum WebSocketResponse {
     ConnectSuccess,
     ConnectError,
-    Event(Event),
+    Event(NetworkEvent),
     Error,
 }
 
@@ -137,6 +145,9 @@ async fn network_worker(mut worker: NetworkWorkerFlipped) {
                     Err(e) => worker.send(NetworkResponse::LoginFailure(e)),
                 };
             }
+            NetworkCommand::GameReconnect => worker.send(NetworkResponse::GameReconnect(
+                server_service.as_ref().unwrap().reconnect().await,
+            )),
             NetworkCommand::GetGameList => {
                 worker.send(NetworkResponse::GameList(
                     server_service.as_ref().unwrap().get_games().await,
@@ -187,6 +198,7 @@ fn send_network_events(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn receive_network_events(
     network_worker: Option<ResMut<NetworkWorker>>,
     mut create_user_result: EventWriter<UserCreateResult>,
@@ -194,6 +206,7 @@ fn receive_network_events(
     mut login_result: EventWriter<LoginResult>,
     mut game_list_result: EventWriter<GameListResult>,
     mut game_join_result: EventWriter<GameJoinResult>,
+    mut game_reconnect_result: EventWriter<GameReconnectResult>,
     mut game_create_result: EventWriter<GameCreateResult>,
     mut room_info_result: EventWriter<RoomInfoResult>,
     mut room_start_result: EventWriter<RoomStartResult>,
@@ -214,6 +227,7 @@ fn receive_network_events(
                 NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
                 NetworkResponse::GameList(result) => game_list_result.send(result),
                 NetworkResponse::GameJoin(result) => game_join_result.send(result),
+                NetworkResponse::GameReconnect(result) => game_reconnect_result.send(result),
                 NetworkResponse::GameCreate(result) => game_create_result.send(result),
                 NetworkResponse::RoomInfo(result) => room_info_result.send(result),
                 NetworkResponse::RoomStart(result) => room_start_result.send(result),
@@ -237,7 +251,8 @@ fn send_websocket_commands(
                         match WebSocket::connect(url).await {
                             Ok((_sender, mut receiver)) => {
                                 worker.send(WebSocketResponse::ConnectSuccess);
-                                while let Result::<Event, _>::Ok(event) = receiver.recv_json().await
+                                while let Result::<NetworkEvent, _>::Ok(event) =
+                                    receiver.recv_json().await
                                 {
                                     worker.send(WebSocketResponse::Event(event));
                                 }

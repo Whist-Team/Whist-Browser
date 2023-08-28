@@ -2,19 +2,36 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use bevy::prelude::*;
+use bevy::window::WindowResolution;
 
 use whist_browser::GamePlugin;
 
 #[bevy_main]
 fn main() {
-    App::new()
-        .insert_resource(WindowDescriptor {
+    let mut plugins = DefaultPlugins.build();
+    plugins = plugins.set(WindowPlugin {
+        primary_window: Some(Window {
             title: "Whist".to_string(),
-            width: 800.0,
-            height: 600.0,
+            resolution: WindowResolution::new(800.0, 600.0),
             ..default()
-        })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(GamePlugin)
+        }),
+        ..default()
+    });
+
+    #[cfg(not(target_family = "wasm"))]
+    {
+        use bevy::asset::ChangeWatcher;
+        use std::time::Duration;
+
+        println!("Enabling filesystem watcher for asset reload");
+        plugins = plugins.set(AssetPlugin {
+            watch_for_changes: ChangeWatcher::with_delay(Duration::from_secs(1)),
+            ..default()
+        });
+    }
+
+    App::new()
+        .add_plugins(plugins)
+        .add_plugins(GamePlugin)
         .run();
 }
