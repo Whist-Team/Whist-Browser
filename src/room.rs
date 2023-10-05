@@ -73,7 +73,7 @@ impl Default for UiState {
 
 fn add_ui_state(mut commands: Commands) {
     commands.init_resource::<UiState>();
-    commands.init_resource::<Globals();
+    commands.init_resource::<Globals>();
 
     let room_id = globals.room_id.clone().unwrap();
     event_writer.send(NetworkCommand::RoomInfo(room_id));
