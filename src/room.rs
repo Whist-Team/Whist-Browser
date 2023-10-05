@@ -112,7 +112,7 @@ fn update_ui_state(
 }
 
 fn lobby_menu(
-    mut egui_context: ResMut<EguiContext>,
+    mut egui_context: EguiContext,
     mut ui_state: ResMut<UiState>,
     globals: Res<Globals>,
     mut event_writer: EventWriter<NetworkCommand>,
