@@ -114,7 +114,10 @@ fn game_to_string(game_id: impl AsRef<str>) -> String {
     format!("Game: {}", game_id.as_ref())
 }
 
-fn add_ui_state(mut commands: Commands) {
+fn add_ui_state(
+    mut commands: Commands,
+    mut event_writer: EventWriter<NetworkCommand>,
+) {
     commands.init_resource::<UiState>();
     commands.init_resource::<Globals>();
     event_writer.send(NetworkCommand::GetGameList);
