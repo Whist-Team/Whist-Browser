@@ -9,14 +9,15 @@ pub struct RoomLobbyPlugin;
 
 impl Plugin for RoomLobbyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::RoomLobby).with_system(add_ui_state))
-            .add_system_set(
-                SystemSet::on_update(GameState::RoomLobby)
-                    .after(MySystemLabel::EguiTop)
-                    .with_system(update_ui_state)
-                    .with_system(lobby_menu.after(update_ui_state)),
+        app.add_systems(OnEnter(GameState::RoomLobby), add_ui_state)
+            .add_systems(
+                Update,
+                (update_ui_state, lobby_menu)
+                    .chain()
+                    .run_if(in_state(GameState::RoomLobby))
+                    .after(MySystemSets::EguiTop),
             )
-            .add_system_set(SystemSet::on_exit(GameState::RoomLobby).with_system(remove_ui_state));
+            .add_systems(OnExit(GameState::RoomLobby), remove_ui_state);
     }
 }
 
