@@ -142,15 +142,17 @@ impl ServerService {
     }
 
     pub async fn get_room_info(&self, room_id: impl AsRef<str>) -> RoomInfoResult {
-        self.server_connection
-            .request_with_json_result(
-                Method::GET,
-                format!("room/info/{}", room_id.as_ref()),
-                Query::<()>::None,
-                Body::<()>::Empty,
-                None,
-            )
-            .await
+        RoomInfoResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::GET,
+                    format!("room/info/{}", room_id.as_ref()),
+                    Query::<()>::None,
+                    Body::<()>::Empty,
+                    None,
+                )
+                .await,
+        )
     }
 
     pub async fn join_game(
@@ -200,15 +202,17 @@ impl ServerService {
     }
 
     pub async fn start_room(&self, room_id: impl AsRef<str>) -> RoomStartResult {
-        self.server_connection
-            .request_with_json_result(
-                Method::POST,
-                format!("room/start/{}", room_id.as_ref()),
-                Query::<()>::None,
-                Body::<()>::Empty,
-                None,
+        RoomStartResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    format!("room/start/{}", room_id.as_ref()),
+                    Query::<()>::None,
+                    Body::<()>::Empty,
+                    None,
+                )
+                .await,
             )
-            .await
     }
 }
 
