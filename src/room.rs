@@ -93,7 +93,7 @@ fn update_ui_state(
     mut gobals: ResMut<Globals>,
     mut room_info_results: EventReader<RoomInfoResult>,
 ) {
-    if let Some(room_info_result) = room_info_results.iter().next_back() {
+    if let Some(room_info_result) = room_info_results.iter().last() {
         match room_info_result {
             Ok(room_info) => {
                 ui_state.name = room_info.name.to_owned();
@@ -132,7 +132,7 @@ fn lobby_menu(
             ui_left.separator();
             egui::ScrollArea::vertical()
                 .auto_shrink([false, false])
-                .always_show_scroll(true)
+                .scroll_bar_visibility(ScrollBarVisibility::AlwaysVisible)
                 .max_height(ui_left.available_height() - 50.0)
                 .show(ui_left, |ui| {
                     match &ui_state.room_status {
