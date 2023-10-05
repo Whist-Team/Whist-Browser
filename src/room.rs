@@ -72,7 +72,7 @@ impl Default for UiState {
     }
 }
 
-fn add_ui_state(mut commands: Commands, mut globals: ResMut<ResMut>,) {
+fn add_ui_state(mut commands: Commands, mut globals: ResMut<Globals>,) {
     commands.init_resource::<UiState>();
     commands.init_resource::<Globals>();
 
