@@ -1,6 +1,6 @@
 use crate::network::{NetworkCommand, RoomInfoResult};
 use crate::player::Player;
-use crate::{GameState, Globals, MySystemLabel};
+use crate::{GameState, Globals, MySystemSets};
 use bevy::prelude::*;
 use bevy_egui::egui::Ui;
 use bevy_egui::{egui, EguiContext};
@@ -29,6 +29,7 @@ enum RoomStatus {
     Started,
 }
 
+#[derive(Resource)]
 struct UiState {
     room_status: RoomStatus,
     name: String,
