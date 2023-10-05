@@ -74,7 +74,6 @@ impl Default for UiState {
 fn add_ui_state(
     mut commands: Commands,
     mut event_writer: EventWriter<NetworkCommand>,
-    globals: Res<Globals>,
 ) {
     commands.init_resource::<UiState>();
 
@@ -88,6 +87,7 @@ fn remove_ui_state(mut commands: Commands) {
 
 fn update_ui_state(
     mut ui_state: ResMut<UiState>,
+    mut gobals: ResMut<Globals>,
     mut room_info_results: EventReader<RoomInfoResult>,
 ) {
     if let Some(room_info_result) = room_info_results.iter().next_back() {
