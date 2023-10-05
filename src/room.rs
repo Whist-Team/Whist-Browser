@@ -72,7 +72,11 @@ impl Default for UiState {
     }
 }
 
-fn add_ui_state(mut commands: Commands, mut globals: ResMut<Globals>,) {
+fn add_ui_state(
+    mut commands: Commands,
+    mut globals: ResMut<Globals>,
+    mut event_writer: EventWriter<NetworkCommand>,
+) {
     commands.init_resource::<UiState>();
     commands.init_resource::<Globals>();
 
