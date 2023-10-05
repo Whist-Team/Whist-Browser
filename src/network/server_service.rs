@@ -32,7 +32,7 @@ pub struct ServerService {
 pub struct RoomInfoResult(pub Result<RoomInfoResponse, Error>);
 
 #[derive(Debug, Event)]
-pub struct RoomStartResul(pub Result<RoomStartResponse, Error>);
+pub struct RoomStartResult(pub Result<RoomStartResponse, Error>);
 
 #[derive(Debug, Event)]
 pub struct UserCreateResult(pub Result<UserCreateResponse, Error>);
