@@ -174,7 +174,7 @@ fn update_ui_state(
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
                     globals.room_id = ui_state.selected.clone();
-                    state.set(GameState::RoomLobby).unwrap();
+                    state.set(GameState::RoomLobby);
                 }
                 GameJoinStatus::NotJoined => {
                     ui_state.room_status = RoomStatus::Error("Not joined".to_string())
@@ -193,7 +193,7 @@ fn update_ui_state(
         match &game_create_result.0 {
             Ok(_) => {
                 globals.room_id = ui_state.selected.clone();
-                state.set(GameState::RoomLobby).unwrap();
+                state.set(GameState::RoomLobby);
             }
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{e:?}"));
