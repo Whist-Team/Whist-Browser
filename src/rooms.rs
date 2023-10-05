@@ -8,7 +8,7 @@ use crate::network::{
     GameListResult, GameReconnectResult, NetworkCommand,
 };
 
-use crate::{GameState, Globals, MySystemLabel};
+use crate::{GameState, Globals, MySystemSets};
 
 pub struct RoomMenuPlugin;
 
