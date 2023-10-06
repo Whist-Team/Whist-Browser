@@ -2,8 +2,9 @@ use crate::network::{NetworkCommand, RoomInfoResult};
 use crate::player::Player;
 use crate::{GameState, Globals, MySystemSets};
 use bevy::prelude::*;
+use bevy_egui::egui::scroll_area::ScrollBarVisibility;
 use bevy_egui::egui::Ui;
-use bevy_egui::{egui, EguiContext};
+use bevy_egui::{egui, EguiContexts};
 
 pub struct RoomLobbyPlugin;
 
@@ -74,7 +75,7 @@ impl Default for UiState {
 
 fn add_ui_state(
     mut commands: Commands,
-    mut globals: ResMut<Globals>,
+    globals: ResMut<Globals>,
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
     commands.init_resource::<UiState>();
@@ -90,11 +91,10 @@ fn remove_ui_state(mut commands: Commands) {
 
 fn update_ui_state(
     mut ui_state: ResMut<UiState>,
-    mut gobals: ResMut<Globals>,
     mut room_info_results: EventReader<RoomInfoResult>,
 ) {
     if let Some(room_info_result) = room_info_results.iter().last() {
-        match room_info_result {
+        match &room_info_result.0 {
             Ok(room_info) => {
                 ui_state.name = room_info.name.to_owned();
                 ui_state.password = room_info.password.to_owned();
@@ -112,7 +112,7 @@ fn update_ui_state(
 }
 
 fn lobby_menu(
-    mut egui_context: EguiContext,
+    mut egui_context: EguiContexts,
     mut ui_state: ResMut<UiState>,
     globals: Res<Globals>,
     mut event_writer: EventWriter<NetworkCommand>,
