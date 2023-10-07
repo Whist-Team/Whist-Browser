@@ -18,6 +18,7 @@ pub struct GameCreateRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum RoomPhase {
     Lobby,
+    ReadyToStart,
     Playing,
 }
 

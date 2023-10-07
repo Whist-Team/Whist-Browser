@@ -106,6 +106,16 @@ fn update_ui_state(
                 ui_state.min_player = room_info.min_player.to_owned();
                 ui_state.max_player = room_info.max_player.to_owned();
                 ui_state.players = room_info.players.to_owned();
+
+                match ui_state.phase {
+                    RoomPhase::Lobby => {
+                        if ui_state.players.len() < ui_state.min_player as usize {
+                            ui_state.room_status = RoomStatus::WaitingForPlayers
+                        }
+                    }
+                    RoomPhase::ReadyToStart => ui_state.room_status = RoomStatus::ReadyToStart,
+                    RoomPhase::Playing => ui_state.room_status = RoomStatus::Started,
+                }
             }
             Err(e) => ui_state.room_status = RoomStatus::Error(format!("{:?}", e)),
         }
