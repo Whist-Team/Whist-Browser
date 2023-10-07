@@ -123,6 +123,7 @@ fn remove_ui_state(mut commands: Commands) {
     commands.remove_resource::<UiState>();
 }
 
+#[allow(clippy::too_many_arguments)]
 fn update_ui_state(
     mut state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<UiState>,
