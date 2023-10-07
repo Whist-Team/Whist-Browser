@@ -212,7 +212,7 @@ impl ServerService {
                     None,
                 )
                 .await,
-            )
+        )
     }
 }
 
