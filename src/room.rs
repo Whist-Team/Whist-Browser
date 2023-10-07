@@ -1,10 +1,11 @@
-use crate::network::{NetworkCommand, RoomInfoResult};
-use crate::player::Player;
-use crate::{GameState, Globals, MySystemSets};
 use bevy::prelude::*;
 use bevy_egui::egui::scroll_area::ScrollBarVisibility;
 use bevy_egui::egui::Ui;
 use bevy_egui::{egui, EguiContexts};
+
+use crate::network::{NetworkCommand, RoomInfoResult};
+use crate::player::Player;
+use crate::{GameState, Globals, MySystemSets};
 
 pub struct RoomLobbyPlugin;
 
@@ -48,10 +49,7 @@ struct UiState {
 
 impl UiState {
     fn enable_start_button(&self) -> bool {
-        match self.room_status {
-            RoomStatus::ReadyToStart => true,
-            _ => false,
-        }
+        matches!(self.room_status, RoomStatus::ReadyToStart)
     }
 }
 
@@ -135,18 +133,14 @@ fn lobby_menu(
                 .scroll_bar_visibility(ScrollBarVisibility::AlwaysVisible)
                 .max_height(ui_left.available_height() - 50.0)
                 .show(ui_left, |ui| {
-                    match &ui_state.room_status {
-                        _ => {
-                            for player in &ui_state.players {
-                                let username = player.clone().username;
-                                ui.selectable_value(
-                                    &mut ui_state.selected,
-                                    Some(username.to_string()),
-                                    &username,
-                                );
-                            }
-                        }
-                    };
+                    for player in &ui_state.players {
+                        let username = player.clone().username;
+                        ui.selectable_value(
+                            &mut ui_state.selected,
+                            Some(username.to_string()),
+                            &username,
+                        );
+                    }
                 });
             ui_left.separator();
 
