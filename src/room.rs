@@ -60,6 +60,7 @@ impl Default for UiState {
             room_status: RoomStatus::WaitingForPlayers,
             name: "".to_string(),
             password: false,
+            phase: RoomPhase::Lobby,
             rubber_number: 0,
             game_number: 0,
             hand_number: 0,
