@@ -3,7 +3,7 @@ use bevy_egui::egui::scroll_area::ScrollBarVisibility;
 use bevy_egui::egui::Ui;
 use bevy_egui::{egui, EguiContexts};
 
-use crate::network::{NetworkCommand, RoomInfoResult};
+use crate::network::{NetworkCommand, RoomInfoResult, RoomPhase};
 use crate::player::Player;
 use crate::{GameState, Globals, MySystemSets};
 
@@ -45,6 +45,7 @@ struct UiState {
     max_player: u8,
     players: Vec<Player>,
     selected: Option<String>,
+    phase: RoomPhase,
 }
 
 impl UiState {
@@ -96,6 +97,7 @@ fn update_ui_state(
             Ok(room_info) => {
                 ui_state.name = room_info.name.to_owned();
                 ui_state.password = room_info.password.to_owned();
+                ui_state.phase = room_info.phase.to_owned();
                 ui_state.rubber_number = room_info.rubber_number.to_owned();
                 ui_state.game_number = room_info.game_number.to_owned();
                 ui_state.hand_number = room_info.hand_number.to_owned();
