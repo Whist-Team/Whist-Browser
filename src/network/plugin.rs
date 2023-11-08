@@ -174,7 +174,7 @@ fn send_network_events(
     mut network_events_to_send: EventReader<NetworkCommand>,
 ) {
     if let Some(network_worker) = network_worker {
-        for network_event in network_events_to_send.iter() {
+        for network_event in network_events_to_send.read() {
             info!("network event: {:?}", network_event);
             network_worker.send(network_event.to_owned());
         }
@@ -219,7 +219,7 @@ fn send_websocket_commands(
     mut commands: Commands,
     mut websocket_events: EventReader<WebSocketCommand>,
 ) {
-    for websocket_event in websocket_events.iter() {
+    for websocket_event in websocket_events.read() {
         info!("websocket event: {:?}", websocket_event);
         match websocket_event {
             WebSocketCommand::Connect(url) => {

@@ -1,4 +1,4 @@
-use bevy::asset::{HandleId, LoadState};
+use bevy::asset::Handle;
 use bevy::prelude::*;
 
 use crate::ui::{MONOSPACE_FONT, PROPORTIONAL_FONT};
@@ -31,10 +31,6 @@ impl GameAssets {
         }
     }
 
-    fn get_handles(&self) -> impl IntoIterator<Item = HandleId> {
-        []
-    }
-
     pub fn font(&self) -> Handle<Font> {
         self.font.to_owned()
     }
@@ -58,14 +54,15 @@ fn load_assets(
 
 fn update_assets(
     mut state: ResMut<NextState<GameState>>,
-    server: Res<AssetServer>,
-    assets: Res<GameAssets>,
+    _server: Res<AssetServer>,
+    _assets: Res<GameAssets>,
 ) {
-    match server.get_group_load_state(assets.get_handles()) {
-        LoadState::Failed | LoadState::Unloaded | LoadState::NotLoaded => {
+    /*match server.get_group_load_state(assets.get_handles()) {
+        LoadState::Failed | LoadState::NotLoaded => {
             panic!("error loading assets")
         }
         LoadState::Loaded => state.set(GameState::ConnectMenu),
         _ => {}
-    };
+    };*/
+    state.set(GameState::ConnectMenu);
 }

@@ -150,7 +150,7 @@ fn update_ui_state(
     mut login_results: EventReader<LoginResult>,
     mut register_results: EventReader<UserCreateResult>,
 ) {
-    if let Some(connect_result) = login_results.iter().next() {
+    if let Some(connect_result) = login_results.read().next() {
         assert!(matches!(
             ui_state.login_status,
             LoginStatus::LoggingIn | LoginStatus::GitHubRequest
@@ -171,7 +171,7 @@ fn update_ui_state(
             },
         };
     }
-    if let Some(register_result) = register_results.iter().next() {
+    if let Some(register_result) = register_results.read().next() {
         assert!(matches!(ui_state.login_status, LoginStatus::Registering));
         match &register_result.0 {
             Ok(_) => ui_state.login_status = LoginStatus::NotStarted,

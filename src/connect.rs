@@ -73,7 +73,7 @@ fn update_ui_state(
     mut ui_state: ResMut<UiState>,
     mut connect_results: EventReader<ConnectResult>,
 ) {
-    if let Some(connect_result) = connect_results.iter().next() {
+    if let Some(connect_result) = connect_results.read().next() {
         assert!(matches!(ui_state.connect_status, ConnectStatus::Connecting));
         match connect_result {
             ConnectResult::Success => {
