@@ -11,7 +11,7 @@ pub enum WebSocketError {
     Connect,
     Serde(String),
     UnexpectedMessageType,
-    WebSocketError(String),
+    WebSocket(String),
 }
 
 impl From<serde_json::Error> for WebSocketError {
@@ -23,7 +23,7 @@ impl From<serde_json::Error> for WebSocketError {
 #[cfg(target_family = "wasm")]
 impl From<gloo_net::websocket::WebSocketError> for WebSocketError {
     fn from(error: gloo_net::websocket::WebSocketError) -> Self {
-        WebSocketError::WebSocketError(format!("{}", error))
+        WebSocketError::WebSocket(format!("{}", error))
     }
 }
 
@@ -37,7 +37,7 @@ impl From<gloo_utils::errors::JsError> for WebSocketError {
 #[cfg(not(target_family = "wasm"))]
 impl From<tokio_tungstenite::tungstenite::Error> for WebSocketError {
     fn from(error: tokio_tungstenite::tungstenite::Error) -> Self {
-        WebSocketError::WebSocketError(format!("{error:?}"))
+        WebSocketError::WebSocket(format!("{error:?}"))
     }
 }
 
