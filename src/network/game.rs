@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::player::Player;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GameListResponse {
     pub rooms: Vec<String>,
@@ -11,6 +13,32 @@ pub struct GameCreateRequest {
     pub password: Option<String>,
     pub min_player: Option<u8>,
     pub max_player: Option<u8>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum RoomPhase {
+    Lobby,
+    ReadyToStart,
+    Playing,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct RoomInfoResponse {
+    pub name: String,
+    pub password: bool,
+    pub phase: RoomPhase,
+    pub rubber_number: u8,
+    pub game_number: u8,
+    pub hand_number: u8,
+    pub trick_number: u8,
+    pub min_player: u8,
+    pub max_player: u8,
+    pub players: Vec<Player>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct RoomStartResponse {
+    pub status: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]

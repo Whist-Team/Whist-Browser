@@ -7,7 +7,7 @@ use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,
     GameListResult, GameReconnectResult, NetworkCommand,
 };
-use crate::{GameState, MySystemSets};
+use crate::{GameState, Globals, MySystemSets};
 
 pub struct RoomMenuPlugin;
 
@@ -113,17 +113,21 @@ fn game_to_string(game_id: impl AsRef<str>) -> String {
     format!("Game: {}", game_id.as_ref())
 }
 
-fn add_ui_state(mut commands: Commands) {
+fn add_ui_state(mut commands: Commands, mut event_writer: EventWriter<NetworkCommand>) {
     commands.init_resource::<UiState>();
+    commands.init_resource::<Globals>();
+    event_writer.send(NetworkCommand::GetGameList);
 }
 
 fn remove_ui_state(mut commands: Commands) {
     commands.remove_resource::<UiState>();
 }
 
+#[allow(clippy::too_many_arguments)]
 fn update_ui_state(
     mut state: ResMut<NextState<GameState>>,
     mut ui_state: ResMut<UiState>,
+    mut globals: ResMut<Globals>,
     mut game_list_results: EventReader<GameListResult>,
     mut game_join_results: EventReader<GameJoinResult>,
     mut game_reconnect_results: EventReader<GameReconnectResult>,
@@ -166,7 +170,8 @@ fn update_ui_state(
         match &game_join_result.0 {
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => {
-                    state.set(GameState::Ingame);
+                    globals.room_id = ui_state.selected.clone();
+                    state.set(GameState::RoomLobby);
                 }
                 GameJoinStatus::NotJoined => {
                     ui_state.room_status = RoomStatus::Error("Not joined".to_string())
@@ -184,7 +189,8 @@ fn update_ui_state(
         ));
         match &game_create_result.0 {
             Ok(_) => {
-                state.set(GameState::Ingame);
+                globals.room_id = ui_state.selected.clone();
+                state.set(GameState::RoomLobby);
             }
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{e:?}"));

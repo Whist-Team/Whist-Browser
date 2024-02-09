@@ -29,6 +29,12 @@ pub struct ServerService {
 }
 
 #[derive(Debug, Event)]
+pub struct RoomInfoResult(pub Result<RoomInfoResponse, Error>);
+
+#[derive(Debug, Event)]
+pub struct RoomStartResult(pub Result<RoomStartResponse, Error>);
+
+#[derive(Debug, Event)]
 pub struct UserCreateResult(pub Result<UserCreateResponse, Error>);
 
 #[derive(Debug, Event)]
@@ -135,6 +141,20 @@ impl ServerService {
         )
     }
 
+    pub async fn get_room_info(&self, room_id: impl AsRef<str>) -> RoomInfoResult {
+        RoomInfoResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::GET,
+                    format!("room/info/{}", room_id.as_ref()),
+                    Query::<()>::None,
+                    Body::<()>::Empty,
+                    None,
+                )
+                .await,
+        )
+    }
+
     pub async fn join_game(
         &self,
         game_id: impl AsRef<str>,
@@ -175,6 +195,20 @@ impl ServerService {
                     "room/create",
                     Query::<()>::None,
                     Body::Json(body),
+                    None,
+                )
+                .await,
+        )
+    }
+
+    pub async fn start_room(&self, room_id: impl AsRef<str>) -> RoomStartResult {
+        RoomStartResult(
+            self.server_connection
+                .request_with_json_result(
+                    Method::POST,
+                    format!("room/start/{}", room_id.as_ref()),
+                    Query::<()>::None,
+                    Body::<()>::Empty,
                     None,
                 )
                 .await,
