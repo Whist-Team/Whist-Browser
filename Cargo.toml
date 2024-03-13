@@ -39,7 +39,7 @@ winit = { version = "0.28.7", default-features = false }
 image = { version = "0.24", default-features = false }
 
 [dependencies.bevy]
-version = "0.12"
+version = "0.13"
 default-features = false
 features = [
     "bevy_asset",
@@ -56,12 +56,12 @@ features = [
 ]
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies.bevy]
-version = "0.12"
+version = "0.13"
 default-features = false
 features = ["x11", "wayland", "file_watcher", "embedded_watcher"]
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies.bevy]
-version = "0.12"
+version = "0.13"
 default-features = false
 features = ["dynamic_linking"]
 
