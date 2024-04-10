@@ -196,20 +196,36 @@ fn receive_network_events(
         while let Ok(Some(network_response)) = network_worker.try_recv() {
             info!("worker response: {:?}", network_response);
             match network_response {
-                NetworkResponse::ConnectSuccess => connect_result.send(ConnectResult::Success),
+                NetworkResponse::ConnectSuccess => {
+                    connect_result.send(ConnectResult::Success);
+                }
                 NetworkResponse::ConnectFailure(e) => {
-                    connect_result.send(ConnectResult::Failure(e))
+                    connect_result.send(ConnectResult::Failure(e));
                 }
                 NetworkResponse::GithubAuth(result) => {
-                    login_result.send(LoginResult::GitHubWait(result))
+                    login_result.send(LoginResult::GitHubWait(result));
                 }
-                NetworkResponse::UserCreate(result) => create_user_result.send(result),
-                NetworkResponse::LoginSuccess => login_result.send(LoginResult::Success),
-                NetworkResponse::LoginFailure(e) => login_result.send(LoginResult::Failure(e)),
-                NetworkResponse::GameList(result) => game_list_result.send(result),
-                NetworkResponse::GameJoin(result) => game_join_result.send(result),
-                NetworkResponse::GameReconnect(result) => game_reconnect_result.send(result),
-                NetworkResponse::GameCreate(result) => game_create_result.send(result),
+                NetworkResponse::UserCreate(result) => {
+                    create_user_result.send(result);
+                }
+                NetworkResponse::LoginSuccess => {
+                    login_result.send(LoginResult::Success);
+                }
+                NetworkResponse::LoginFailure(e) => {
+                    login_result.send(LoginResult::Failure(e));
+                }
+                NetworkResponse::GameList(result) => {
+                    game_list_result.send(result);
+                }
+                NetworkResponse::GameJoin(result) => {
+                    game_join_result.send(result);
+                }
+                NetworkResponse::GameReconnect(result) => {
+                    game_reconnect_result.send(result);
+                }
+                NetworkResponse::GameCreate(result) => {
+                    game_create_result.send(result);
+                }
             }
         }
     }

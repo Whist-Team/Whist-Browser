@@ -18,7 +18,7 @@ impl Plugin for BaseUiPlugin {
                 scale_factor: 2.0,
                 ..default()
             })
-            .add_systems(OnExit(GameState::LoadingAssets), setup_fonts);
+            .add_systems(OnEnter(GameState::LoadingAssets), setup_fonts);
         app.add_plugins(FrameTimeDiagnosticsPlugin)
             .add_systems(Update, fps_text.in_set(MySystemSets::EguiTop));
     }
@@ -53,7 +53,7 @@ fn setup_fonts(mut egui_context: EguiContexts) {
 
 fn fps_text(mut egui_context: EguiContexts, diagnostics: Res<DiagnosticsStore>) {
     let fps = diagnostics
-        .get(FrameTimeDiagnosticsPlugin::FPS)
+        .get(&FrameTimeDiagnosticsPlugin::FPS)
         .unwrap()
         .average()
         .unwrap_or_default();

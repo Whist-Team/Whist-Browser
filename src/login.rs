@@ -48,6 +48,7 @@ impl fmt::Debug for GitHubAuthData {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // rust warns about an unread field, but we use it in the "Debug" impl
 enum LoginStatus {
     NotStarted,
     LoggingIn,
@@ -137,6 +138,7 @@ impl Default for UiState {
 }
 
 fn add_ui_state(mut commands: Commands) {
+    info!("starting LoginMenu");
     commands.init_resource::<UiState>();
 }
 

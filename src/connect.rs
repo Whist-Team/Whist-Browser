@@ -23,6 +23,7 @@ impl Plugin for ConnectMenuPlugin {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // rust warns about an unread field, but we use it in the "Debug" impl
 enum ConnectStatus {
     NotStarted,
     Connecting,
@@ -61,6 +62,7 @@ impl Default for UiState {
 }
 
 fn add_ui_state(mut commands: Commands) {
+    info!("starting ConnectMenu");
     commands.init_resource::<UiState>();
 }
 

@@ -26,6 +26,7 @@ impl Plugin for RoomMenuPlugin {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // rust warns about an unread field, but we use it in the "Debug" impl
 enum RoomStatus {
     Loading,
     Loaded,
@@ -114,6 +115,7 @@ fn game_to_string(game_id: impl AsRef<str>) -> String {
 }
 
 fn add_ui_state(mut commands: Commands) {
+    info!("starting RoomMenu");
     commands.init_resource::<UiState>();
 }
 
@@ -131,7 +133,7 @@ fn update_ui_state(
     mut event_writer: EventWriter<NetworkCommand>,
 ) {
     if matches!(ui_state.room_status, RoomStatus::Loading) {
-        event_writer.send(NetworkCommand::GameReconnect)
+        event_writer.send(NetworkCommand::GameReconnect);
     }
     if let Some(game_reconnect_result) = game_reconnect_results.read().last() {
         match &game_reconnect_result.0 {
@@ -143,7 +145,9 @@ fn update_ui_state(
                     }
                     _ => state.set(GameState::Ingame),
                 },
-                GameJoinStatus::NotJoined => event_writer.send(NetworkCommand::GetGameList),
+                GameJoinStatus::NotJoined => {
+                    event_writer.send(NetworkCommand::GetGameList);
+                }
             },
             Err(e) => {
                 ui_state.room_status = RoomStatus::Error(format!("{:?}", e));

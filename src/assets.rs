@@ -38,6 +38,19 @@ impl GameAssets {
     pub fn monospace_font(&self) -> Handle<Font> {
         self.monospace_font.to_owned()
     }
+
+    fn has_finished_preloading(&self, _server: &AssetServer) -> bool {
+        // TODO: make this more elegant
+        /*match server.get_group_load_state(assets.get_handles()) {
+            LoadState::Failed | LoadState::NotLoaded => {
+                panic!("error loading assets")
+            }
+            LoadState::Loaded => state.set(GameState::ConnectMenu),
+            _ => {}
+        };*/
+
+        true
+    }
 }
 
 fn load_assets(
@@ -45,7 +58,7 @@ fn load_assets(
     mut fonts: ResMut<Assets<Font>>,
     /*server: Res<AssetServer>,*/
 ) {
-    info!("loading assets...");
+    info!("pre-loading assets...");
     commands.insert_resource(GameAssets::new(
         fonts.add(Font::try_from_bytes(Vec::from(PROPORTIONAL_FONT)).unwrap()),
         fonts.add(Font::try_from_bytes(Vec::from(MONOSPACE_FONT)).unwrap()),
@@ -54,15 +67,11 @@ fn load_assets(
 
 fn update_assets(
     mut state: ResMut<NextState<GameState>>,
-    _server: Res<AssetServer>,
-    _assets: Res<GameAssets>,
+    server: Res<AssetServer>,
+    assets: Res<GameAssets>,
 ) {
-    /*match server.get_group_load_state(assets.get_handles()) {
-        LoadState::Failed | LoadState::NotLoaded => {
-            panic!("error loading assets")
-        }
-        LoadState::Loaded => state.set(GameState::ConnectMenu),
-        _ => {}
-    };*/
-    state.set(GameState::ConnectMenu);
+    if assets.has_finished_preloading(&server) {
+        info!("...finished pre-loading assets");
+        state.set(GameState::ConnectMenu);
+    }
 }
