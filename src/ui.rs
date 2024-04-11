@@ -14,10 +14,7 @@ pub struct BaseUiPlugin;
 impl Plugin for BaseUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(EguiPlugin)
-            .insert_resource(EguiSettings {
-                scale_factor: 2.0,
-                ..default()
-            })
+            .insert_resource(EguiSettings { scale_factor: 2.0 })
             .add_systems(OnEnter(GameState::LoadingAssets), setup_fonts);
         app.add_plugins(FrameTimeDiagnosticsPlugin)
             .add_systems(Update, fps_text.in_set(MySystemSets::EguiTop));
