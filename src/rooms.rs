@@ -140,7 +140,7 @@ fn update_ui_state(
             Ok(res) => match res.status {
                 GameJoinStatus::Joined | GameJoinStatus::AlreadyJoined => match res.password {
                     Some(true) => {
-                        ui_state.selected = res.room_id.clone();
+                        ui_state.selected.clone_from(&res.room_id);
                         ui_state.room_status = RoomStatus::JoinWindow
                     }
                     _ => state.set(GameState::Ingame),
@@ -157,7 +157,7 @@ fn update_ui_state(
     if let Some(game_list_result) = game_list_results.read().last() {
         match &game_list_result.0 {
             Ok(game_list) => {
-                ui_state.games = game_list.rooms.to_owned();
+                ui_state.games.clone_from(&game_list.rooms);
                 ui_state.room_status = RoomStatus::Loaded;
             }
             Err(e) => {

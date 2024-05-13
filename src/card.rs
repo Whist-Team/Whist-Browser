@@ -451,6 +451,7 @@ impl Extend<Card> for OrderedCards {
     }
 }
 
+#[allow(dead_code)]
 trait CardEnum: TryFrom<u8> {
     const COUNT: u8;
 
@@ -462,6 +463,7 @@ trait CardEnum: TryFrom<u8> {
     }
 }
 
+#[allow(dead_code)]
 pub trait CardContainer: FromIterator<Card> + IntoIterator<Item = Card> + Extend<Card> {
     fn all() -> Self {
         Self::from_iter(Card::all())
