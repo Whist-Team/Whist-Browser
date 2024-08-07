@@ -38,9 +38,6 @@ impl From<RankError> for CardError {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Component)]
-pub struct CardComponent(Card);
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CardVariant {
     Back,
