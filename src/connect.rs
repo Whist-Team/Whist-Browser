@@ -16,7 +16,7 @@ impl Plugin for ConnectMenuPlugin {
                 (update_ui_state, connect_menu)
                     .chain()
                     .run_if(in_state(GameState::ConnectMenu))
-                    .after(MySystemSets::EguiTop),
+                    .in_set(MySystemSets::Egui),
             )
             .add_systems(OnExit(GameState::ConnectMenu), remove_ui_state);
     }

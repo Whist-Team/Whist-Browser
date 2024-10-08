@@ -19,7 +19,7 @@ impl Plugin for LoginMenuPlugin {
                 (update_ui_state, login_menu)
                     .chain()
                     .run_if(in_state(GameState::LoginMenu))
-                    .after(MySystemSets::EguiTop),
+                    .in_set(MySystemSets::Egui),
             )
             .add_systems(OnExit(GameState::LoginMenu), remove_ui_state);
     }
