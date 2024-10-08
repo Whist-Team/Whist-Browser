@@ -14,10 +14,22 @@ pub struct BaseUiPlugin;
 impl Plugin for BaseUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(EguiPlugin)
-            .insert_resource(EguiSettings { scale_factor: 2.0 })
-            .add_systems(OnEnter(GameState::LoadingAssets), setup_fonts);
+            .add_systems(
+                PreStartup,
+                configure_egui_settings.in_set(MySystemSets::Egui),
+            )
+            .add_systems(
+                OnEnter(GameState::LoadingAssets),
+                setup_fonts.in_set(MySystemSets::Egui),
+            );
         app.add_plugins(FrameTimeDiagnosticsPlugin)
             .add_systems(Update, fps_text.in_set(MySystemSets::EguiTop));
+    }
+}
+
+fn configure_egui_settings(_egui_context: EguiContexts, mut query: Query<&mut EguiSettings>) {
+    if let Ok(mut settings) = query.get_single_mut() {
+        settings.scale_factor = 2.0;
     }
 }
 

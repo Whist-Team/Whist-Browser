@@ -1,11 +1,12 @@
-use bevy::prelude::*;
-
 use crate::assets::LoadingPlugin;
 use crate::connect::ConnectMenuPlugin;
 use crate::login::LoginMenuPlugin;
 use crate::network::NetworkPlugin;
 use crate::rooms::RoomMenuPlugin;
 use crate::ui::BaseUiPlugin;
+use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
+use bevy_egui::{EguiSet, EguiStartupSet};
 
 mod assets;
 mod card;
@@ -22,6 +23,7 @@ pub const EXPECTED_SERVER_VERSION: &str = "^0.7";
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum GameState {
     #[default]
+    Starting,
     LoadingAssets,
     ConnectMenu,
     LoginMenu,
@@ -31,6 +33,7 @@ pub enum GameState {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemSet)]
 pub enum MySystemSets {
+    Egui,
     EguiTop,
 }
 
@@ -39,7 +42,31 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
-            // .configure_set(MySystemSets::EguiTop.after(CoreSet::Update))
+            .configure_sets(
+                PreStartup,
+                MySystemSets::Egui.after(EguiStartupSet::InitContexts),
+            )
+            .configure_sets(
+                Startup,
+                MySystemSets::Egui.after(EguiStartupSet::InitContexts),
+            )
+            .configure_sets(
+                PostStartup,
+                MySystemSets::Egui.after(EguiStartupSet::InitContexts),
+            )
+            .configure_sets(
+                Update,
+                MySystemSets::EguiTop
+                    .run_if(egui_available)
+                    .after(EguiSet::InitContexts),
+            )
+            .configure_sets(
+                Update,
+                MySystemSets::Egui
+                    .run_if(egui_available)
+                    .after(MySystemSets::EguiTop),
+            )
+            .add_systems(PreStartup, switch_state.after(EguiStartupSet::InitContexts))
             .add_plugins((
                 BaseUiPlugin,
                 LoadingPlugin,
@@ -49,6 +76,14 @@ impl Plugin for GamePlugin {
                 RoomMenuPlugin,
             ));
     }
+}
+
+fn egui_available(query: Query<&PrimaryWindow>) -> bool {
+    !query.is_empty()
+}
+
+fn switch_state(mut state: ResMut<NextState<GameState>>) {
+    state.set(GameState::LoadingAssets);
 }
 
 pub fn cleanup_system<T: Component>(mut commands: Commands, query: Query<Entity, With<T>>) {

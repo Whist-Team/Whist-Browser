@@ -19,7 +19,7 @@ impl Plugin for RoomMenuPlugin {
                 (update_ui_state, room_menu)
                     .chain()
                     .run_if(in_state(GameState::RoomMenu))
-                    .after(MySystemSets::EguiTop),
+                    .in_set(MySystemSets::Egui),
             )
             .add_systems(OnExit(GameState::RoomMenu), remove_ui_state);
     }
