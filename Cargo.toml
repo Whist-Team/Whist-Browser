@@ -46,7 +46,7 @@ dev = [
 ]
 
 [dependencies]
-bevy = { version = "0.14", features = ["wayland", "asset_processor"] }
+bevy = { version = "0.15", features = ["wayland", "asset_processor"] }
 bevy_egui = { version = "0.30", default-features = false, features = ["render"] }
 reqwest = { version = "0.12", features = ["json"] }
 serde = { version = "1", features = ["derive"] }
