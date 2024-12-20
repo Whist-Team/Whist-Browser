@@ -46,8 +46,8 @@ dev = [
 ]
 
 [dependencies]
-bevy = { version = "0.14", features = ["wayland", "asset_processor"] }
-bevy_egui = { version = "0.30", default-features = false, features = ["render"] }
+bevy = { version = "0.15", features = ["wayland", "asset_processor"] }
+bevy_egui = { version = "0.31", default-features = false, features = ["render"] }
 reqwest = { version = "0.12", features = ["json"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -57,7 +57,7 @@ futures = "0.3"
 
 # keep the following in sync with Bevy's dependencies
 #winit = { version = "0.30", default-features = false }
-#image = { version = "0.25", default-features = false }
+#image = { version = "0.25.2", default-features = false }
 
 # This greatly improves WGPU's performance due to its heavy use of trace! calls
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
@@ -78,7 +78,7 @@ features = ["json", "websocket"]
 version = "0.2"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies.tokio-tungstenite]
-version = "0.24"
+version = "0.26"
 features = ["url"]
 
 [dev-dependencies]
