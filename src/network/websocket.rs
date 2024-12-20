@@ -116,12 +116,11 @@ impl WebSocketSender {
 
 #[cfg(not(target_family = "wasm"))]
 impl WebSocketSender {
-    pub async fn send_text(&mut self, data: impl Into<String>) -> Result<(), WebSocketError> {
-        self.sink
-            .send(tokio_tungstenite::tungstenite::protocol::Message::Text(
-                data.into(),
-            ))
-            .await?;
+    pub async fn send_text(
+        &mut self,
+        data: impl Into<tokio_tungstenite::tungstenite::protocol::Message>,
+    ) -> Result<(), WebSocketError> {
+        self.sink.send(data.into()).await?;
         Ok(())
     }
 }
@@ -147,8 +146,8 @@ impl WebSocketReceiver {
 #[cfg(target_family = "wasm")]
 impl WebSocketReceiver {
     pub async fn recv_text(&mut self) -> Result<String, WebSocketError> {
-        match self.stream.try_next().await?.unwrap() {
-            gloo_net::websocket::Message::Text(data) => Ok(data),
+        match self.stream.try_next().await? {
+            Some(gloo_net::websocket::Message::Text(data)) => Ok(data),
             _ => Err(WebSocketError::UnexpectedMessageType),
         }
     }
@@ -157,8 +156,10 @@ impl WebSocketReceiver {
 #[cfg(not(target_family = "wasm"))]
 impl WebSocketReceiver {
     pub async fn recv_text(&mut self) -> Result<String, WebSocketError> {
-        match self.stream.try_next().await?.unwrap() {
-            tokio_tungstenite::tungstenite::protocol::Message::Text(data) => Ok(data),
+        match self.stream.try_next().await? {
+            Some(tokio_tungstenite::tungstenite::protocol::Message::Text(data)) => {
+                Ok(data.to_string())
+            }
             _ => Err(WebSocketError::UnexpectedMessageType),
         }
     }
