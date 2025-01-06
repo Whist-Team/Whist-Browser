@@ -1,10 +1,9 @@
-use std::collections::BTreeMap;
-
+use crate::{GameState, MySystemSets};
 use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts, EguiPlugin, EguiSettings};
-
-use crate::{GameState, MySystemSets};
+use bevy_egui::{egui, EguiContextSettings, EguiContexts, EguiPlugin};
+use egui::{FontData, FontDefinitions, FontFamily};
+use std::sync::Arc;
 
 pub const PROPORTIONAL_FONT: &[u8] = include_bytes!("../assets/font/fira_go/FiraGO-Regular.ttf");
 pub const MONOSPACE_FONT: &[u8] = include_bytes!("../assets/font/fira_mono/FiraMono-Regular.ttf");
@@ -27,37 +26,36 @@ impl Plugin for BaseUiPlugin {
     }
 }
 
-fn configure_egui_settings(_egui_context: EguiContexts, mut query: Query<&mut EguiSettings>) {
+fn configure_egui_settings(
+    _egui_context: EguiContexts,
+    mut query: Query<&mut EguiContextSettings>,
+) {
     if let Ok(mut settings) = query.get_single_mut() {
         settings.scale_factor = 2.0;
     }
 }
 
 fn setup_fonts(mut egui_context: EguiContexts) {
-    let mut font_data: BTreeMap<String, egui::FontData> = BTreeMap::new();
-    font_data.insert(
+    let mut font_defs = FontDefinitions::empty();
+    font_defs.font_data.insert(
         "FiraMono-Regular".to_owned(),
-        egui::FontData::from_static(PROPORTIONAL_FONT),
+        Arc::new(FontData::from_static(PROPORTIONAL_FONT)),
     );
-    font_data.insert(
+    font_defs.font_data.insert(
         "FiraGO-Regular".to_owned(),
-        egui::FontData::from_static(MONOSPACE_FONT),
+        Arc::new(FontData::from_static(MONOSPACE_FONT)),
     );
 
-    let mut families: BTreeMap<egui::FontFamily, Vec<String>> = BTreeMap::new();
-    families.insert(
-        egui::FontFamily::Proportional,
+    font_defs.families.insert(
+        FontFamily::Proportional,
         vec!["FiraGO-Regular".to_owned(), "FiraMono-Regular".to_owned()],
     );
-    families.insert(
-        egui::FontFamily::Monospace,
+    font_defs.families.insert(
+        FontFamily::Monospace,
         vec!["FiraMono-Regular".to_owned(), "FiraGO-Regular".to_owned()],
     );
 
-    egui_context.ctx_mut().set_fonts(egui::FontDefinitions {
-        font_data,
-        families,
-    });
+    egui_context.ctx_mut().set_fonts(font_defs);
 }
 
 fn fps_text(mut egui_context: EguiContexts, diagnostics: Res<DiagnosticsStore>) {

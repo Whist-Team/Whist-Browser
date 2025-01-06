@@ -6,7 +6,7 @@ use crate::rooms::RoomMenuPlugin;
 use crate::ui::BaseUiPlugin;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use bevy_egui::{EguiSet, EguiStartupSet};
+use bevy_egui::EguiStartupSet;
 
 mod assets;
 mod card;
@@ -54,12 +54,7 @@ impl Plugin for GamePlugin {
                 PostStartup,
                 MySystemSets::Egui.after(EguiStartupSet::InitContexts),
             )
-            .configure_sets(
-                Update,
-                MySystemSets::EguiTop
-                    .run_if(egui_available)
-                    .after(EguiSet::InitContexts),
-            )
+            .configure_sets(Update, MySystemSets::EguiTop.run_if(egui_available))
             .configure_sets(
                 Update,
                 MySystemSets::Egui
