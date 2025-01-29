@@ -7,12 +7,12 @@
     <title>Whist</title>
     
     <base href="Whist-Browser/" />
-<link rel="modulepreload" nonce="{{__TRUNK NONCE__}}" href="Whist-Browser/whist_browser-9332e235816c5a8.js" crossorigin="anonymous" integrity="sha384-TcFkGDI5b/7ThKSOkftaACi8KH7BbeKL3cEUnUlVqzX0uuP3HueHfBZ20B0aBn/q"><link rel="preload" nonce="{{__TRUNK NONCE__}}" href="Whist-Browser/whist_browser-9332e235816c5a8_bg.wasm" crossorigin="anonymous" integrity="sha384-qGM7m2zA3ISkQ4wvoYTa4QB3CKiPP8QFcUTgM6F2bM3lQRG2SWMP7V3V+843YavF" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="Whist-Browser/whist_browser-ea0c6c390092a6f5.js" crossorigin="anonymous" integrity="sha384-nmlT6ZbKyAzLyT6bRT0THC2tPeczZDV0Wb6HcyUGvruBmLxHnOfhWF31JI64CIep"><link rel="preload" href="Whist-Browser/whist_browser-ea0c6c390092a6f5_bg.wasm" crossorigin="anonymous" integrity="sha384-DtdSMHAwvVe5AItXkEKuoi7b15bano+SXh5jjGnjZBKb0pncAcLaogxVQYiFq7S4" as="fetch" type="application/wasm"></head>
 <body>
 
-<script type="module" nonce="{{__TRUNK NONCE__}}">
-import init, * as bindings from 'Whist-Browser/whist_browser-9332e235816c5a8.js';
-const wasm = await init({ module_or_path: 'Whist-Browser/whist_browser-9332e235816c5a8_bg.wasm' });
+<script type="module">
+import init, * as bindings from 'Whist-Browser/whist_browser-ea0c6c390092a6f5.js';
+const wasm = await init({ module_or_path: 'Whist-Browser/whist_browser-ea0c6c390092a6f5_bg.wasm' });
 
 
 window.wasmBindings = bindings;
