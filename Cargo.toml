@@ -2,7 +2,8 @@
 name = "whist_browser"
 version = "0.1.0"
 authors = ["Whist Team"]
-edition = "2021"
+edition = "2024"
+rust-version = "1.85"
 license = "MIT"
 publish = false
 repository = "https://github.com/Whist-Team/Whist-Browser"
@@ -63,8 +64,8 @@ futures = "0.3"
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
 
 [target.'cfg(target_family = "wasm")'.dependencies.getrandom]
-version = "0.2"
-features = ["js"]
+version = "0.3"
+features = ["wasm_js"]
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies.async-compat]
 version = "0.2"
