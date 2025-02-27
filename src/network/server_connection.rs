@@ -1,10 +1,10 @@
 use std::fmt::{Debug, Formatter};
 
 use bevy::prelude::*;
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT};
+use reqwest::header::{ACCEPT, HeaderMap, HeaderValue};
 use reqwest::{Client, Error, IntoUrl, Method, Response, Url};
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 pub enum Query<'a, S: Serialize + Debug = ()> {
     None,

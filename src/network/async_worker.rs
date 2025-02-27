@@ -3,8 +3,8 @@ use std::future::Future;
 
 use bevy::prelude::*;
 use bevy::tasks::TaskPool;
-use futures::channel::mpsc::{unbounded, TryRecvError, UnboundedReceiver, UnboundedSender};
 use futures::StreamExt;
+use futures::channel::mpsc::{TryRecvError, UnboundedReceiver, UnboundedSender, unbounded};
 
 #[derive(Resource)]
 pub struct Worker<I: Debug, O: Debug> {

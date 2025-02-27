@@ -1,7 +1,7 @@
 use std::{env, fmt};
 
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{EguiContexts, egui};
 
 use crate::network::{
     GitHubAuthRequest, GitHubTempTokenResult, LoginForm, LoginResult, NetworkCommand,

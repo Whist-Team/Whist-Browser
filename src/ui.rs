@@ -1,7 +1,7 @@
 use crate::{GameState, MySystemSets};
 use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContextSettings, EguiContexts, EguiPlugin};
+use bevy_egui::{EguiContextSettings, EguiContexts, EguiPlugin, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use std::sync::Arc;
 

@@ -12,7 +12,7 @@
 
 use std::{env, io::Error};
 
-use futures::{future, StreamExt, TryStreamExt};
+use futures::{StreamExt, TryStreamExt, future};
 use tokio::net::{TcpListener, TcpStream};
 
 #[tokio::main]

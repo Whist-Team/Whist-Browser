@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use bevy_egui::egui::scroll_area::ScrollBarVisibility;
 use bevy_egui::egui::Ui;
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::egui::scroll_area::ScrollBarVisibility;
+use bevy_egui::{EguiContexts, egui};
 
 use crate::network::{
     GameCreateRequest, GameCreateResult, GameJoinRequest, GameJoinResult, GameJoinStatus,

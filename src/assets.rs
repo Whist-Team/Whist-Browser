@@ -1,8 +1,8 @@
 use bevy::asset::Handle;
 use bevy::prelude::*;
 
-use crate::ui::{MONOSPACE_FONT, PROPORTIONAL_FONT};
 use crate::GameState;
+use crate::ui::{MONOSPACE_FONT, PROPORTIONAL_FONT};
 
 pub struct LoadingPlugin;
 

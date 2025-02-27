@@ -3,8 +3,8 @@ use std::fmt::Debug;
 use futures::stream::{SplitSink, SplitStream};
 use futures::{SinkExt, StreamExt, TryStreamExt};
 use reqwest::{IntoUrl, Url};
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 #[derive(Debug)]
 pub enum WebSocketError {
