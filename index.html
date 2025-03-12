@@ -7,12 +7,12 @@
     <title>Whist</title>
     
     <base href="Whist-Browser/" />
-<link rel="modulepreload" href="Whist-Browser/whist_browser-ce46cab6a48eb549.js" crossorigin="anonymous" integrity="sha384-OIAEjBVJmXaNh/1O7AemJxHFjqYX7Aol2R1JwgSmAVqyVZgVKzh4xHprbha+0VZ2"><link rel="preload" href="Whist-Browser/whist_browser-ce46cab6a48eb549_bg.wasm" crossorigin="anonymous" integrity="sha384-bP1xCqh8TpWsEaP5oiZZf5O9hW5pB0jw2GO778LXzmDDVpvK13AlhZnDTQAReuaj" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="Whist-Browser/whist_browser-7346f0a00e00cfc5.js" crossorigin="anonymous" integrity="sha384-GjcNuhbRoQF0i2027A71YzbLrFB+4jEJAH9lkTVtmP3SmAukeLMjlMoYJjZu04g9"><link rel="preload" href="Whist-Browser/whist_browser-7346f0a00e00cfc5_bg.wasm" crossorigin="anonymous" integrity="sha384-VMcwZBv7aBDhBYYvv+CeAnqCmwR89lMdGs4HFX1N9SHo9qeCmeUilYbcDDIwGYOo" as="fetch" type="application/wasm"></head>
 <body>
 
 <script type="module">
-import init, * as bindings from 'Whist-Browser/whist_browser-ce46cab6a48eb549.js';
-const wasm = await init({ module_or_path: 'Whist-Browser/whist_browser-ce46cab6a48eb549_bg.wasm' });
+import init, * as bindings from 'Whist-Browser/whist_browser-7346f0a00e00cfc5.js';
+const wasm = await init({ module_or_path: 'Whist-Browser/whist_browser-7346f0a00e00cfc5_bg.wasm' });
 
 
 window.wasmBindings = bindings;
