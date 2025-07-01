@@ -150,7 +150,7 @@ fn update_ui_state(
                 }
             },
             Err(e) => {
-                ui_state.room_status = RoomStatus::Error(format!("{:?}", e));
+                ui_state.room_status = RoomStatus::Error(format!("{e:?}"));
             }
         }
     }
