@@ -178,7 +178,7 @@ fn update_ui_state(
         match &register_result.0 {
             Ok(_) => ui_state.login_status = LoginStatus::NotStarted,
             Err(e) => {
-                ui_state.login_status = LoginStatus::RegisteringError(format!("{:?}", e));
+                ui_state.login_status = LoginStatus::RegisteringError(format!("{e:?}"));
             }
         }
     }
