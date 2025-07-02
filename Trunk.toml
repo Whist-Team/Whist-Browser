@@ -1,3 +1,6 @@
+[build]
+minify = "on_release"
+
 [watch]
 watch = ["src", "assets", "Cargo.toml", "Cargo.lock"]
 
