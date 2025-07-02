@@ -1,25 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Whist</title>
-    
-    <base href="Whist-Browser/" />
-<link rel="modulepreload" href="Whist-Browser/whist_browser-96481b18fce8df0c.js" crossorigin="anonymous" integrity="sha384-YP+fiMbpZnqvmb8nS0qPqDUraBRyRsvmtXRsbMAb6IS/1ek/29GNOFuJP9817Tww"><link rel="preload" href="Whist-Browser/whist_browser-96481b18fce8df0c_bg.wasm" crossorigin="anonymous" integrity="sha384-oLPM9abno1gDkMvjKPj6RRrxCT5HwhVXI3izny7tpxMyhZCu3d3+14IggjGVGFoS" as="fetch" type="application/wasm"></head>
-<body>
-
-<script type="module">
-import init, * as bindings from 'Whist-Browser/whist_browser-96481b18fce8df0c.js';
-const wasm = await init({ module_or_path: 'Whist-Browser/whist_browser-96481b18fce8df0c_bg.wasm' });
+<!doctype html><meta charset=utf-8><meta content="width=device-width,initial-scale=1.0" name=viewport><meta content="ie=edge" http-equiv=X-UA-Compatible><title>Whist</title><base href=Whist-Browser/><link crossorigin href=Whist-Browser/whist_browser-1d1ad7b1c0036875.js integrity=sha384-5TqF/xxVlnN7IXukrOF3a6frJxCnCUEONp8WdAHFd3oBlJWjRKy/sngi/MKdvp1j rel=modulepreload><link as=fetch crossorigin href=Whist-Browser/whist_browser-1d1ad7b1c0036875_bg.wasm integrity=sha384-6ABdo1ED1ikuFIPt62Dbmg5gd6lhDj04hcdTDP+xjG2yOZjDradcXp8Ew6+dqDLQ rel=preload type=application/wasm></head><body><script type=module>import init, * as bindings from 'Whist-Browser/whist_browser-1d1ad7b1c0036875.js';
+const wasm = await init({ module_or_path: 'Whist-Browser/whist_browser-1d1ad7b1c0036875_bg.wasm' });
 
 
 window.wasmBindings = bindings;
 
 
-dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
-
-</script>
-</body>
-</html>
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));</script></body></html>
