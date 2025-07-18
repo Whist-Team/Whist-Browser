@@ -21,7 +21,7 @@ jobs:
         with:
           target: wasm32-unknown-unknown
       - name: Install trunk
-        uses: jetli/trunk-action@v0.5.0
+        uses: jetli/trunk-action@v0.5.1
         with:
           version: 'latest'
       - uses: Swatinem/rust-cache@v2
